@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026/5/24 2:31:35",
+  "updatedAt": "2026/5/24 2:33:54",
   "matches": [
     {
       "kickoffUTC": "2026-05-23T18:45:00Z",
@@ -7,80 +7,6 @@
       "away": "AC Pisa 1909",
       "league": "Serie A",
       "lClass": "l-serie",
-      "japanese": []
-    },
-    {
-      "kickoffUTC": "2026-05-23T19:00:00Z",
-      "home": "Deportivo Alavés",
-      "away": "Rayo Vallecano de Madrid",
-      "league": "LaLiga",
-      "lClass": "l-laliga",
-      "japanese": []
-    },
-    {
-      "kickoffUTC": "2026-05-23T19:00:00Z",
-      "home": "Real Betis Balompié",
-      "away": "Levante UD",
-      "league": "LaLiga",
-      "lClass": "l-laliga",
-      "japanese": []
-    },
-    {
-      "kickoffUTC": "2026-05-23T19:00:00Z",
-      "home": "RC Celta de Vigo",
-      "away": "Sevilla FC",
-      "league": "LaLiga",
-      "lClass": "l-laliga",
-      "japanese": []
-    },
-    {
-      "kickoffUTC": "2026-05-23T19:00:00Z",
-      "home": "RCD Espanyol de Barcelona",
-      "away": "Real Sociedad de Fútbol",
-      "league": "LaLiga",
-      "lClass": "l-laliga",
-      "japanese": [
-        "久保建英"
-      ]
-    },
-    {
-      "kickoffUTC": "2026-05-23T19:00:00Z",
-      "home": "Getafe CF",
-      "away": "CA Osasuna",
-      "league": "LaLiga",
-      "lClass": "l-laliga",
-      "japanese": []
-    },
-    {
-      "kickoffUTC": "2026-05-23T19:00:00Z",
-      "home": "RCD Mallorca",
-      "away": "Real Oviedo",
-      "league": "LaLiga",
-      "lClass": "l-laliga",
-      "japanese": []
-    },
-    {
-      "kickoffUTC": "2026-05-23T19:00:00Z",
-      "home": "Real Madrid CF",
-      "away": "Athletic Club",
-      "league": "LaLiga",
-      "lClass": "l-laliga",
-      "japanese": []
-    },
-    {
-      "kickoffUTC": "2026-05-23T19:00:00Z",
-      "home": "Valencia CF",
-      "away": "FC Barcelona",
-      "league": "LaLiga",
-      "lClass": "l-laliga",
-      "japanese": []
-    },
-    {
-      "kickoffUTC": "2026-05-23T19:00:00Z",
-      "home": "Girona FC",
-      "away": "Elche CF",
-      "league": "LaLiga",
-      "lClass": "l-laliga",
       "japanese": []
     },
     {
@@ -224,14 +150,6 @@
       "away": "Genoa CFC",
       "league": "Serie A",
       "lClass": "l-serie",
-      "japanese": []
-    },
-    {
-      "kickoffUTC": "2026-05-24T19:00:00Z",
-      "home": "Villarreal CF",
-      "away": "Club Atlético de Madrid",
-      "league": "LaLiga",
-      "lClass": "l-laliga",
       "japanese": []
     },
     {
