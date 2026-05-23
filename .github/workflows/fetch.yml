@@ -1,0 +1,30 @@
+name: Fetch Football Data
+
+on:
+  schedule:
+    - cron: '0 22 * * *'  # 毎日07:00 JST
+  workflow_dispatch:        # 手動実行ボタンも使えるように
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Fetch matches
+        run: node scripts/fetch.js
+        env:
+          FOOTBALL_DATA_API_KEY: ${{ secrets.FOOTBALL_DATA_API_KEY }}
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add data/matches.json
+          git diff --cached --quiet || git commit -m "Update matches data"
+          git push
