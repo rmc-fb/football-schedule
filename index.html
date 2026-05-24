@@ -249,7 +249,7 @@ const TEAM_JA = {
   "Wolverhampton":   "ウルヴス",
   "Leeds United":    "リーズ",
   "Brighton":        "ブライトン",
-  "Brighton Hove":　 "ブライトン"　
+  "Brighton Hove":　 "ブライトン",
   "Liverpool":       "リバプール",
   "Arsenal":         "アーセナル",
   "Chelsea":         "チェルシー",
@@ -415,15 +415,6 @@ function isFinished(kickoffUTC) {
 // ── JSONデータ読み込み ──
 const DATA_URL = 'data/matches.json';
 let MATCHES = [];
-
-// URLハッシュからタブを復元
-const hash = location.hash.replace('#', '');
-if (['europe', 'japanese', 'national'].includes(hash)) {
-  currentTab = hash;
-  document.querySelectorAll(".main-nav button").forEach(b => {
-    b.classList.toggle("active", b.getAttribute("onclick").includes(hash));
-  });
-}
   
 async function loadData() {
   try {
@@ -440,6 +431,14 @@ async function loadData() {
 }
 
 let currentTab = "europe", fLeague = "all";
+// URLハッシュからタブを復元
+const hash = location.hash.replace('#', '');
+if (['europe', 'japanese', 'national'].includes(hash)) {
+  currentTab = hash;
+  document.querySelectorAll(".main-nav button").forEach(b => {
+    b.classList.toggle("active", b.getAttribute("onclick").includes(hash));
+  });
+}
 const todayJST = toJSTDate(new Date().toISOString());
 const DOW = ["日","月","火","水","木","金","土"];
 
