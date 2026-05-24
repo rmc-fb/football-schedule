@@ -2,21 +2,26 @@ const fs = require('fs');
 
 async function main() {
   const apiKey = process.env.RAPIDAPI_KEY;
-  // このAPIの正しいURL（RapidAPIのページで確認できます）
-  // ページ内の「Endpoints」タブにある情報を参考にしてください
-  const url = 'https://free-api-live-football-data.p.rapidapi.com/football-live-scores'; // 仮のURLです、違ったら教えてください
+  // URLは「RapidAPI」の画面で、使いたいAPIの「Endpoints」にあるものを確認してください
+  const url = 'https://free-api-live-football-data.p.rapidapi.com/football-live-scores'; 
 
   const headers = {
     'x-rapidapi-key': apiKey,
     'x-rapidapi-host': 'free-api-live-football-data.p.rapidapi.com'
   };
 
+  console.log("Fetching data from API...");
+  
   const res = await fetch(url, { headers });
-  const json = await res.json();
+  const data = await res.json();
 
-  // ログに全データを出す（これでデータの構造が分かる！）
-  console.log("--- API DATA STRUCTURE ---");
-  console.log(JSON.stringify(json, null, 2));
+  // ★ここにデータの中身をすべてログに出力する
+  console.log("--- API FULL RESPONSE START ---");
+  console.log(JSON.stringify(data, null, 2));
+  console.log("--- API FULL RESPONSE END ---");
 }
 
-main().catch(console.error);
+main().catch(err => {
+  console.error("Error occurred:", err);
+  process.exit(1);
+});
