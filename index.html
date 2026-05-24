@@ -581,6 +581,10 @@ function render() {
   document.getElementById("content").innerHTML = html;
 }
 
+// 既存のハッシュ復元コードの直後に追加
+if (currentTab === "national") {
+  document.querySelector(".filter-bar").style.display = "none";
+}  
 loadData();
 setInterval(loadData, 60 * 60 * 1000);
 setInterval(render, 60 * 1000);
