@@ -1,17 +1,6 @@
 {
-  "updatedAt": "2026-05-25 00:06",
+  "updatedAt": "2026-05-25 00:12",
   "matches": [
-    {
-      "kickoffUTC": "2026-05-24T15:00:00Z",
-      "home": "Brighton Hove",
-      "away": "Man United",
-      "homeCrest": "https://crests.football-data.org/397.png",
-      "awayCrest": "https://crests.football-data.org/66.png",
-      "league": "EPL",
-      "lClass": "l-epl",
-      "japanese": [],
-      "national": false
-    },
     {
       "kickoffUTC": "2026-05-24T15:00:00Z",
       "home": "Nottingham",
@@ -58,21 +47,10 @@
     },
     {
       "kickoffUTC": "2026-05-24T15:00:00Z",
-      "home": "Man City",
-      "away": "Aston Villa",
-      "homeCrest": "https://crests.football-data.org/65.png",
-      "awayCrest": "https://crests.football-data.org/58.png",
-      "league": "EPL",
-      "lClass": "l-epl",
-      "japanese": [],
-      "national": false
-    },
-    {
-      "kickoffUTC": "2026-05-24T15:00:00Z",
-      "home": "Crystal Palace",
-      "away": "Arsenal",
-      "homeCrest": "https://crests.football-data.org/354.png",
-      "awayCrest": "https://crests.football-data.org/57.png",
+      "home": "Brighton Hove",
+      "away": "Man United",
+      "homeCrest": "https://crests.football-data.org/397.png",
+      "awayCrest": "https://crests.football-data.org/66.png",
       "league": "EPL",
       "lClass": "l-epl",
       "japanese": [],
@@ -106,6 +84,28 @@
       "away": "Chelsea",
       "homeCrest": "https://crests.football-data.org/71.png",
       "awayCrest": "https://crests.football-data.org/61.png",
+      "league": "EPL",
+      "lClass": "l-epl",
+      "japanese": [],
+      "national": false
+    },
+    {
+      "kickoffUTC": "2026-05-24T15:00:00Z",
+      "home": "Man City",
+      "away": "Aston Villa",
+      "homeCrest": "https://crests.football-data.org/65.png",
+      "awayCrest": "https://crests.football-data.org/58.png",
+      "league": "EPL",
+      "lClass": "l-epl",
+      "japanese": [],
+      "national": false
+    },
+    {
+      "kickoffUTC": "2026-05-24T15:00:00Z",
+      "home": "Crystal Palace",
+      "away": "Arsenal",
+      "homeCrest": "https://crests.football-data.org/354.png",
+      "awayCrest": "https://crests.football-data.org/57.png",
       "league": "EPL",
       "lClass": "l-epl",
       "japanese": [],
