@@ -259,16 +259,13 @@ async function testSportDB() {
   const key = process.env.SPORTDB_KEY;
   if (!key) { console.log('SPORTDB_KEY なし'); return; }
   console.log('\n🧪 SportDB テスト開始...');
-  const r0 = await fetch('https://api.sportdb.dev/api/football/countries', {
+
+  // ベルギーの試合を取得
+  const res = await fetch('https://api.sportdb.dev/api/football/belgium/first-division-a/2024-2025/fixtures', {
     headers: { 'X-API-Key': key }
   });
-  const d0 = await r0.json();
-  console.log('国一覧:', JSON.stringify(d0).slice(0, 500));
-  const r1 = await fetch('https://api.sportdb.dev/api/football/belgium', {
-    headers: { 'X-API-Key': key }
-  });
-  const d1 = await r1.json();
-  console.log('ベルギー:', JSON.stringify(d1).slice(0, 500));
+  const data = await res.json();
+  console.log('ベルギー:', JSON.stringify(data).slice(0, 500));
 }
 
 main()
