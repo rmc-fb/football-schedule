@@ -18,8 +18,6 @@ const COMPETITION_MAP = {
   // 代表戦
   'WC':  { key: 'World Cup',        lClass: 'l-champ',  national: true  },
   'EC':  { key: 'Euro',             lClass: 'l-champ',  national: true  },
-  'CLI': { key: 'Copa Libertadores',lClass: 'l-champ',  national: false }, // クラブ大会
-  'BSA': { key: 'Brasileirao',      lClass: 'l-ligap',  national: false },
 };
  
 // 代表戦として扱う competition code
