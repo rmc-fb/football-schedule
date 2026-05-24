@@ -70,9 +70,17 @@ async function main() {
   const dateFrom = toDateStr(now);
   const dateTo = toDateStr(new Date(now.getTime() + 9 * 24 * 60 * 60 * 1000));
  
-  console.log(`取得期間: ${dateFrom} 〜 ${dateTo}`);
-  const raw = await fetchMatches(dateFrom, dateTo);
-  console.log(`  → ${raw.length}件取得`);
+  // 10日ずつ3回に分けて取得（APIの10日制限対策）
+  let raw = [];
+  for (let i = 0; i < 3; i++) {
+    const from = toDateStr(new Date(now.getTime() + i * 10 * 24 * 60 * 60 * 1000));
+    const to   = toDateStr(new Date(now.getTime() + (i * 10 + 9) * 24 * 60 * 60 * 1000));
+    console.log(`取得期間: ${from} 〜 ${to}`);
+    const chunk = await fetchMatches(from, to);
+    console.log(`  → ${chunk.length}件取得`);
+    raw = raw.concat(chunk);
+    await sleep(1000);
+  }
  
   const allMatches = [];
  
