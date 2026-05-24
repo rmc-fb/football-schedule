@@ -258,5 +258,6 @@ async function testSportDB() {
   console.log('親善試合:', JSON.stringify(d2).slice(0, 300));
 }
 
-testSportDB().catch(console.error);
-main().catch(err => { console.error(err); process.exit(1); });
+main()
+  .then(() => testSportDB())
+  .catch(err => { console.error(err); process.exit(1); });
