@@ -4,7 +4,7 @@ async function main() {
   const apiKey = process.env.RAPIDAPI_KEY;
   const baseUrl = 'https://api-football-v1.p.rapidapi.com/v3';
   
-  // 取得したいリーグとシーズン（例: 39はプレミアリーグ）
+  // 取得したいリーグとシーズン
   const league = 39; 
   const season = 2025;
 
@@ -19,14 +19,20 @@ async function main() {
   const res = await fetch(`${baseUrl}/fixtures?league=${league}&season=${season}`, { headers });
   const json = await res.json();
 
+  // ★ここにログ出力処理を追加（これで何が返ってきているか確認します）
+  console.log("--- API Response Start ---");
+  console.log(JSON.stringify(json, null, 2));
+  console.log("--- API Response End ---");
+
   // 2. データを整形して保存
   const output = {
     updatedAt: new Date().toLocaleString('ja-JP', {timeZone: 'Asia/Tokyo'}),
+    // ここでエラーが出ているので、ログを確認して修正します
     matches: json.response.map(m => ({
       kickoffUTC: m.fixture.date,
       home: m.teams.home.name,
       away: m.teams.away.name,
-      league: 'EPL', // サイト側で使っている識別子に合わせる
+      league: 'EPL',
       lClass: 'l-epl'
     }))
   };
