@@ -12,6 +12,7 @@ const COMPETITION_MAP = {
   'PPL': { key: 'Liga Portugal',    lClass: 'l-ligap',  national: false },
   'DED': { key: 'Eredivisie',       lClass: 'l-erediv', national: false },
   'SPL': { key: 'Scottish Prem',    lClass: 'l-spl',    national: false },
+  'ELC': { key: 'Championship',     lClass: 'l-champ2', national: false },
   'CL':  { key: 'Champions League', lClass: 'l-champ',  national: false },
   'EL':  { key: 'Europa League',    lClass: 'l-uel',    national: false },
   'WC':  { key: 'World Cup',        lClass: 'l-champ',  national: true  },
