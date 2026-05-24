@@ -1,202 +1,594 @@
-const fs = require('fs');
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>海外サッカー 日程</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+JP:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #1a2540;
+  --surface: #131929;
+  --surf2:   #182035;
+  --border:  #1e2d48;
+  --accent:  #e63323;
+  --gold:    #f5c842;
+  --text:    #dde4f0;
+  --muted:   #5a6a8a;
+  --green:   #22c55e;
+  --main-bg: #1a2540;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Noto Sans JP',sans-serif; background:var(--main-bg); color:var(--text); min-height:100vh; }
 
-const apiKey = process.env.DAIHYO;
-const BASE = 'https://api.football-data.org/v4';
+/* HEADER */
+header { background:var(--surface); border-bottom:1px solid var(--border); }
+.header-inner { max-width:1100px; margin:0 auto; padding:16px 20px 0; }
+.site-title { display:flex; align-items:center; gap:12px; padding-bottom:14px; }
+.site-title h1 { font-family:'Bebas Neue',sans-serif; font-size:1.7rem; letter-spacing:.08em; color:#fff; line-height:1; }
+.site-title p  { font-size:.68rem; color:var(--muted); letter-spacing:.1em; margin-top:3px; }
+.updated { margin-left:auto; font-size:.68rem; color:var(--muted); text-align:right; line-height:1.6; }
+.updated b { color:var(--green); }
 
-const COMPETITION_MAP = {
-  'PL':  { key: 'EPL',              lClass: 'l-epl',    national: false },
-  'PD':  { key: 'LaLiga',           lClass: 'l-laliga', national: false },
-  'BL1': { key: 'Bundesliga',       lClass: 'l-bund',   national: false },
-  'SA':  { key: 'Serie A',          lClass: 'l-serie',  national: false },
-  'FL1': { key: 'Ligue 1',          lClass: 'l-ligue',  national: false },
-  'PPL': { key: 'Liga Portugal',    lClass: 'l-ligap',  national: false },
-  'DED': { key: 'Eredivisie',       lClass: 'l-erediv', national: false },
-  'SPL': { key: 'Scottish Prem',    lClass: 'l-scot',   national: false },
-  'CL':  { key: 'Champions League', lClass: 'l-champ',  national: false },
-  'EL':  { key: 'Europa League',    lClass: 'l-uel',    national: false },
-  'WC':  { key: 'World Cup',        lClass: 'l-champ',  national: true  },
-  'EC':  { key: 'Euro',             lClass: 'l-champ',  national: true  },
+/* MAIN NAV ② overflow削除・flex:1で3等分 */
+.main-nav {
+  display:flex;
+  gap:2px;
+}
+.main-nav button {
+  font-family:'Noto Sans JP',sans-serif; font-size:.8rem; font-weight:700;
+  letter-spacing:.04em; padding:9px 12px;
+  flex:1; text-align:center;
+  background:transparent; color:var(--muted);
+  border:none; border-bottom:3px solid transparent;
+  cursor:pointer; transition:all .2s; white-space:nowrap;
+}
+.main-nav button:hover { color:var(--text); }
+.main-nav button.active { color:#fff; border-bottom-color:var(--accent); background:rgba(230,51,35,.06); }
+
+/* FILTER BAR */
+.filter-bar { background:var(--surf2); border-bottom:1px solid var(--border); }
+.filter-inner {
+  max-width:1100px; margin:0 auto; padding:8px 20px;
+  display:flex; flex-wrap:wrap; gap:8px; align-items:center;
+}
+.f-label { font-size:.68rem; color:var(--muted); letter-spacing:.1em; text-transform:uppercase; }
+.f-select {
+  display:flex; align-items:center; gap:6px;
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:6px; padding:6px 10px;
+}
+.f-select select {
+  background:transparent; border:none; color:var(--text);
+  font-family:'Noto Sans JP',sans-serif; font-size:.78rem;
+  outline:none; cursor:pointer; -webkit-appearance:none;
+}
+.f-select select option { background:#182035; }
+.btn-apply {
+  background:var(--accent); color:#fff; border:none;
+  border-radius:6px; padding:6px 16px;
+  font-family:'Noto Sans JP',sans-serif; font-size:.78rem; font-weight:700;
+  cursor:pointer; transition:opacity .2s;
+}
+.btn-apply:hover { opacity:.85; }
+.btn-reset {
+  background:transparent; color:var(--muted); border:1px solid var(--border);
+  border-radius:6px; padding:6px 12px;
+  font-family:'Noto Sans JP',sans-serif; font-size:.78rem; cursor:pointer; transition:all .2s;
+}
+.btn-reset:hover { color:var(--text); border-color:var(--muted); }
+
+/* MAIN */
+main { max-width:1100px; margin:0 auto; padding:16px 20px 60px; background:var(--main-bg); }
+
+/* ローディング */
+.loading { text-align:center; padding:60px 20px; color:var(--muted); }
+.loading .spinner {
+  width:32px; height:32px; border:3px solid var(--border);
+  border-top-color:var(--accent); border-radius:50%;
+  animation:spin .8s linear infinite; margin:0 auto 14px;
+}
+@keyframes spin { to { transform:rotate(360deg); } }
+
+/* 日付ヘッダー */
+.day-header { display:flex; align-items:center; gap:10px; margin:20px 0 5px; }
+.day-header:first-child { margin-top:0; }
+.day-label {
+  font-size:.76rem; font-weight:700; letter-spacing:.06em;
+  padding:2px 10px; border-radius:4px;
+  background:var(--surf2); border:1px solid var(--border); white-space:nowrap;
+}
+.day-label.today { background:rgba(230,51,35,.15); border-color:rgba(230,51,35,.35); color:#ff8070; }
+.day-hr   { flex:1; height:1px; background:var(--border); }
+.day-count{ font-size:.66rem; color:var(--muted); white-space:nowrap; }
+
+/* MATCH ROW */
+.match-row {
+  display:grid;
+  grid-template-columns: 52px 1fr;
+  align-items:stretch;
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:7px; margin-bottom:3px;
+  overflow:hidden; transition:border-color .15s, background .15s;
+  position:relative; animation:fadeUp .2s ease both;
+}
+.match-row::before {
+  content:''; position:absolute; left:0; top:0; bottom:0; width:3px;
+  background:var(--border); transition:background .15s;
+}
+.match-row:hover { border-color:rgba(230,51,35,.4); background:var(--surf2); }
+.match-row:hover::before { background:var(--accent); }
+
+/* 時刻セル */
+.m-time {
+  padding:0 6px; text-align:center;
+  border-right:1px solid var(--border);
+  display:flex; align-items:center; justify-content:center;
+}
+.m-kick { font-family:'Bebas Neue',sans-serif; font-size:1.05rem; letter-spacing:.04em; line-height:1; }
+
+/* メインセル */
+.m-main { padding:5px 12px; display:flex; flex-direction:column; gap:3px; justify-content:center; }
+.m-top  { display:flex; align-items:center; gap:8px; white-space:nowrap; overflow:hidden; }
+.m-teams-inline {
+  font-size:.82rem; font-weight:700;
+  display:flex; align-items:center; gap:5px; overflow:hidden;
+}
+.m-vs { font-size:.62rem; color:var(--muted); font-weight:400; flex-shrink:0; }
+.m-bottom { display:flex; flex-wrap:wrap; gap:4px; padding-left:2px; }
+
+/* リーグバッジ */
+.l-badge {
+  display:inline-block; padding:2px 7px; border-radius:3px;
+  font-size:.63rem; font-weight:700; letter-spacing:.03em; white-space:nowrap; flex-shrink:0;
+}
+.l-epl    { background:rgba(62,109,153,.2);  color:#7db8e8; border:1px solid rgba(62,109,153,.3); }
+.l-laliga { background:rgba(255,90,0,.15);   color:#ffa060; border:1px solid rgba(255,90,0,.25); }
+.l-bund   { background:rgba(220,30,30,.15);  color:#f08080; border:1px solid rgba(220,30,30,.25); }
+.l-serie  { background:rgba(30,100,220,.15); color:#80b0f0; border:1px solid rgba(30,100,220,.25); }
+.l-ligue  { background:rgba(0,160,80,.12);   color:#60c888; border:1px solid rgba(0,160,80,.2); }
+.l-ligap  { background:rgba(0,100,200,.15);  color:#70aaee; border:1px solid rgba(0,100,200,.25); }
+.l-erediv { background:rgba(255,120,0,.12);  color:#ffaa60; border:1px solid rgba(255,120,0,.2); }
+.l-scot   { background:rgba(0,80,160,.15);   color:#70a8e0; border:1px solid rgba(0,80,160,.25); }
+.l-champ  { background:rgba(200,160,0,.12);  color:#d4b020; border:1px solid rgba(200,160,0,.2); }
+.l-uel    { background:rgba(240,80,0,.12);   color:#f09060; border:1px solid rgba(240,80,0,.2); }
+
+/* 選手タグ */
+.p-tag {
+  display:inline-block;
+  background:rgba(245,200,66,.07); border:1px solid rgba(245,200,66,.15);
+  border-radius:3px; padding:1px 7px;
+  font-size:.68rem; color:#c89c18; font-weight:700; white-space:nowrap;
+}
+
+/* 空・エラー */
+.empty { text-align:center; padding:50px 20px; color:var(--muted); }
+.empty .ico { font-size:2.4rem; margin-bottom:10px; }
+
+/* フッター */
+footer { text-align:center; padding:16px; border-top:1px solid var(--border); background:var(--main-bg); font-size:.66rem; color:var(--muted); letter-spacing:.05em; line-height:1.8; }
+
+@keyframes fadeUp { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:translateY(0)} }
+
+@media(max-width:600px){
+  .updated { display:none; }
+  .site-title h1 { font-size:1.3rem; }
+  .m-teams-inline { font-size:.76rem; }
+}
+</style>
+</head>
+<body>
+
+<header>
+<div class="header-inner">
+  <div class="site-title">
+    <span style="font-size:1.8rem">⚽</span>
+    <div>
+      <h1>OVERSEAS FOOTBALL SCHEDULE</h1>
+      <p>海外サッカー 試合日程 — 日本人選手追跡</p>
+    </div>
+    <div class="updated">
+      更新: <b id="updatedAt">—</b><br>
+      <span>毎日 07:00 JST 自動取得</span>
+    </div>
+  </div>
+  <nav class="main-nav">
+    <!-- ① 欧州全日程 → 欧州日程 -->
+    <button class="active" onclick="setTab('europe',this)">🌍 欧州日程</button>
+    <button onclick="setTab('japanese',this)">🇯🇵 日本人日程</button>
+    <button onclick="setTab('national',this)">🏆 代表戦日程</button>
+  </nav>
+</div>
+</header>
+
+<div class="filter-bar">
+  <div class="filter-inner">
+    <span class="f-label">リーグ</span>
+    <div class="f-select">
+      <span style="font-size:.85rem">🏟</span>
+      <select id="leagueSel" onchange="applyFilter()">
+        <option value="all">🌍 全リーグ</option>
+        <optgroup label="── 5大リーグ ──">
+          <option value="EPL">🏴󠁧󠁢󠁥󠁮󠁧󠁿 プレミア</option>
+          <option value="LaLiga">🇪🇸 ラ・リーガ</option>
+          <option value="Bundesliga">🇩🇪 ブンデスリーガ</option>
+          <option value="Serie A">🇮🇹 セリエA</option>
+          <option value="Ligue 1">🇫🇷 リーグ・アン</option>
+        </optgroup>
+        <optgroup label="── その他欧州 ──">
+          <option value="Liga Portugal">🇵🇹 プリメイラリーガ</option>
+          <option value="Eredivisie">🇳🇱 エールディビジ</option>
+          <option value="Scottish Prem">🏴󠁧󠁢󠁳󠁣󠁴󠁿 スコティッシュ・プレム</option>
+          <option value="Champions League">🏆 チャンピオンズリーグ</option>
+          <option value="Europa League">🟠 ヨーロッパリーグ</option>
+        </optgroup>
+      </select>
+    </div>
+    <button class="btn-reset" onclick="resetFilter()">リセット</button>
+  </div>
+</div>
+
+<main id="content">
+  <div class="loading"><div class="spinner"></div><p>データを読み込み中...</p></div>
+</main>
+
+<footer>
+  <p>© 2025 海外サッカー日程 | データは参考情報です。正確な日程は各クラブ公式サイトでご確認ください。</p>
+  <p>Powered by football-data.org + GitHub Actions + GitHub Pages</p>
+</footer>
+
+<script>
+const TEAM_JA = {
+  // EPL
+  "Brighton Hove":   "ブライトン",
+  "Nottingham":      "ノッティンガム",
+  "Wolverhampton":   "ウルヴス",
+  "Leeds United":    "リーズ",
+  "Brighton":        "ブライトン",
+  "Liverpool":       "リバプール",
+  "Arsenal":         "アーセナル",
+  "Chelsea":         "チェルシー",
+  "Man City":        "マンC",
+  "Man United":      "マンU",
+  "Tottenham":       "トッテナム",
+  "Newcastle":       "ニューカッスル",
+  "Aston Villa":     "アストン・ビラ",
+  "West Ham":        "ウェストハム",
+  "Brentford":       "ブレントフォード",
+  "Fulham":          "フラム",
+  "Wolves":          "ウォルバーハンプトン",
+  "Nottm Forest":    "ノッティンガムF",
+  "Bournemouth":     "ボーンマス",
+  "Crystal Palace":  "クリスタル・パレス",
+  "Everton":         "エバートン",
+  "Leicester":       "レスター",
+  "Ipswich":         "イプスウィッチ",
+  "Southampton":     "サウサンプトン",
+  "Leeds":           "リーズ",
+  "Sunderland":      "サンダーランド",
+  "Burnley":         "バーンリー",
+  // LaLiga
+  "Atleti":          "アトレティコ",
+  "Real Madrid":     "レアル・マドリード",
+  "Barcelona":       "バルセロナ",
+  "Atletico Madrid": "アトレティコ",
+  "Real Sociedad":   "ソシエダ",
+  "Villarreal":      "ビジャレアル",
+  "Sevilla":         "セビージャ",
+  "Valencia":        "バレンシア",
+  "Getafe":          "ヘタフェ",
+  "Athletic Club":   "アスレティック",
+  "Betis":           "ベティス",
+  "Osasuna":         "オサスナ",
+  "Girona":          "ジローナ",
+  "Mallorca":        "マジョルカ",
+  "Celta Vigo":      "セルタ",
+  "Alaves":          "アラベス",
+  "Las Palmas":      "ラス・パルマス",
+  "Espanyol":        "エスパニョール",
+  "Leganes":         "レガネス",
+  "Valladolid":      "バジャドリード",
+  // Bundesliga
+  "Bayern München":  "バイエルン",
+  "Dortmund":        "ドルトムント",
+  "Leipzig":         "ライプツィヒ",
+  "Leverkusen":      "レバークーゼン",
+  "Stuttgart":       "シュトゥットガルト",
+  "Frankfurt":       "フランクフルト",
+  "Freiburg":        "フライブルク",
+  "Wolfsburg":       "ヴォルフスブルク",
+  "Hoffenheim":      "ホッフェンハイム",
+  "Mainz":           "マインツ",
+  "Augsburg":        "アウクスブルク",
+  "Werder Bremen":   "ブレーメン",
+  "Bochum":          "ボーフム",
+  "Paderborn":       "パーダーボルン",
+  "Heidenheim":      "ハイデンハイム",
+  "Kiel":            "キール",
+  "Monchengladbach": "M・グラードバッハ",
+  "Union Berlin":    "ウニオン・ベルリン",
+  "Hertha":          "ヘルタ",
+  "Hamburger SV":    "ハンブルガーSV",
+  // Serie A
+  "Como 1907":       "コモ1907",
+  "Cremonese":       "クレモネーゼ",
+  "Sassuolo":        "サッスオーロ",
+  "Inter":           "インテル",
+  "Milan":           "ACミラン",
+  "Juventus":        "ユベントス",
+  "Napoli":          "ナポリ",
+  "Roma":            "ローマ",
+  "Lazio":           "ラツィオ",
+  "Atalanta":        "アタランタ",
+  "Fiorentina":      "フィオレンティーナ",
+  "Udinese":         "ウディネーゼ",
+  "Torino":          "トリノ",
+  "Cagliari":        "カリアリ",
+  "Parma":           "パルマ",
+  "Monza":           "モンツァ",
+  "Bologna":         "ボローニャ",
+  "Empoli":          "エンポリ",
+  "Genoa":           "ジェノア",
+  "Verona":          "ヴェローナ",
+  "Lecce":           "レッチェ",
+  "Venezia":         "ベネチア",
+  "Como":            "コモ",
+  // Ligue 1
+  "PSG":             "パリSG",
+  "Marseille":       "マルセイユ",
+  "Lyon":            "リヨン",
+  "Monaco":          "モナコ",
+  "Lens":            "ランス",
+  "Reims":           "ランス（ランス）",
+  "Lille":           "リール",
+  "Nice":            "ニース",
+  "Strasbourg":      "ストラスブール",
+  "Rennes":          "レンヌ",
+  "Nantes":          "ナント",
+  "Toulouse":        "トゥールーズ",
+  "Montpellier":     "モンペリエ",
+  "Brest":           "ブレスト",
+  "Le Havre":        "ル・アーブル",
+  "Saint-Etienne":   "サンテティエンヌ",
+  // CL/EL
+  "Celtic":          "セルティック",
+  "Rangers":         "レンジャーズ",
+  "Feyenoord":       "フェイエノールト",
+  "Ajax":            "アヤックス",
+  "PSV Eindhoven":   "PSV",
+  "Benfica":         "ベンフィカ",
+  "Sporting CP":     "スポルティング",
+  "Porto":           "ポルト",
+  "Braga":           "ブラガ",
+  "Slavia Prague":   "スラビア・プラハ",
+  "Shakhtar":        "シャフタール",
+  "Galatasaray":     "ガラタサライ",
+  "Besiktas":        "ベシクタシュ",
+  "Fenerbahce":      "フェネルバフチェ",
+  // 代表戦
+  "Netherlands":     "オランダ",
+  "Japan":           "日本",
+  "Tunisia":         "チュニジア",
+  "Germany":         "ドイツ",
+  "France":          "フランス",
+  "Spain":           "スペイン",
+  "Brazil":          "ブラジル",
+  "Argentina":       "アルゼンチン",
+  "England":         "イングランド",
+  "Portugal":        "ポルトガル",
+  "Belgium":         "ベルギー",
+  "USA":             "アメリカ",
+  "Mexico":          "メキシコ",
+  "Canada":          "カナダ",
+  "Australia":       "オーストラリア",
+  "South Korea":     "韓国",
+  "Korea Republic":  "韓国",
+  "Saudi Arabia":    "サウジアラビア",
+  "Iran":            "イラン",
+  "Morocco":         "モロッコ",
+  "Senegal":         "セネガル",
+  "Ivory Coast":     "コートジボワール",
+  "Ghana":           "ガーナ",
+  "South Africa":    "南アフリカ",
+  "Egypt":           "エジプト",
+  "Algeria":         "アルジェリア",
+  "Uruguay":         "ウルグアイ",
+  "Colombia":        "コロンビア",
+  "Ecuador":         "エクアドル",
+  "Paraguay":        "パラグアイ",
+  "Qatar":           "カタール",
+  "Switzerland":     "スイス",
+  "Croatia":         "クロアチア",
+  "Scotland":        "スコットランド",
+  "Sweden":          "スウェーデン",
+  "Norway":          "ノルウェー",
+  "Austria":         "オーストリア",
+  "Turkey":          "トルコ",
+  "Serbia":          "セルビア",
+  "Ukraine":         "ウクライナ",
+  "Poland":          "ポーランド",
+  "Czechia":         "チェコ",
+  "New Zealand":     "ニュージーランド",
+  "Iraq":            "イラク",
+  "Jordan":          "ヨルダン",
+  "Uzbekistan":      "ウズベキスタン",
+  "Haiti":           "ハイチ",
+  "Panama":          "パナマ",
+  "Cape Verde":      "カーボベルデ",
+  "Congo DR":        "コンゴ民主共和国",
+  "Bosnia-H.":       "ボスニア・ヘルツェゴビナ",
+  "Curacao":         "キュラソー",
+  "Curaçao":         "キュラソー",
 };
 
-const NATIONAL_CODES = new Set(['WC', 'EC', 'WCQ', 'ECQ', 'AFCQ', 'AFC', 'INT']);
-
-// 英語名 → 日本語名
-const PLAYER_JA = {
-  "Kaoru Mitoma":       "三笘薫",
-  "Wataru Endo":        "遠藤航",
-  "Takefusa Kubo":      "久保建英",
-  "Daizen Maeda":       "前田大然",
-  "Kyogo Furuhashi":    "古橋亨梧",
-  "Ayase Ueda":         "上田綺世",
-  "Keito Nakamura":     "中村敬斗",
-  "Hiroki Ito":         "伊藤洋輝",
-  "Ao Tanaka":          "田中碧",
-  "Yuuki Soma":         "相馬勇紀",
-  "Yuki Soma":          "相馬勇紀",
-  "Ritsu Doan":         "堂安律",
-  "Ko Itakura":         "板倉滉",
-  "Kou Itakura":        "板倉滉",
-  "Takehiro Tomiyasu":  "冨安健洋",
-  "Maya Yoshida":       "吉田麻也",
-  "Junya Ito":          "伊東純也",
-  "Hidemasa Morita":    "守田英正",
-  "Yuta Nakayama":      "中山雄太",
-  "Shogo Taniguchi":    "谷口彰悟",
-  "Reo Hatate":         "旗手怜央",
-  "Yuki Kobayashi":     "小林友希",
-  "Daichi Kamada":      "鎌田大地",
-  "Koki Machida":       "町田浩樹",
-  "Zion Suzuki":        "鈴木彩艶",
-  "Kota Yamada":        "山田康太",
-  "Shota Fujio":        "藤尾翔太",
-  "Yukinari Sugawara":  "菅原由勢",
-  "Mao Hosoya":         "細谷真大",
+const LEAGUE_JA = {
+  "EPL":              "プレミア",
+  "LaLiga":           "ラ・リーガ",
+  "Bundesliga":       "ブンデス",
+  "Serie A":          "セリエA",
+  "Ligue 1":          "リーグ・アン",
+  "Liga Portugal":    "プリメイラ",
+  "Eredivisie":       "エールディビジ",
+  "Scottish Prem":    "スコティッシュ",
+  "Champions League": "CL",
+  "Europa League":    "EL",
+  "World Cup":        "W杯",
 };
 
-function playerJa(name) { return PLAYER_JA[name] || name; }
-function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
-function toDateStr(d) { return d.toISOString().split('T')[0]; }
+function teamJa(name) { return TEAM_JA[name] || name; }
 
-async function apiFetch(path, retries = 3) {
-  const url = `${BASE}${path}`;
-  for (let attempt = 1; attempt <= retries; attempt++) {
-    const res = await fetch(url, { headers: { 'X-Auth-Token': apiKey } });
-    if (res.status === 429) {
-      const wait = attempt * 12000;
-      console.warn(`  429 Too Many Requests. ${wait / 1000}秒待機 (${attempt}/${retries})...`);
-      await sleep(wait);
-      continue;
+function toJST(utcStr) {
+  const d = new Date(utcStr);
+  const jst = new Date(d.getTime() + 9 * 60 * 60 * 1000);
+  let h = jst.getUTCHours();
+  const m = jst.getUTCMinutes();
+  if (h < 6) h += 24;
+  return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+}
+
+function toJSTDate(utcStr) {
+  const d = new Date(utcStr);
+  const jst = new Date(d.getTime() + 9 * 60 * 60 * 1000);
+  if (jst.getUTCHours() < 6) {
+    const prev = new Date(jst.getTime() - 24 * 60 * 60 * 1000);
+    return prev.toISOString().split('T')[0];
+  }
+  return jst.toISOString().split('T')[0];
+}
+
+function isFinished(kickoffUTC) {
+  return false;
+}
+
+const DATA_URL = 'data/matches.json';
+let MATCHES = [];
+
+let currentTab = "europe", fLeague = "all";
+
+// URLハッシュからタブを復元
+const hash = location.hash.replace('#', '');
+if (['europe', 'japanese', 'national'].includes(hash)) {
+  currentTab = hash;
+  document.querySelectorAll(".main-nav button").forEach(b => {
+    b.classList.toggle("active", b.getAttribute("onclick").includes(hash));
+  });
+}
+
+// ③ ページ読み込み時にハッシュがnationalならフィルターを隠す
+if (currentTab === "national") {
+  document.querySelector(".filter-bar").style.display = "none";
+}
+
+const todayJST = toJSTDate(new Date().toISOString());
+const DOW = ["日","月","火","水","木","金","土"];
+
+async function loadData() {
+  try {
+    const res = await fetch(DATA_URL + '?t=' + Date.now());
+    if (!res.ok) throw new Error('fetch failed');
+    const json = await res.json();
+    MATCHES = json.matches || [];
+    document.getElementById('updatedAt').textContent = json.updatedAt || '—';
+    render();
+  } catch (e) {
+    document.getElementById('content').innerHTML =
+      `<div class="empty"><div class="ico">⚠️</div><p>データの読み込みに失敗しました</p></div>`;
+  }
+}
+
+// ③ タブ切り替え時にフィルターバーの表示を制御
+function setTab(tab, el) {
+  currentTab = tab;
+  document.querySelectorAll(".main-nav button").forEach(b => b.classList.remove("active"));
+  el.classList.add("active");
+  history.replaceState(null, '', '#' + tab);
+  document.querySelector(".filter-bar").style.display = tab === "national" ? "none" : "";
+  render();
+}
+
+function applyFilter() {
+  fLeague = document.getElementById("leagueSel").value;
+  render();
+}
+
+function resetFilter() {
+  fLeague = "all";
+  document.getElementById("leagueSel").value = "all";
+  render();
+}
+
+function render() {
+  let data = MATCHES.filter(m => {
+    if (isFinished(m.kickoffUTC)) return false;
+    if (currentTab === "europe")   { if (m.national) return false; }
+    if (currentTab === "national") { return !!m.national; }
+    if (currentTab === "japanese") {
+      if (m.national) return false;
+      if (!m.japanese || m.japanese.length === 0) return false;
     }
-    if (!res.ok) { console.warn(`  HTTP ${res.status}: ${url}`); return null; }
-    return res.json();
-  }
-  console.warn(`  リトライ上限に達しました: ${url}`);
-  return null;
-}
-
-async function fetchTeamsForCompetition(code) {
-  console.log(`  チーム一覧取得中: ${code}`);
-  const data = await apiFetch(`/competitions/${code}/teams`);
-  await sleep(6000);
-  if (!data) return [];
-  return data.teams || [];
-}
-
-async function fetchJapanesePlayers(teamId, teamName) {
-  const data = await apiFetch(`/teams/${teamId}`);
-  await sleep(6000);
-  if (!data) return [];
-  const squad = data.squad || [];
-  const japanese = squad
-    .filter(p => p.nationality === 'Japan')
-    .map(p => playerJa(p.name));
-  if (japanese.length > 0) {
-    console.log(`    ✅ ${teamName}: ${japanese.join(', ')}`);
-  }
-  return japanese;
-}
-
-async function buildJapanesePlayerMap() {
-  const clubCodes = Object.entries(COMPETITION_MAP)
-    .filter(([, v]) => !v.national)
-    .map(([code]) => code);
-
-  const playerMap = {};
-  const processedTeamIds = new Set();
-
-  for (const code of clubCodes) {
-    const teams = await fetchTeamsForCompetition(code);
-    if (teams.length === 0) continue;
-    console.log(`  ${code}: ${teams.length}チームのスカッドを確認中...`);
-    for (const team of teams) {
-      if (processedTeamIds.has(team.id)) continue;
-      processedTeamIds.add(team.id);
-      const japanese = await fetchJapanesePlayers(team.id, team.shortName || team.name);
-      if (japanese.length > 0) {
-        const key = team.shortName || team.name;
-        playerMap[key] = [...new Set([...(playerMap[key] || []), ...japanese])];
-      }
-    }
-  }
-  return playerMap;
-}
-
-async function fetchMatches(dateFrom, dateTo) {
-  const data = await apiFetch(`/matches?dateFrom=${dateFrom}&dateTo=${dateTo}`);
-  if (!data) return [];
-  return data.matches || [];
-}
-
-async function main() {
-  if (!apiKey) {
-    console.error('❌ 環境変数 DAIHYO が設定されていません');
-    process.exit(1);
-  }
-  if (!fs.existsSync('data')) fs.mkdirSync('data');
-
-  console.log('\n📋 日本人選手データ取得開始...');
-  const japanesePlayerMap = await buildJapanesePlayerMap();
-  const playerCount = Object.values(japanesePlayerMap).flat().length;
-  console.log(`\n✅ 日本人選手マップ完成: ${Object.keys(japanesePlayerMap).length}チーム, 計${playerCount}人`);
-  fs.writeFileSync('data/players.json', JSON.stringify({ updatedAt: new Date().toISOString(), players: japanesePlayerMap }, null, 2));
-
-  console.log('\n📅 試合データ取得開始...');
-  const now = new Date();
-  let raw = [];
-
-  // 60日分（6回×10日）
-  for (let i = 0; i < 6; i++) {
-    const from = toDateStr(new Date(now.getTime() + i * 10 * 24 * 60 * 60 * 1000));
-    const to   = toDateStr(new Date(now.getTime() + (i * 10 + 9) * 24 * 60 * 60 * 1000));
-    console.log(`取得期間: ${from} 〜 ${to}`);
-    const chunk = await fetchMatches(from, to);
-    console.log(`  → ${chunk.length}件取得`);
-    raw = raw.concat(chunk);
-    await sleep(6000);
-  }
-
-  const allMatches = [];
-  for (const m of raw) {
-    if (['FINISHED', 'CANCELLED', 'POSTPONED'].includes(m.status)) continue;
-    const code = m.competition?.code || '';
-    const comp = COMPETITION_MAP[code];
-    if (!comp) continue;
-    const kickoffUTC = m.utcDate;
-    const home = m.homeTeam?.shortName || m.homeTeam?.name || '';
-    const away = m.awayTeam?.shortName || m.awayTeam?.name || '';
-    if (!home || !away) continue;
-    const isNational = comp.national || NATIONAL_CODES.has(code);
-    const japanese = isNational ? [] : [
-      ...(japanesePlayerMap[home] || []),
-      ...(japanesePlayerMap[away] || []),
-    ];
-    allMatches.push({
-      kickoffUTC,
-      home,
-      away,
-      homeCrest: m.homeTeam?.crest || '',
-      awayCrest: m.awayTeam?.crest || '',
-      league: comp.key,
-      lClass: comp.lClass,
-      japanese,
-      national: isNational,
-    });
-  }
-
-  const seen = new Set();
-  const unique = allMatches.filter(m => {
-    const key = `${m.kickoffUTC}|${m.home}|${m.away}`;
-    if (seen.has(key)) return false;
-    seen.add(key);
+    if (fLeague !== "all" && m.league !== fLeague) return false;
     return true;
   });
-  unique.sort((a, b) => a.kickoffUTC.localeCompare(b.kickoffUTC));
 
-  const jstStr = new Date(now.getTime() + 9 * 60 * 60 * 1000)
-    .toISOString().replace('T', ' ').slice(0, 16);
+  if (data.length === 0) {
+    document.getElementById("content").innerHTML =
+      `<div class="empty"><div class="ico">📭</div><p>表示できる試合がありません</p></div>`;
+    return;
+  }
 
-  fs.writeFileSync('data/matches.json', JSON.stringify({ updatedAt: jstStr, matches: unique }, null, 2));
-  console.log(`\n✅ 保存完了: ${unique.length}試合`);
+  const grouped = {};
+  data.forEach(m => {
+    const dateKey = toJSTDate(m.kickoffUTC);
+    (grouped[dateKey] = grouped[dateKey] || []).push(m);
+  });
+
+  let html = "";
+  Object.keys(grouped).sort().forEach(date => {
+    const isToday = date === todayJST;
+    const d = new Date(date + "T12:00:00+09:00");
+    const dow = DOW[d.getDay()];
+    const label = `${date.replace(/-/g,"/")}(${dow})`;
+    const list = grouped[date];
+
+    html += `<div class="day-header">
+      <div class="day-label ${isToday?"today":""}">${isToday?"● 今日　":""} ${label}</div>
+      <div class="day-hr"></div>
+      <div class="day-count">${list.length}試合</div>
+    </div>`;
+
+    list.forEach((m, i) => {
+      const leagueJa = LEAGUE_JA[m.league] || m.league;
+      const homeJa   = teamJa(m.home);
+      const awayJa   = teamJa(m.away);
+      const jstTime  = toJST(m.kickoffUTC);
+      const pHtml    = (m.japanese && m.japanese.length > 0)
+        ? `<div class="m-bottom">${m.japanese.map(n=>`<span class="p-tag">${n}</span>`).join("")}</div>`
+        : "";
+
+      html += `<div class="match-row" style="animation-delay:${i*.04}s">
+        <div class="m-time"><div class="m-kick">${jstTime}</div></div>
+        <div class="m-main">
+          <div class="m-top">
+            <span class="l-badge ${m.lClass}">${leagueJa}</span>
+            <div class="m-teams-inline">
+              <span>${homeJa}</span>
+              <span class="m-vs">vs</span>
+              <span>${awayJa}</span>
+            </div>
+          </div>
+          ${pHtml}
+        </div>
+      </div>`;
+    });
+  });
+
+  document.getElementById("content").innerHTML = html;
 }
 
-main().catch(err => { console.error(err); process.exit(1); });
+loadData();
+setInterval(loadData, 60 * 60 * 1000);
+setInterval(render, 60 * 1000);
+</script>
+</body>
+</html>
