@@ -163,7 +163,7 @@ async function main() {
   // ── football-data.org 試合取得 ──
   console.log('\n📅 試合データ取得開始 (football-data.org)...');
   let raw = [];
-  for (let i = 0; i < 6; i++) {
+  for (let i = 0; i < 9; i++) {
     const from = toDateStr(new Date(now.getTime() + i * 10 * 24 * 60 * 60 * 1000));
     const to   = toDateStr(new Date(now.getTime() + (i * 10 + 9) * 24 * 60 * 60 * 1000));
     console.log(`取得期間: ${from} 〜 ${to}`);
@@ -177,7 +177,7 @@ async function main() {
   let belgiumMatches = [];
   if (apiFootballKey) {
     console.log('\n🇧🇪 ベルギーリーグ取得開始 (api-football)...');
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < 9; i++) {
       const from = toDateStr(new Date(now.getTime() + i * 10 * 24 * 60 * 60 * 1000));
       const to   = toDateStr(new Date(now.getTime() + (i * 10 + 9) * 24 * 60 * 60 * 1000));
       const chunk = await fetchBelgiumMatches(from, to);
