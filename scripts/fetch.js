@@ -20,10 +20,9 @@ const COMPETITION_MAP = {
   'ELC': { key: 'Championship',     lClass: 'l-champ2', national: false },
   'CL':  { key: 'Champions League', lClass: 'l-champ',  national: false },
   'EL':  { key: 'Europa League',    lClass: 'l-uel',    national: false },
-  'WC':  { key: 'World Cup',        lClass: 'l-champ',  national: true  },
-  'EC':  { key: 'Euro',             lClass: 'l-champ',  national: true  },
 };
 
+// football-data.org の代表戦コードは除外（api-football で取得するため）
 const NATIONAL_CODES = new Set(['WC', 'EC', 'WCQ', 'ECQ', 'AFCQ', 'AFC', 'INT']);
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
@@ -57,30 +56,32 @@ async function apiFetchFootball(path) {
   return res.json();
 }
 
-// ── ベルギーリーグ取得（api-football） ──
-async function fetchBelgiumMatches(dateFrom, dateTo) {
-  const data = await apiFetchFootball(
-    `/fixtures?league=144&season=2025&from=${dateFrom}&to=${dateTo}`
-  );
-  console.log('ベルギーAPIレスポンス:', JSON.stringify(data).slice(0, 300)); // ← 追加
+// ── W杯取得（api-football） league=1, season=2026 ──
+async function fetchWorldCupMatches() {
+  console.log('\n🌍 W杯データ取得開始 (api-football)...');
+  const data = await apiFetchFootball(`/fixtures?league=1&season=2026`);
   if (!data) return [];
-  const fixtures = data.response || [];
-  console.log(`  ベルギー (${dateFrom}〜${dateTo}): ${fixtures.length}件取得`);
 
-  const FINISHED = new Set(['Match Finished', 'Cancelled', 'Postponed', 'Abandoned']);
+  const fixtures = data.response || [];
+  console.log(`  W杯: ${fixtures.length}件取得`);
+
+  const SKIP_STATUS = new Set([
+    'Match Finished', 'Cancelled', 'Postponed', 'Abandoned',
+    'After Penalties', 'After Extra Time'
+  ]);
 
   return fixtures
-    .filter(f => !FINISHED.has(f.fixture?.status?.long))
+    .filter(f => !SKIP_STATUS.has(f.fixture?.status?.long))
     .map(f => ({
       kickoffUTC: f.fixture.date,
       home:       f.teams.home.name,
       away:       f.teams.away.name,
       homeCrest:  f.teams.home.logo || null,
       awayCrest:  f.teams.away.logo || null,
-      league:     'Belgian Pro League',
-      lClass:     'l-bel',
+      league:     'World Cup',
+      lClass:     'l-champ',
       japanese:   [],
-      national:   false,
+      national:   true,
     }));
 }
 
@@ -104,9 +105,7 @@ async function fetchJapanesePlayers(teamId, teamName) {
 }
 
 async function buildJapanesePlayerMap() {
-  const clubCodes = Object.entries(COMPETITION_MAP)
-    .filter(([, v]) => !v.national)
-    .map(([code]) => code);
+  const clubCodes = Object.keys(COMPETITION_MAP).filter(code => !COMPETITION_MAP[code].national);
 
   const playerMap = {};
   const processedTeamIds = new Set();
@@ -142,7 +141,7 @@ async function main() {
     process.exit(1);
   }
   if (!apiFootballKey) {
-    console.warn('⚠️ 環境変数 API_FOOTBALL_KEY が設定されていません（ベルギーリーグはスキップ）');
+    console.warn('⚠️ 環境変数 API_FOOTBALL_KEY が設定されていません（W杯はスキップ）');
   }
 
   if (!fs.existsSync('data')) fs.mkdirSync('data');
@@ -160,8 +159,8 @@ async function main() {
 
   const now = new Date();
 
-  // ── football-data.org 試合取得 ──
-  console.log('\n📅 試合データ取得開始 (football-data.org)...');
+  // ── football-data.org 試合取得（クラブのみ） ──
+  console.log('\n📅 クラブ試合データ取得開始 (football-data.org)...');
   let raw = [];
   for (let i = 0; i < 9; i++) {
     const from = toDateStr(new Date(now.getTime() + i * 10 * 24 * 60 * 60 * 1000));
@@ -173,36 +172,30 @@ async function main() {
     await sleep(6000);
   }
 
-  // ── ベルギーリーグ取得 (api-football) ──
-  let belgiumMatches = [];
+  // ── W杯取得（api-football） ──
+  let worldCupMatches = [];
   if (apiFootballKey) {
-    console.log('\n🇧🇪 ベルギーリーグ取得開始 (api-football)...');
-    for (let i = 0; i < 9; i++) {
-      const from = toDateStr(new Date(now.getTime() + i * 10 * 24 * 60 * 60 * 1000));
-      const to   = toDateStr(new Date(now.getTime() + (i * 10 + 9) * 24 * 60 * 60 * 1000));
-      const chunk = await fetchBelgiumMatches(from, to);
-      belgiumMatches = belgiumMatches.concat(chunk);
-      await sleep(2000);
-    }
-    console.log(`✅ ベルギーリーグ合計: ${belgiumMatches.length}件`);
+    worldCupMatches = await fetchWorldCupMatches();
+    console.log(`✅ W杯合計: ${worldCupMatches.length}試合`);
   }
 
-  // ── football-data.org データ整形 ──
+  // ── football-data.org データ整形（代表戦・W杯は除外） ──
   const allMatches = [];
   for (const m of raw) {
     if (['FINISHED', 'CANCELLED', 'POSTPONED'].includes(m.status)) continue;
 
     const code = m.competition?.code || '';
     const comp = COMPETITION_MAP[code];
-    if (!comp) continue;
+
+    // 代表戦・W杯は football-data.org からは取らない
+    if (!comp || NATIONAL_CODES.has(code)) continue;
 
     const kickoffUTC = m.utcDate;
     const home = m.homeTeam?.shortName || m.homeTeam?.name || '';
     const away = m.awayTeam?.shortName || m.awayTeam?.name || '';
     if (!home || !away) continue;
 
-    const isNational = comp.national || NATIONAL_CODES.has(code);
-    const japanese = isNational ? [] : [
+    const japanese = [
       ...(japanesePlayerMap[home] || []),
       ...(japanesePlayerMap[away] || []),
     ];
@@ -216,12 +209,12 @@ async function main() {
       league:    comp.key,
       lClass:    comp.lClass,
       japanese,
-      national:  isNational,
+      national:  false,
     });
   }
 
-  // ── ベルギーをマージ ──
-  allMatches.push(...belgiumMatches);
+  // ── W杯をマージ ──
+  allMatches.push(...worldCupMatches);
 
   // ── 重複排除・ソート ──
   const seen = new Set();
@@ -241,7 +234,7 @@ async function main() {
     JSON.stringify({ updatedAt: jstStr, matches: unique }, null, 2)
   );
 
-  console.log(`\n✅ 保存完了: ${unique.length}試合 (うちベルギー: ${belgiumMatches.length}試合)`);
+  console.log(`\n✅ 保存完了: ${unique.length}試合 (うちW杯: ${worldCupMatches.length}試合)`);
 }
 
 main().catch(err => { console.error(err); process.exit(1); });
