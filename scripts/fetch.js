@@ -53,8 +53,9 @@ async function apiFetchFootball(path) {
 
 async function fetchWorldCupMatches() {
   console.log('\n🌍 W杯データ取得開始 (api-football)...');
-  const data = await apiFetchFootball(`/fixtures?league=1&season=2026`);
-  if (!data) return [];
+const data = await apiFetchFootball(`/fixtures?league=1&season=2026`);
+console.log('W杯レスポンス:', JSON.stringify(data).slice(0, 500));  //
+if (!data) return [];
   const fixtures = data.response || [];
   console.log(`  W杯: ${fixtures.length}件取得`);
   const SKIP_STATUS = new Set([
