@@ -1,116 +1,63 @@
 const fs = require('fs');
  
 const apiKey = process.env.DAIHYO;
-const HOST = 'v3.football.api-sports.io';
-const BASE = `https://${HOST}`;
+const BASE = 'https://api.football-data.org/v4';
  
-// ── 欧州クラブリーグ ──
-const LEAGUES = [
-  { id: 39,  key: 'EPL',              lClass: 'l-epl'    },
-  { id: 140, key: 'LaLiga',           lClass: 'l-laliga' },
-  { id: 78,  key: 'Bundesliga',       lClass: 'l-bund'   },
-  { id: 135, key: 'Serie A',          lClass: 'l-serie'  },
-  { id: 61,  key: 'Ligue 1',          lClass: 'l-ligue'  },
-  { id: 2,   key: 'Champions League', lClass: 'l-champ'  },
-  { id: 3,   key: 'Europa League',    lClass: 'l-uel'    },
-];
- 
-// ── 代表戦リーグ（国際大会） ──
-// api-football.com での代表戦リーグID
-const NATIONAL_LEAGUES = [
-  { id: 4,   key: 'Euro Qual',        label: 'EURO予選',    lClass: 'l-champ' },
-  { id: 5,   key: 'UEFA Nations',     label: 'UNL',         lClass: 'l-uel'   },
-  { id: 6,   key: 'World Cup Qual',   label: 'W杯予選',     lClass: 'l-champ' },
-  { id: 1,   key: 'World Cup',        label: 'W杯',         lClass: 'l-champ' },
-  { id: 960, key: 'AFC Asian Cup',    label: 'アジア杯',    lClass: 'l-champ' },
-  { id: 30,  key: 'AFC Qual',         label: 'アジア予選',  lClass: 'l-champ' },
-  { id: 10,  key: 'Friendlies',       label: '国際親善',    lClass: 'l-ligap' },
-];
- 
-// ── 日本人選手 ──
-const JAPANESE_PLAYERS = {
-  "Brighton":      ["三笘薫"],
-  "Liverpool":     ["遠藤航"],
-  "Real Sociedad": ["久保建英"],
-  "Celtic":        ["前田大然", "古橋亨梧"],
-  "Feyenoord":     ["上田綺世"],
-  "Strasbourg":    ["中村敬斗"],
-  "Stuttgart":     ["伊藤洋輝"],
-  "Bochum":        ["田中碧"],
-  "Mainz":         ["相馬勇紀"],
+// ── Football-Data.org の competition code → サイト内キー・スタイル ──
+const COMPETITION_MAP = {
+  // 欧州クラブ
+  'PL':  { key: 'EPL',              lClass: 'l-epl',    national: false },
+  'PD':  { key: 'LaLiga',           lClass: 'l-laliga', national: false },
+  'BL1': { key: 'Bundesliga',       lClass: 'l-bund',   national: false },
+  'SA':  { key: 'Serie A',          lClass: 'l-serie',  national: false },
+  'FL1': { key: 'Ligue 1',          lClass: 'l-ligue',  national: false },
+  'PPL': { key: 'Liga Portugal',    lClass: 'l-ligap',  national: false },
+  'DED': { key: 'Eredivisie',       lClass: 'l-erediv', national: false },
+  'CL':  { key: 'Champions League', lClass: 'l-champ',  national: false },
+  'EL':  { key: 'Europa League',    lClass: 'l-uel',    national: false },
+  // 代表戦
+  'WC':  { key: 'World Cup',        lClass: 'l-champ',  national: true  },
+  'EC':  { key: 'Euro',             lClass: 'l-champ',  national: true  },
+  'CLI': { key: 'Copa Libertadores',lClass: 'l-champ',  national: false }, // クラブ大会
+  'BSA': { key: 'Brasileirao',      lClass: 'l-ligap',  national: false },
 };
  
-// ── api-football.com 共通フェッチ ──
-async function apiFetch(path) {
-  const url = `${BASE}${path}`;
+// 代表戦として扱う competition code
+const NATIONAL_CODES = new Set(['WC', 'EC', 'WCQ', 'ECQ', 'AFCQ', 'AFC', 'INT']);
+ 
+// ── 日本人選手（shortName に合わせる） ──
+const JAPANESE_PLAYERS = {
+  "Brighton Hove":  ["三笘薫"],
+  "Liverpool":      ["遠藤航"],
+  "Real Sociedad":  ["久保建英"],
+  "Celtic":         ["前田大然", "古橋亨梧"],
+  "Feyenoord":      ["上田綺世"],
+  "Strasbourg":     ["中村敬斗"],
+  "Stuttgart":      ["伊藤洋輝"],
+  "Bochum":         ["田中碧"],
+  "Mainz":          ["相馬勇紀"],
+};
+ 
+async function fetchMatches(dateFrom, dateTo) {
+  const url = `${BASE}/matches?dateFrom=${dateFrom}&dateTo=${dateTo}`;
   const res = await fetch(url, {
-    headers: {
-      'x-apisports-key': apiKey,
-    }
+    headers: { 'X-Auth-Token': apiKey }
   });
   if (!res.ok) {
     console.warn(`HTTP ${res.status}: ${url}`);
-    return null;
+    const text = await res.text();
+    console.warn(text);
+    return [];
   }
-  return res.json();
-}
- 
-// ── シーズン取得（現在年） ──
-function currentSeason() {
-  const now = new Date();
-  // サッカーシーズンは8月開幕が多いので、7月以前は前年シーズン
-  return now.getMonth() < 7 ? now.getFullYear() - 1 : now.getFullYear();
-}
- 
-// ── クラブリーグの試合取得 ──
-async function fetchLeague(league) {
-  const season = currentSeason();
-  // 今後7日分を取得
-  const from = toDateStr(new Date());
-  const to   = toDateStr(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000));
-  const data = await apiFetch(`/fixtures?league=${league.id}&season=${season}&from=${from}&to=${to}&timezone=UTC`);
-  if (!data) return [];
-  return data.response || [];
-}
- 
-// ── 代表戦の試合取得 ──
-async function fetchNational(league) {
-  const season = new Date().getFullYear(); // 代表戦は年単位
-  const from = toDateStr(new Date());
-  const to   = toDateStr(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)); // 30日先まで
-  const data = await apiFetch(`/fixtures?league=${league.id}&season=${season}&from=${from}&to=${to}&timezone=UTC`);
-  if (!data) return [];
-  return data.response || [];
+  const data = await res.json();
+  return data.matches || [];
 }
  
 function toDateStr(d) {
   return d.toISOString().split('T')[0];
 }
  
-// ── api-football レスポンス → 共通フォーマット変換 ──
-function parseFixture(f, league, isNational = false) {
-  const kickoffUTC = f.fixture?.date;
-  const home = f.teams?.home?.name || '';
-  const away = f.teams?.away?.name || '';
-  if (!kickoffUTC || !home || !away) return null;
- 
-  const japanese = isNational ? [] : [
-    ...(JAPANESE_PLAYERS[home] || []),
-    ...(JAPANESE_PLAYERS[away] || []),
-  ];
- 
-  return {
-    kickoffUTC,
-    home,
-    away,
-    league: league.key,
-    lClass: league.lClass,
-    japanese,
-    national: isNational,
-    // 代表戦はラベルを上書き
-    ...(isNational && { leagueLabel: league.label }),
-  };
-}
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
  
 async function main() {
   if (!apiKey) {
@@ -119,33 +66,50 @@ async function main() {
   }
  
   const now = new Date();
+  // 今日から30日分取得
+  const dateFrom = toDateStr(now);
+  const dateTo   = toDateStr(new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000));
+ 
+  console.log(`取得期間: ${dateFrom} 〜 ${dateTo}`);
+  const raw = await fetchMatches(dateFrom, dateTo);
+  console.log(`  → ${raw.length}件取得`);
+ 
   const allMatches = [];
  
-  // ── クラブリーグ取得 ──
-  for (const league of LEAGUES) {
-    console.log(`取得中: ${league.key}`);
-    const fixtures = await fetchLeague(league);
-    console.log(`  → ${fixtures.length}件取得`);
-    for (const f of fixtures) {
-      const m = parseFixture(f, league, false);
-      if (m) allMatches.push(m);
-    }
-    await sleep(1200); // レート制限対策（Free: 10req/min）
+  for (const m of raw) {
+    // 終了試合は除外
+    if (m.status === 'FINISHED' || m.status === 'CANCELLED' || m.status === 'POSTPONED') continue;
+ 
+    const code  = m.competition?.code || '';
+    const comp  = COMPETITION_MAP[code];
+ 
+    // マッピングにないリーグは除外（ブラジルリーグなど不要なら除外）
+    if (!comp) continue;
+ 
+    const kickoffUTC = m.utcDate;
+    const home = m.homeTeam?.shortName || m.homeTeam?.name || '';
+    const away = m.awayTeam?.shortName || m.awayTeam?.name || '';
+    if (!home || !away) continue;
+ 
+    const isNational = comp.national || NATIONAL_CODES.has(code);
+ 
+    const japanese = isNational ? [] : [
+      ...(JAPANESE_PLAYERS[home] || []),
+      ...(JAPANESE_PLAYERS[away] || []),
+    ];
+ 
+    allMatches.push({
+      kickoffUTC,
+      home,
+      away,
+      league: comp.key,
+      lClass: comp.lClass,
+      japanese,
+      national: isNational,
+    });
   }
  
-  // ── 代表戦取得 ──
-  for (const league of NATIONAL_LEAGUES) {
-    console.log(`代表戦取得中: ${league.label}`);
-    const fixtures = await fetchNational(league);
-    console.log(`  → ${fixtures.length}件取得`);
-    for (const f of fixtures) {
-      const m = parseFixture(f, league, true);
-      if (m) allMatches.push(m);
-    }
-    await sleep(1200);
-  }
- 
-  // 重複除去（同じ試合が複数リーグIDに引っかかる場合）
+  // 重複除去
   const seen = new Set();
   const unique = allMatches.filter(m => {
     const key = `${m.kickoffUTC}|${m.home}|${m.away}`;
@@ -161,9 +125,8 @@ async function main() {
  
   if (!fs.existsSync('data')) fs.mkdirSync('data');
   fs.writeFileSync('data/matches.json', JSON.stringify({ updatedAt: jstStr, matches: unique }, null, 2));
-  console.log(`✅ 保存完了: ${unique.length}試合（代表戦含む）`);
+  console.log(`✅ 保存完了: ${unique.length}試合`);
 }
  
-function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
- 
 main().catch(err => { console.error(err); process.exit(1); });
+ 
