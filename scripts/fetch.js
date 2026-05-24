@@ -76,6 +76,27 @@ async function fetchWorldCupMatches() {
     }));
 }
 
+// ── ベルギーリーグ取得（api-football） league=144 ──
+async function fetchBelgiumMatches() {
+  console.log('\n🇧🇪 ベルギーリーグデータ取得開始 (api-football)...');
+  const season = new Date().getFullYear();
+  const data = await apiFetchFootball(`/fixtures?league=144&season=${season}&status=NS`);
+  if (!data) return [];
+  const fixtures = data.response || [];
+  console.log(`  ベルギー: ${fixtures.length}件取得`);
+  return fixtures.map(f => ({
+    kickoffUTC: f.fixture.date,
+    home:       f.teams.home.name,
+    away:       f.teams.away.name,
+    homeCrest:  f.teams.home.logo || null,
+    awayCrest:  f.teams.away.logo || null,
+    league:     'Belgian Pro League',
+    lClass:     'l-belgique',
+    japanese:   [],
+    national:   false,
+  }));
+}
+
 async function fetchTeamsForCompetition(code) {
   console.log(`  チーム一覧取得中: ${code}`);
   const data = await apiFetch(`/competitions/${code}/teams`);
@@ -176,9 +197,12 @@ async function main() {
   }
 
   let worldCupMatches = [];
+  let belgiumMatches = [];
   if (apiFootballKey) {
     worldCupMatches = await fetchWorldCupMatches();
     console.log(`✅ W杯合計: ${worldCupMatches.length}試合`);
+    belgiumMatches = await fetchBelgiumMatches();
+    console.log(`✅ ベルギー合計: ${belgiumMatches.length}試合`);
   }
 
   const allMatches = [];
@@ -209,6 +233,7 @@ async function main() {
   }
 
   allMatches.push(...worldCupMatches);
+  allMatches.push(...belgiumMatches);
 
   const seen = new Set();
   const unique = allMatches.filter(m => {
@@ -227,7 +252,7 @@ async function main() {
     JSON.stringify({ updatedAt: jstStr, matches: unique }, null, 2)
   );
 
-  console.log(`\n✅ 保存完了: ${unique.length}試合 (うちW杯: ${worldCupMatches.length}試合)`);
+  console.log(`\n✅ 保存完了: ${unique.length}試合 (うちW杯: ${worldCupMatches.length}, ベルギー: ${belgiumMatches.length}試合)`);
 }
 
 async function testSportDB() {
