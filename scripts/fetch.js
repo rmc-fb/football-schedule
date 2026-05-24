@@ -53,25 +53,69 @@ async function apiFetchFootball(path) {
 }
 
 // ── ベルギーリーグ取得（api-football） league=144 ──
+// ── ベルギーリーグ取得（TheSportsDB） league=4332 ──
 async function fetchBelgiumMatches() {
-  console.log('\n🇧🇪 ベルギーリーグデータ取得開始 (api-football)...');
-  const data = await apiFetchFootball(`/fixtures?league=144&season=2024`);
-  if (!data) return [];
-  const fixtures = data.response || [];
-  console.log(`  ベルギー: ${fixtures.length}件取得`);
-  const upcoming = fixtures.filter(f => f.fixture?.status?.short === 'NS');
-  console.log(`  ベルギー未来: ${upcoming.length}件`);
-  return upcoming.map(f => ({
-    kickoffUTC: f.fixture.date,
-    home:       f.teams.home.name,
-    away:       f.teams.away.name,
-    homeCrest:  f.teams.home.logo || null,
-    awayCrest:  f.teams.away.logo || null,
-    league:     'Belgian Pro League',
-    lClass:     'l-belgique',
-    japanese:   [],
-    national:   false,
-  }));
+  console.log('\n🇧🇪 ベルギーリーグデータ取得開始 (TheSportsDB)...');
+
+  const SPORTSDB_KEY = process.env.SPORTDB_KEY || '123'; // 無料キーでも動作
+  const LEAGUE_ID = '4332'; // Jupiler Pro League
+
+  // 今日から90日分のスケジュールを取得
+  const now = new Date();
+  const results = [];
+
+  // 次の試合を取得
+  const nextUrl =
+    `https://www.thesportsdb.com/api/v1/json/${SPORTSDB_KEY}/eventsnextleague.php?id=${LEAGUE_ID}`;
+  const pastUrl =
+    `https://www.thesportsdb.com/api/v1/json/${SPORTSDB_KEY}/eventspastleague.php?id=${LEAGUE_ID}`;
+
+  // シーズン全体を取得（最も確実）
+  const season = now.getMonth() >= 6
+    ? `${now.getFullYear()}-${now.getFullYear() + 1}`
+    : `${now.getFullYear() - 1}-${now.getFullYear()}`;
+  const seasonUrl =
+    `https://www.thesportsdb.com/api/v1/json/${SPORTSDB_KEY}/eventsseason.php?id=${LEAGUE_ID}&s=${season}`;
+
+  console.log(`  シーズン: ${season}`);
+
+  async function sdbFetch(url) {
+    try {
+      const res = await fetch(url);
+      if (!res.ok) { console.warn(`  HTTP ${res.status}: ${url}`); return null; }
+      return res.json();
+    } catch (e) {
+      console.warn(`  fetch error: ${e.message}`);
+      return null;
+    }
+  }
+
+  const data = await sdbFetch(seasonUrl);
+  const events = data?.events || [];
+  console.log(`  取得件数: ${events.length}件`);
+
+  // 未来の試合のみ（NS = Not Started）
+  const upcoming = events.filter(e => {
+    if (!e.strDate || !e.strTime) return false;
+    const kickoff = new Date(`${e.strDate}T${e.strTime}Z`);
+    return kickoff > now;
+  });
+  console.log(`  未来の試合: ${upcoming.length}件`);
+
+  return upcoming.map(e => {
+    const kickoffUTC = `${e.strDate}T${e.strTime || '00:00:00'}Z`;
+    return {
+      kickoffUTC,
+      home:      e.strHomeTeam,
+      away:      e.strAwayTeam,
+      homeCrest: e.strHomeTeamBadge || null,
+      awayCrest: e.strAwayTeamBadge || null,
+      league:    'Belgian Pro League',
+      lClass:    'l-belgique',
+      japanese:  [],
+      national:  false,
+    };
+  });
 }
 
 async function fetchTeamsForCompetition(code) {
