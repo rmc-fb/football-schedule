@@ -61,8 +61,8 @@ async function apiFetchFootball(path) {
 async function fetchBelgiumMatches(dateFrom, dateTo) {
   // Belgian Pro League = league id 144, season 2024
   const data = await apiFetchFootball(
-    `/fixtures?league=144&season=2024&from=${dateFrom}&to=${dateTo}`
-  );
+  `/fixtures?league=144&season=2025&from=${dateFrom}&to=${dateTo}`
+);
   if (!data) return [];
   const fixtures = data.response || [];
   console.log(`  ベルギー (${dateFrom}〜${dateTo}): ${fixtures.length}件取得`);
