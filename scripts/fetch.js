@@ -259,14 +259,13 @@ async function testSportDB() {
   const key = process.env.SPORTDB_KEY;
   if (!key) { console.log('SPORTDB_KEY なし'); return; }
   console.log('\n🧪 SportDB テスト開始...');
-  console.log('KEY確認:', key.slice(0, 8) + '...');
 
-  const res = await fetch('https://api.sportdb.dev/api/football/live', {
+  const res = await fetch('https://api.sportdb.dev/api/football/countries', {
     headers: { 'X-API-Key': key }
   });
   console.log('HTTPステータス:', res.status);
   const data = await res.json();
-  console.log('レスポンス:', JSON.stringify(data).slice(0, 500));
+  console.log('レスポンス:', JSON.stringify(data).slice(0, 1000));
 }
 main()
   .then(() => testSportDB())
