@@ -68,7 +68,7 @@ async function main() {
   const now = new Date();
   // 今日から30日分取得
   const dateFrom = toDateStr(now);
-  const dateTo   = toDateStr(new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000));
+  const dateTo = toDateStr(new Date(now.getTime() + 9 * 24 * 60 * 60 * 1000));
  
   console.log(`取得期間: ${dateFrom} 〜 ${dateTo}`);
   const raw = await fetchMatches(dateFrom, dateTo);
