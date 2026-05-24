@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-05-24 14:29",
+  "updatedAt": "2026-05-24 15:57",
   "matches": [
     {
       "kickoffUTC": "2026-05-24T13:00:00Z",
@@ -7,6 +7,68 @@
       "away": "Sassuolo",
       "league": "Serie A",
       "lClass": "l-serie",
+      "japanese": [
+        "Zion Suzuki"
+      ],
+      "national": false
+    },
+    {
+      "kickoffUTC": "2026-05-24T15:00:00Z",
+      "home": "Burnley",
+      "away": "Wolverhampton",
+      "league": "EPL",
+      "lClass": "l-epl",
+      "japanese": [],
+      "national": false
+    },
+    {
+      "kickoffUTC": "2026-05-24T15:00:00Z",
+      "home": "West Ham",
+      "away": "Leeds United",
+      "league": "EPL",
+      "lClass": "l-epl",
+      "japanese": [
+        "Ao Tanaka"
+      ],
+      "national": false
+    },
+    {
+      "kickoffUTC": "2026-05-24T15:00:00Z",
+      "home": "Liverpool",
+      "away": "Brentford",
+      "league": "EPL",
+      "lClass": "l-epl",
+      "japanese": [
+        "Wataru Endō"
+      ],
+      "national": false
+    },
+    {
+      "kickoffUTC": "2026-05-24T15:00:00Z",
+      "home": "Brighton Hove",
+      "away": "Man United",
+      "league": "EPL",
+      "lClass": "l-epl",
+      "japanese": [
+        "Kaoru Mitoma"
+      ],
+      "national": false
+    },
+    {
+      "kickoffUTC": "2026-05-24T15:00:00Z",
+      "home": "Nottingham",
+      "away": "Bournemouth",
+      "league": "EPL",
+      "lClass": "l-epl",
+      "japanese": [],
+      "national": false
+    },
+    {
+      "kickoffUTC": "2026-05-24T15:00:00Z",
+      "home": "Tottenham",
+      "away": "Everton",
+      "league": "EPL",
+      "lClass": "l-epl",
       "japanese": [],
       "national": false
     },
@@ -43,98 +105,15 @@
       "away": "Arsenal",
       "league": "EPL",
       "lClass": "l-epl",
-      "japanese": [],
-      "national": false
-    },
-    {
-      "kickoffUTC": "2026-05-24T15:00:00Z",
-      "home": "Tottenham",
-      "away": "Everton",
-      "league": "EPL",
-      "lClass": "l-epl",
-      "japanese": [],
-      "national": false
-    },
-    {
-      "kickoffUTC": "2026-05-24T15:00:00Z",
-      "home": "West Ham",
-      "away": "Leeds United",
-      "league": "EPL",
-      "lClass": "l-epl",
-      "japanese": [],
-      "national": false
-    },
-    {
-      "kickoffUTC": "2026-05-24T15:00:00Z",
-      "home": "Liverpool",
-      "away": "Brentford",
-      "league": "EPL",
-      "lClass": "l-epl",
       "japanese": [
-        "遠藤航"
+        "Daichi Kamada"
       ],
-      "national": false
-    },
-    {
-      "kickoffUTC": "2026-05-24T15:00:00Z",
-      "home": "Brighton Hove",
-      "away": "Man United",
-      "league": "EPL",
-      "lClass": "l-epl",
-      "japanese": [
-        "三笘薫"
-      ],
-      "national": false
-    },
-    {
-      "kickoffUTC": "2026-05-24T15:00:00Z",
-      "home": "Nottingham",
-      "away": "Bournemouth",
-      "league": "EPL",
-      "lClass": "l-epl",
-      "japanese": [],
-      "national": false
-    },
-    {
-      "kickoffUTC": "2026-05-24T15:00:00Z",
-      "home": "Burnley",
-      "away": "Wolverhampton",
-      "league": "EPL",
-      "lClass": "l-epl",
-      "japanese": [],
       "national": false
     },
     {
       "kickoffUTC": "2026-05-24T16:00:00Z",
       "home": "Napoli",
       "away": "Udinese",
-      "league": "Serie A",
-      "lClass": "l-serie",
-      "japanese": [],
-      "national": false
-    },
-    {
-      "kickoffUTC": "2026-05-24T18:45:00Z",
-      "home": "Cremonese",
-      "away": "Como 1907",
-      "league": "Serie A",
-      "lClass": "l-serie",
-      "japanese": [],
-      "national": false
-    },
-    {
-      "kickoffUTC": "2026-05-24T18:45:00Z",
-      "home": "Torino",
-      "away": "Juventus",
-      "league": "Serie A",
-      "lClass": "l-serie",
-      "japanese": [],
-      "national": false
-    },
-    {
-      "kickoffUTC": "2026-05-24T18:45:00Z",
-      "home": "Verona",
-      "away": "Roma",
       "league": "Serie A",
       "lClass": "l-serie",
       "japanese": [],
@@ -153,6 +132,33 @@
       "kickoffUTC": "2026-05-24T18:45:00Z",
       "home": "Lecce",
       "away": "Genoa",
+      "league": "Serie A",
+      "lClass": "l-serie",
+      "japanese": [],
+      "national": false
+    },
+    {
+      "kickoffUTC": "2026-05-24T18:45:00Z",
+      "home": "Verona",
+      "away": "Roma",
+      "league": "Serie A",
+      "lClass": "l-serie",
+      "japanese": [],
+      "national": false
+    },
+    {
+      "kickoffUTC": "2026-05-24T18:45:00Z",
+      "home": "Cremonese",
+      "away": "Como 1907",
+      "league": "Serie A",
+      "lClass": "l-serie",
+      "japanese": [],
+      "national": false
+    },
+    {
+      "kickoffUTC": "2026-05-24T18:45:00Z",
+      "home": "Torino",
+      "away": "Juventus",
       "league": "Serie A",
       "lClass": "l-serie",
       "japanese": [],
@@ -504,6 +510,276 @@
       "kickoffUTC": "2026-06-21T22:00:00Z",
       "home": "Uruguay",
       "away": "Cape Verde",
+      "league": "World Cup",
+      "lClass": "l-champ",
+      "japanese": [],
+      "national": true
+    },
+    {
+      "kickoffUTC": "2026-06-23T00:00:00Z",
+      "home": "Norway",
+      "away": "Senegal",
+      "league": "World Cup",
+      "lClass": "l-champ",
+      "japanese": [],
+      "national": true
+    },
+    {
+      "kickoffUTC": "2026-06-23T03:00:00Z",
+      "home": "Jordan",
+      "away": "Algeria",
+      "league": "World Cup",
+      "lClass": "l-champ",
+      "japanese": [],
+      "national": true
+    },
+    {
+      "kickoffUTC": "2026-06-23T17:00:00Z",
+      "home": "Portugal",
+      "away": "Uzbekistan",
+      "league": "World Cup",
+      "lClass": "l-champ",
+      "japanese": [],
+      "national": true
+    },
+    {
+      "kickoffUTC": "2026-06-23T20:00:00Z",
+      "home": "England",
+      "away": "Ghana",
+      "league": "World Cup",
+      "lClass": "l-champ",
+      "japanese": [],
+      "national": true
+    },
+    {
+      "kickoffUTC": "2026-06-23T23:00:00Z",
+      "home": "Panama",
+      "away": "Croatia",
+      "league": "World Cup",
+      "lClass": "l-champ",
+      "japanese": [],
+      "national": true
+    },
+    {
+      "kickoffUTC": "2026-06-24T02:00:00Z",
+      "home": "Colombia",
+      "away": "Congo DR",
+      "league": "World Cup",
+      "lClass": "l-champ",
+      "japanese": [],
+      "national": true
+    },
+    {
+      "kickoffUTC": "2026-06-24T19:00:00Z",
+      "home": "Bosnia-H.",
+      "away": "Qatar",
+      "league": "World Cup",
+      "lClass": "l-champ",
+      "japanese": [],
+      "national": true
+    },
+    {
+      "kickoffUTC": "2026-06-24T19:00:00Z",
+      "home": "Switzerland",
+      "away": "Canada",
+      "league": "World Cup",
+      "lClass": "l-champ",
+      "japanese": [],
+      "national": true
+    },
+    {
+      "kickoffUTC": "2026-06-24T22:00:00Z",
+      "home": "Morocco",
+      "away": "Haiti",
+      "league": "World Cup",
+      "lClass": "l-champ",
+      "japanese": [],
+      "national": true
+    },
+    {
+      "kickoffUTC": "2026-06-24T22:00:00Z",
+      "home": "Scotland",
+      "away": "Brazil",
+      "league": "World Cup",
+      "lClass": "l-champ",
+      "japanese": [],
+      "national": true
+    },
+    {
+      "kickoffUTC": "2026-06-25T01:00:00Z",
+      "home": "South Africa",
+      "away": "Korea Republic",
+      "league": "World Cup",
+      "lClass": "l-champ",
+      "japanese": [],
+      "national": true
+    },
+    {
+      "kickoffUTC": "2026-06-25T01:00:00Z",
+      "home": "Czechia",
+      "away": "Mexico",
+      "league": "World Cup",
+      "lClass": "l-champ",
+      "japanese": [],
+      "national": true
+    },
+    {
+      "kickoffUTC": "2026-06-25T20:00:00Z",
+      "home": "Curaçao",
+      "away": "Ivory Coast",
+      "league": "World Cup",
+      "lClass": "l-champ",
+      "japanese": [],
+      "national": true
+    },
+    {
+      "kickoffUTC": "2026-06-25T20:00:00Z",
+      "home": "Ecuador",
+      "away": "Germany",
+      "league": "World Cup",
+      "lClass": "l-champ",
+      "japanese": [],
+      "national": true
+    },
+    {
+      "kickoffUTC": "2026-06-25T23:00:00Z",
+      "home": "Japan",
+      "away": "Sweden",
+      "league": "World Cup",
+      "lClass": "l-champ",
+      "japanese": [],
+      "national": true
+    },
+    {
+      "kickoffUTC": "2026-06-25T23:00:00Z",
+      "home": "Tunisia",
+      "away": "Netherlands",
+      "league": "World Cup",
+      "lClass": "l-champ",
+      "japanese": [],
+      "national": true
+    },
+    {
+      "kickoffUTC": "2026-06-26T02:00:00Z",
+      "home": "Paraguay",
+      "away": "Australia",
+      "league": "World Cup",
+      "lClass": "l-champ",
+      "japanese": [],
+      "national": true
+    },
+    {
+      "kickoffUTC": "2026-06-26T02:00:00Z",
+      "home": "Turkey",
+      "away": "USA",
+      "league": "World Cup",
+      "lClass": "l-champ",
+      "japanese": [],
+      "national": true
+    },
+    {
+      "kickoffUTC": "2026-06-26T19:00:00Z",
+      "home": "Norway",
+      "away": "France",
+      "league": "World Cup",
+      "lClass": "l-champ",
+      "japanese": [],
+      "national": true
+    },
+    {
+      "kickoffUTC": "2026-06-26T19:00:00Z",
+      "home": "Senegal",
+      "away": "Iraq",
+      "league": "World Cup",
+      "lClass": "l-champ",
+      "japanese": [],
+      "national": true
+    },
+    {
+      "kickoffUTC": "2026-06-27T00:00:00Z",
+      "home": "Cape Verde",
+      "away": "Saudi Arabia",
+      "league": "World Cup",
+      "lClass": "l-champ",
+      "japanese": [],
+      "national": true
+    },
+    {
+      "kickoffUTC": "2026-06-27T00:00:00Z",
+      "home": "Uruguay",
+      "away": "Spain",
+      "league": "World Cup",
+      "lClass": "l-champ",
+      "japanese": [],
+      "national": true
+    },
+    {
+      "kickoffUTC": "2026-06-27T03:00:00Z",
+      "home": "Egypt",
+      "away": "Iran",
+      "league": "World Cup",
+      "lClass": "l-champ",
+      "japanese": [],
+      "national": true
+    },
+    {
+      "kickoffUTC": "2026-06-27T03:00:00Z",
+      "home": "New Zealand",
+      "away": "Belgium",
+      "league": "World Cup",
+      "lClass": "l-champ",
+      "japanese": [],
+      "national": true
+    },
+    {
+      "kickoffUTC": "2026-06-27T21:00:00Z",
+      "home": "Croatia",
+      "away": "Ghana",
+      "league": "World Cup",
+      "lClass": "l-champ",
+      "japanese": [],
+      "national": true
+    },
+    {
+      "kickoffUTC": "2026-06-27T21:00:00Z",
+      "home": "Panama",
+      "away": "England",
+      "league": "World Cup",
+      "lClass": "l-champ",
+      "japanese": [],
+      "national": true
+    },
+    {
+      "kickoffUTC": "2026-06-27T23:30:00Z",
+      "home": "Congo DR",
+      "away": "Uzbekistan",
+      "league": "World Cup",
+      "lClass": "l-champ",
+      "japanese": [],
+      "national": true
+    },
+    {
+      "kickoffUTC": "2026-06-27T23:30:00Z",
+      "home": "Colombia",
+      "away": "Portugal",
+      "league": "World Cup",
+      "lClass": "l-champ",
+      "japanese": [],
+      "national": true
+    },
+    {
+      "kickoffUTC": "2026-06-28T02:00:00Z",
+      "home": "Algeria",
+      "away": "Austria",
+      "league": "World Cup",
+      "lClass": "l-champ",
+      "japanese": [],
+      "national": true
+    },
+    {
+      "kickoffUTC": "2026-06-28T02:00:00Z",
+      "home": "Jordan",
+      "away": "Argentina",
       "league": "World Cup",
       "lClass": "l-champ",
       "japanese": [],
