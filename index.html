@@ -32,7 +32,17 @@ header { background:var(--surface); border-bottom:1px solid var(--border); }
 .updated b { color:var(--green); }
 
 /* MAIN NAV */
-.main-nav { display:flex; gap:2px; }
+.main-nav { 
+  display:flex; 
+  gap:2px; 
+  overflow-x: auto; /* タブだけ横スクロールを許可 */
+  -webkit-overflow-scrolling: touch; /* iPhoneで滑らかにスクロールさせる */
+  scrollbar-width: none; /* Firefox用: スクロールバーを隠す */
+}
+/* Chrome/Safari(iPhone)用: スクロールバーを隠してスッキリさせる */
+.main-nav::-webkit-scrollbar { 
+  display: none; 
+}
 .main-nav button {
   font-family:'Noto Sans JP',sans-serif; font-size:.8rem; font-weight:700;
   letter-spacing:.04em; padding:9px 20px;
