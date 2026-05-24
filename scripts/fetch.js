@@ -59,10 +59,10 @@ async function apiFetchFootball(path) {
 
 // ── ベルギーリーグ取得（api-football） ──
 async function fetchBelgiumMatches(dateFrom, dateTo) {
-  // Belgian Pro League = league id 144, season 2024
   const data = await apiFetchFootball(
-  `/fixtures?league=144&season=2025&from=${dateFrom}&to=${dateTo}`
-);
+    `/fixtures?league=144&season=2025&from=${dateFrom}&to=${dateTo}`
+  );
+  console.log('ベルギーAPIレスポンス:', JSON.stringify(data).slice(0, 300)); // ← 追加
   if (!data) return [];
   const fixtures = data.response || [];
   console.log(`  ベルギー (${dateFrom}〜${dateTo}): ${fixtures.length}件取得`);
