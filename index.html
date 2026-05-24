@@ -124,9 +124,11 @@ main { max-width:1100px; margin:0 auto; padding:16px 20px 60px; background:var(-
 .m-top  { display:flex; align-items:center; gap:8px; white-space:nowrap; overflow:hidden; }
 .m-teams-inline {
   font-size:.82rem; font-weight:700;
-  display:flex; align-items:center; gap:5px; overflow:hidden;
+  display:grid;
+  grid-template-columns: 1fr 28px 1fr;
+  align-items:center; gap:4px; width:100%;
 }
-.m-vs { font-size:.62rem; color:var(--muted); font-weight:400; flex-shrink:0; }
+.m-vs { font-size:.62rem; color:var(--muted); font-weight:400; text-align:center; }
 
 /* 選手タグ：右下に配置 */
 .m-right {
