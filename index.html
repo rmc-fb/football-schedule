@@ -31,7 +31,7 @@ header { background:var(--surface); border-bottom:1px solid var(--border); }
 .updated { margin-left:auto; font-size:.68rem; color:var(--muted); text-align:right; line-height:1.6; }
 .updated b { color:var(--green); }
 
-/* MAIN NAV */
+/* MAIN NAV ② overflow削除・flex:1で3等分 */
 .main-nav {
   display:flex;
   gap:2px;
@@ -39,8 +39,7 @@ header { background:var(--surface); border-bottom:1px solid var(--border); }
 .main-nav button {
   font-family:'Noto Sans JP',sans-serif; font-size:.8rem; font-weight:700;
   letter-spacing:.04em; padding:9px 12px;
-  flex:1;                         /* 3等分 */
-  text-align:center;
+  flex:1; text-align:center;
   background:transparent; color:var(--muted);
   border:none; border-bottom:3px solid transparent;
   cursor:pointer; transition:all .2s; white-space:nowrap;
@@ -195,6 +194,7 @@ footer { text-align:center; padding:16px; border-top:1px solid var(--border); ba
     </div>
   </div>
   <nav class="main-nav">
+    <!-- ① 欧州全日程 → 欧州日程 -->
     <button class="active" onclick="setTab('europe',this)">🌍 欧州日程</button>
     <button onclick="setTab('japanese',this)">🇯🇵 日本人日程</button>
     <button onclick="setTab('national',this)">🏆 代表戦日程</button>
@@ -475,6 +475,11 @@ if (['europe', 'japanese', 'national'].includes(hash)) {
   });
 }
 
+// ③ ページ読み込み時にハッシュがnationalならフィルターを隠す
+if (currentTab === "national") {
+  document.querySelector(".filter-bar").style.display = "none";
+}
+
 const todayJST = toJSTDate(new Date().toISOString());
 const DOW = ["日","月","火","水","木","金","土"];
 
@@ -492,12 +497,12 @@ async function loadData() {
   }
 }
 
+// ③ タブ切り替え時にフィルターバーの表示を制御
 function setTab(tab, el) {
   currentTab = tab;
   document.querySelectorAll(".main-nav button").forEach(b => b.classList.remove("active"));
   el.classList.add("active");
   history.replaceState(null, '', '#' + tab);
-  // ↓ 追加：代表戦タブはフィルターバーを隠す
   document.querySelector(".filter-bar").style.display = tab === "national" ? "none" : "";
   render();
 }
@@ -581,13 +586,10 @@ function render() {
   document.getElementById("content").innerHTML = html;
 }
 
-// 既存のハッシュ復元コードの直後に追加
-if (currentTab === "national") {
-  document.querySelector(".filter-bar").style.display = "none";
-}  
 loadData();
 setInterval(loadData, 60 * 60 * 1000);
 setInterval(render, 60 * 1000);
 </script>
 </body>
 </html>
+
