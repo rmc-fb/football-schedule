@@ -409,7 +409,7 @@ function toJSTDate(utcStr) {
 }
 
 function isFinished(kickoffUTC) {
-  return Date.now() > new Date(kickoffUTC).getTime() + 130 * 60 * 1000;
+  return false; // 終了判定を無効化
 }
 
 // ── JSONデータ読み込み ──
