@@ -147,9 +147,9 @@ async function main() {
   const now = new Date();
   let raw = [];
 
-  for (let i = 0; i < 3; i++) {
-    const from = toDateStr(new Date(now.getTime() + i * 10 * 24 * 60 * 60 * 1000));
-    const to   = toDateStr(new Date(now.getTime() + (i * 10 + 9) * 24 * 60 * 60 * 1000));
+for (let i = 0; i < 6; i++) {
+  const from = toDateStr(new Date(now.getTime() + i * 10 * 24 * 60 * 60 * 1000));
+  const to   = toDateStr(new Date(now.getTime() + (i * 10 + 9) * 24 * 60 * 60 * 1000));
     console.log(`取得期間: ${from} 〜 ${to}`);
     const chunk = await fetchMatches(from, to);
     console.log(`  → ${chunk.length}件取得`);
