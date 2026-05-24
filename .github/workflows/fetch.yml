@@ -24,6 +24,7 @@ jobs:
         env:
           DAIHYO: ${{ secrets.DAIHYO }}
           API_FOOTBALL_KEY: ${{ secrets.API_FOOTBALL_KEY }}
+          SPORTDB_KEY: ${{ secrets.SPORTDB_KEY }}
 
       - name: Commit and push
         run: |
