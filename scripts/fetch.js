@@ -146,20 +146,43 @@ async function main() {
 
   if (!fs.existsSync('data')) fs.mkdirSync('data');
 
-  // ── 日本人選手マップ ──
-  console.log('\n📋 日本人選手データ取得開始...');
-  const japanesePlayerMap = await buildJapanesePlayerMap();
-  const playerCount = Object.values(japanesePlayerMap).flat().length;
-  console.log(`\n✅ 日本人選手マップ完成: ${Object.keys(japanesePlayerMap).length}チーム, 計${playerCount}人`);
+  const FETCH_MODE = process.env.FETCH_MODE || 'all';
+  console.log(`\n🔧 FETCH_MODE: ${FETCH_MODE}`);
 
-  fs.writeFileSync(
-    'data/players.json',
-    JSON.stringify({ updatedAt: new Date().toISOString(), players: japanesePlayerMap }, null, 2)
-  );
+  // ── 選手マップ ──
+  let japanesePlayerMap = {};
 
+  if (FETCH_MODE === 'all' || FETCH_MODE === 'players') {
+    console.log('\n📋 日本人選手データ取得開始...');
+    japanesePlayerMap = await buildJapanesePlayerMap();
+    const playerCount = Object.values(japanesePlayerMap).flat().length;
+    console.log(`\n✅ 日本人選手マップ完成: ${Object.keys(japanesePlayerMap).length}チーム, 計${playerCount}人`);
+
+    fs.writeFileSync(
+      'data/players.json',
+      JSON.stringify({ updatedAt: new Date().toISOString(), players: japanesePlayerMap }, null, 2)
+    );
+
+    if (FETCH_MODE === 'players') {
+      console.log('✅ 選手データのみ更新完了');
+      return;
+    }
+
+  } else {
+    // matches モード: 既存の players.json を読み込む
+    const playersPath = 'data/players.json';
+    if (fs.existsSync(playersPath)) {
+      const saved = JSON.parse(fs.readFileSync(playersPath, 'utf-8'));
+      japanesePlayerMap = saved.players || {};
+      console.log(`📋 既存選手データ読み込み (更新: ${saved.updatedAt})`);
+      console.log(`   ${Object.keys(japanesePlayerMap).length}チーム, 計${Object.values(japanesePlayerMap).flat().length}人`);
+    } else {
+      console.warn('⚠️ players.json が見つかりません。日本人選手情報なしで続行します。');
+    }
+  }
+
+  // ── クラブ試合取得 ──
   const now = new Date();
-
-  // ── football-data.org 試合取得（クラブのみ） ──
   console.log('\n📅 クラブ試合データ取得開始 (football-data.org)...');
   let raw = [];
   for (let i = 0; i < 9; i++) {
@@ -172,22 +195,20 @@ async function main() {
     await sleep(6000);
   }
 
-  // ── W杯取得（api-football） ──
+  // ── W杯取得 ──
   let worldCupMatches = [];
   if (apiFootballKey) {
     worldCupMatches = await fetchWorldCupMatches();
     console.log(`✅ W杯合計: ${worldCupMatches.length}試合`);
   }
 
-  // ── football-data.org データ整形（代表戦・W杯は除外） ──
+  // ── 整形（代表戦・W杯は除外） ──
   const allMatches = [];
   for (const m of raw) {
     if (['FINISHED', 'CANCELLED', 'POSTPONED'].includes(m.status)) continue;
 
     const code = m.competition?.code || '';
     const comp = COMPETITION_MAP[code];
-
-    // 代表戦・W杯は football-data.org からは取らない
     if (!comp || NATIONAL_CODES.has(code)) continue;
 
     const kickoffUTC = m.utcDate;
@@ -213,8 +234,29 @@ async function main() {
     });
   }
 
-  // ── W杯をマージ ──
+  // ── W杯マージ ──
   allMatches.push(...worldCupMatches);
+
+  // ── 重複排除・ソート ──
+  const seen = new Set();
+  const unique = allMatches.filter(m => {
+    const key = `${m.kickoffUTC}|${m.home}|${m.away}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+  unique.sort((a, b) => a.kickoffUTC.localeCompare(b.kickoffUTC));
+
+  const jstStr = new Date(now.getTime() + 9 * 60 * 60 * 1000)
+    .toISOString().replace('T', ' ').slice(0, 16);
+
+  fs.writeFileSync(
+    'data/matches.json',
+    JSON.stringify({ updatedAt: jstStr, matches: unique }, null, 2)
+  );
+
+  console.log(`\n✅ 保存完了: ${unique.length}試合 (うちW杯: ${worldCupMatches.length}試合)`);
+}
 
   // ── 重複排除・ソート ──
   const seen = new Set();
