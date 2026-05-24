@@ -416,6 +416,15 @@ function isFinished(kickoffUTC) {
 const DATA_URL = 'data/matches.json';
 let MATCHES = [];
 
+// URLハッシュからタブを復元
+const hash = location.hash.replace('#', '');
+if (['europe', 'japanese', 'national'].includes(hash)) {
+  currentTab = hash;
+  document.querySelectorAll(".main-nav button").forEach(b => {
+    b.classList.toggle("active", b.getAttribute("onclick").includes(hash));
+  });
+}
+  
 async function loadData() {
   try {
     const res = await fetch(DATA_URL + '?t=' + Date.now());
