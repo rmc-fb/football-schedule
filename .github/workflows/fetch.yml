@@ -22,7 +22,7 @@ jobs:
       - name: Fetch matches
         run: node scripts/fetch.js
         env:
-          FOOTBALL_DATA_API_KEY: ${{ secrets.FOOTBALL_DATA_API_KEY }}
+          RAPIDAPI_KEY: ${{ secrets.RAPIDAPI_KEY }}
 
       - name: Commit and push
         run: |
@@ -30,4 +30,4 @@ jobs:
           git config user.email "actions@github.com"
           git add data/matches.json
           git diff --cached --quiet || git commit -m "Update matches data"
-          git push --force
+          git push
