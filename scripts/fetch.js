@@ -4,7 +4,6 @@ async function main() {
   const apiKey = process.env.RAPIDAPI_KEY;
   const baseUrl = 'https://api-football-v1.p.rapidapi.com/v3';
   
-  // 取得したいリーグとシーズン
   const league = 39; 
   const season = 2025;
 
@@ -15,19 +14,18 @@ async function main() {
 
   console.log("Fetching matches...");
   
-  // 1. 試合日程を取得
   const res = await fetch(`${baseUrl}/fixtures?league=${league}&season=${season}`, { headers });
   const json = await res.json();
 
-  // ★ここにログ出力処理を追加（これで何が返ってきているか確認します）
-  console.log("--- API Response Start ---");
-  console.log(JSON.stringify(json, null, 2));
-  console.log("--- API Response End ---");
+  // ★重要：ここでAPIが何を返してきたか全部表示します
+  console.log("API Full Response:", JSON.stringify(json, null, 2));
 
-  // 2. データを整形して保存
+  if (!json.response) {
+    throw new Error("APIレスポンスに 'response' が含まれていません。APIキーが無効か、リクエスト制限の可能性があります。");
+  }
+
   const output = {
     updatedAt: new Date().toLocaleString('ja-JP', {timeZone: 'Asia/Tokyo'}),
-    // ここでエラーが出ているので、ログを確認して修正します
     matches: json.response.map(m => ({
       kickoffUTC: m.fixture.date,
       home: m.teams.home.name,
