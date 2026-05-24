@@ -1,4 +1,3 @@
-cat > /tmp/fetch.js << 'JSEOF'
 const fs = require('fs');
 
 const API_KEY = process.env.FOOTBALL_DATA_API_KEY;
@@ -95,5 +94,3 @@ async function main() {
 }
 
 main().catch(console.error);
-JSEOF
-cat /tmp/fetch.js
