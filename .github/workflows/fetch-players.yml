@@ -1,0 +1,28 @@
+name: Fetch Players
+on:
+  schedule:
+    - cron: '0 22 * * 0'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Fetch players only
+        run: node scripts/fetch.js
+        env:
+          DAIHYO: ${{ secrets.DAIHYO }}
+          FETCH_MODE: players
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add data/players.json
+          git diff --cached --quiet || git commit -m "Update players data"
+          git pull --rebase origin main
+          git push
