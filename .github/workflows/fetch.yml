@@ -22,7 +22,7 @@ jobs:
       - name: Fetch matches
         run: node scripts/fetch.js
         env:
-          RAPIDAPI_KEY: ${{ secrets.RAPIDAPI_KEY }}
+          DAIHYO: ${{ secrets.DAIHYO }}
 
       - name: Commit and push
         run: |
