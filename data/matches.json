@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-05-25 00:33",
+  "updatedAt": "2026-05-25 00:37",
   "matches": [
     {
       "kickoffUTC": "2024-07-26T18:45:00+00:00",
@@ -3468,10 +3468,10 @@
     },
     {
       "kickoffUTC": "2026-05-24T15:00:00Z",
-      "home": "Fulham",
-      "away": "Newcastle",
-      "homeCrest": "https://crests.football-data.org/63.png",
-      "awayCrest": "https://crests.football-data.org/67.png",
+      "home": "Sunderland",
+      "away": "Chelsea",
+      "homeCrest": "https://crests.football-data.org/71.png",
+      "awayCrest": "https://crests.football-data.org/61.png",
       "league": "EPL",
       "lClass": "l-epl",
       "japanese": [],
@@ -3479,10 +3479,10 @@
     },
     {
       "kickoffUTC": "2026-05-24T15:00:00Z",
-      "home": "Sunderland",
-      "away": "Chelsea",
-      "homeCrest": "https://crests.football-data.org/71.png",
-      "awayCrest": "https://crests.football-data.org/61.png",
+      "home": "Fulham",
+      "away": "Newcastle",
+      "homeCrest": "https://crests.football-data.org/63.png",
+      "awayCrest": "https://crests.football-data.org/67.png",
       "league": "EPL",
       "lClass": "l-epl",
       "japanese": [],
@@ -3523,6 +3523,17 @@
     },
     {
       "kickoffUTC": "2026-05-24T15:00:00Z",
+      "home": "Brighton Hove",
+      "away": "Man United",
+      "homeCrest": "https://crests.football-data.org/397.png",
+      "awayCrest": "https://crests.football-data.org/66.png",
+      "league": "EPL",
+      "lClass": "l-epl",
+      "japanese": [],
+      "national": false
+    },
+    {
+      "kickoffUTC": "2026-05-24T15:00:00Z",
       "home": "West Ham",
       "away": "Leeds United",
       "homeCrest": "https://crests.football-data.org/563.png",
@@ -3538,17 +3549,6 @@
       "away": "Brentford",
       "homeCrest": "https://crests.football-data.org/64.png",
       "awayCrest": "https://crests.football-data.org/402.png",
-      "league": "EPL",
-      "lClass": "l-epl",
-      "japanese": [],
-      "national": false
-    },
-    {
-      "kickoffUTC": "2026-05-24T15:00:00Z",
-      "home": "Brighton Hove",
-      "away": "Man United",
-      "homeCrest": "https://crests.football-data.org/397.png",
-      "awayCrest": "https://crests.football-data.org/66.png",
       "league": "EPL",
       "lClass": "l-epl",
       "japanese": [],
@@ -3589,17 +3589,6 @@
     },
     {
       "kickoffUTC": "2026-05-24T18:45:00Z",
-      "home": "Torino",
-      "away": "Juventus",
-      "homeCrest": "https://crests.football-data.org/586.png",
-      "awayCrest": "https://crests.football-data.org/109.png",
-      "league": "Serie A",
-      "lClass": "l-serie",
-      "japanese": [],
-      "national": false
-    },
-    {
-      "kickoffUTC": "2026-05-24T18:45:00Z",
       "home": "Cremonese",
       "away": "Como 1907",
       "homeCrest": "https://crests.football-data.org/457.png",
@@ -3611,10 +3600,10 @@
     },
     {
       "kickoffUTC": "2026-05-24T18:45:00Z",
-      "home": "Lecce",
-      "away": "Genoa",
-      "homeCrest": "https://crests.football-data.org/5890.png",
-      "awayCrest": "https://crests.football-data.org/107.png",
+      "home": "Torino",
+      "away": "Juventus",
+      "homeCrest": "https://crests.football-data.org/586.png",
+      "awayCrest": "https://crests.football-data.org/109.png",
       "league": "Serie A",
       "lClass": "l-serie",
       "japanese": [],
@@ -3637,6 +3626,17 @@
       "away": "Cagliari",
       "homeCrest": "https://crests.football-data.org/98.png",
       "awayCrest": "https://crests.football-data.org/104.png",
+      "league": "Serie A",
+      "lClass": "l-serie",
+      "japanese": [],
+      "national": false
+    },
+    {
+      "kickoffUTC": "2026-05-24T18:45:00Z",
+      "home": "Lecce",
+      "away": "Genoa",
+      "homeCrest": "https://crests.football-data.org/5890.png",
+      "awayCrest": "https://crests.football-data.org/107.png",
       "league": "Serie A",
       "lClass": "l-serie",
       "japanese": [],
