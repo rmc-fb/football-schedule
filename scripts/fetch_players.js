@@ -14,9 +14,6 @@ if (!FOOTBALLDATA_KEY) {
   process.exit(1);
 }
 
-// ────────────────────────────────────────────────
-// 対象リーグ（football-data.org のコンペティションID）
-// ────────────────────────────────────────────────
 const TARGET_COMPETITIONS = [
   { id: 2021, name: 'EPL'              },
   { id: 2014, name: 'LaLiga'           },
@@ -29,9 +26,6 @@ const TARGET_COMPETITIONS = [
   { id: 2001, name: 'Champions League' },
 ];
 
-// ────────────────────────────────────────────────
-// ユーティリティ
-// ────────────────────────────────────────────────
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
 async function fdFetch(path, retries = 3) {
@@ -60,10 +54,6 @@ async function fdFetch(path, retries = 3) {
   return null;
 }
 
-// ────────────────────────────────────────────────
-// リーグの全チームスクワッドから日本人選手を抽出
-// 1リクエストでリーグ全チームのスクワッドまで取得できる
-// ────────────────────────────────────────────────
 async function fetchJapaneseByCompetition(compId) {
   const data = await fdFetch(`/competitions/${compId}/teams`);
   if (!data?.teams) return {};
@@ -76,26 +66,27 @@ async function fetchJapaneseByCompetition(compId) {
       .filter(Boolean);
 
     if (japanese.length > 0) {
-      result[team.name] = japanese;
+      // name / shortName / tla の全バリエーションをキーとして登録
+      // → fetch_matches.js 側でどの名前が来てもヒットするようにする
+      if (team.name)      result[team.name]      = japanese;
+      if (team.shortName) result[team.shortName] = japanese;
+      if (team.tla)       result[team.tla]       = japanese;
     }
   }
   return result;
 }
 
-// ────────────────────────────────────────────────
-// メイン
-// ────────────────────────────────────────────────
 async function main() {
   if (!fs.existsSync('data')) fs.mkdirSync('data');
 
   const CACHE_PATH = 'data/players.json';
 
-  // キャッシュチェック（手動実行時はキャッシュがあればスキップ）
   if (!FORCE_UPDATE && fs.existsSync(CACHE_PATH)) {
     const cached = JSON.parse(fs.readFileSync(CACHE_PATH, 'utf-8'));
-    const teamCount   = Object.keys(cached.players || {}).length;
-    const playerCount = Object.values(cached.players || {}).flat().length;
-    console.log(`\n📋 選手データキャッシュ読み込み: ${teamCount}チーム / ${playerCount}人 (更新: ${cached.updatedAt})`);
+    // players は { teamName: [playerNames] } 形式
+    // キーにはname/shortName/tlaが含まれるため、ユニークな選手数でカウント
+    const uniquePlayers = new Set(Object.values(cached.players || {}).flat());
+    console.log(`\n📋 選手データキャッシュ読み込み: ${Object.keys(cached.players || {}).length}キー / ${uniquePlayers.size}人 (更新: ${cached.updatedAt})`);
     console.log('💡 強制更新する場合は FORCE_UPDATE=1 を付けて実行してください。');
     return;
   }
@@ -111,21 +102,28 @@ async function main() {
     process.stdout.write(`[${String(i+1).padStart(2)}/${TARGET_COMPETITIONS.length}] ${comp.name.padEnd(22)} `);
 
     const result = await fetchJapaneseByCompetition(comp.id);
-    const found  = Object.keys(result).length;
+    const teams  = Object.keys(result);
 
-    if (found > 0) {
+    if (teams.length > 0) {
       Object.assign(playerMap, result);
-      const names = Object.entries(result).map(([team, players]) => `${team}: ${players.join(', ')}`);
+      // ログはname（最初のキー）で代表表示
+      const displayed = new Set();
+      const names = [];
+      for (const [key, players] of Object.entries(result)) {
+        const sig = players.join(',');
+        if (!displayed.has(sig)) {
+          names.push(`${key}: ${players.join(', ')}`);
+          displayed.add(sig);
+        }
+      }
       console.log(`✅ ${names.join(' / ')}`);
     } else {
       console.log('－ 日本人選手なし');
     }
 
-    // football-data.org 無料プランは10リクエスト/分
     if (i < TARGET_COMPETITIONS.length - 1) await sleep(7000);
   }
 
-  // 保存
   const jstStr = new Date(Date.now() + 9*60*60*1000)
     .toISOString().replace('T', ' ').slice(0, 16);
   fs.writeFileSync(CACHE_PATH, JSON.stringify({
@@ -133,13 +131,19 @@ async function main() {
     players: playerMap,
   }, null, 2));
 
-  const totalPlayers = Object.values(playerMap).flat().length;
+  const uniquePlayers = new Set(Object.values(playerMap).flat());
   console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  console.log(`✅ 保存完了: ${Object.keys(playerMap).length}チームに日本人選手`);
-  console.log(`   合計: ${totalPlayers}人`);
-  Object.entries(playerMap).forEach(([team, players]) => {
-    console.log(`   ${team}: ${players.join(', ')}`);
-  });
+  console.log(`✅ 保存完了: ${Object.keys(playerMap).length}キー / ${uniquePlayers.size}人`);
+
+  // ユニークなチームだけログ表示（重複エントリは除く）
+  const displayed = new Set();
+  for (const [key, players] of Object.entries(playerMap)) {
+    const sig = players.join(',');
+    if (!displayed.has(sig)) {
+      console.log(`   ${key}: ${players.join(', ')}`);
+      displayed.add(sig);
+    }
+  }
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 }
 
