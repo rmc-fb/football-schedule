@@ -285,3 +285,187 @@ async function rapidFetchMatches(league, playerMap, crestMap) {
   if (!data?.response?.matches) return null;
 
   const now = Date.now();
+  const upcoming = data.response.matches.filter(m => {
+    if (!m.status?.utcTime) return false;
+    if (m.status.finished || m.status.cancelled) return false;
+    return new Date(m.status.utcTime).getTime() > now;
+  });
+
+  return upcoming.map(m => {
+    const home      = m.home?.name      || m.home?.longName      || '';
+    const away      = m.away?.name      || m.away?.longName      || '';
+    const homeShort = m.home?.shortName || '';
+    const awayShort = m.away?.shortName || '';
+    if (!home || !away) return null;
+
+    const homeCrest = m.home?.imageUrl || crestMap[home] || crestMap[homeShort] || null;
+    const awayCrest = m.away?.imageUrl || crestMap[away] || crestMap[awayShort] || null;
+
+    // lookupPlayers で name/shortName 両方を検索
+    const japanese = league.national
+      ? []
+      : lookupPlayers(playerMap, home, away, homeShort, awayShort);
+
+    return {
+      kickoffUTC: m.status.utcTime,
+      home,
+      away,
+      homeCrest,
+      awayCrest,
+      league:   league.key,
+      lClass:   league.lClass,
+      tab:      league.tab,
+      gender:   league.gender || 'male',
+      national: league.national || false,
+      youth:    league.youth    || false,
+      japanese,
+      source:   'rapid',
+    };
+  }).filter(Boolean);
+}
+
+// ────────────────────────────────────────────────
+// 代表戦取得
+// ────────────────────────────────────────────────
+async function fetchNationalMatches(playerMap, crestMap) {
+  console.log('\n🌍 代表戦データ取得中...');
+  const allMatches = [];
+
+  for (let i = 0; i < FD_NATIONAL.length; i++) {
+    const comp = FD_NATIONAL[i];
+    process.stdout.write(`  [FD ${String(i+1).padStart(2)}/${FD_NATIONAL.length}] ${comp.key.padEnd(20)} `);
+
+    const matches = await fdFetchMatches(comp.id, playerMap, comp);
+
+    if (matches && matches.length > 0) {
+      allMatches.push(...matches);
+      console.log(`✅ FD: ${matches.length}試合`);
+    } else {
+      const fallback = RAPID_NATIONAL_FALLBACK[comp.key];
+      if (fallback && RAPID_KEY) {
+        const rapidMatches = await rapidFetchMatches(
+          { ...fallback, key: comp.key },
+          playerMap,
+          crestMap
+        );
+        if (rapidMatches && rapidMatches.length > 0) {
+          allMatches.push(...rapidMatches);
+          console.log(`🔄 RapidAPI: ${rapidMatches.length}試合`);
+        } else {
+          console.log('－ 取得なし');
+        }
+      } else {
+        console.log('－ 取得なし');
+      }
+    }
+
+    if (i < FD_NATIONAL.length - 1) await sleep(7000);
+  }
+
+  console.log(`\n  📡 RapidAPI 代表戦取得 (${RAPID_NATIONAL.length}件)...`);
+  for (let i = 0; i < RAPID_NATIONAL.length; i++) {
+    const comp = RAPID_NATIONAL[i];
+    process.stdout.write(`  [RA ${String(i+1).padStart(2)}/${RAPID_NATIONAL.length}] ${comp.key.padEnd(20)} `);
+
+    const matches = await rapidFetchMatches(comp, playerMap, crestMap);
+    if (matches === null) {
+      console.log('❌ 取得失敗');
+    } else if (matches.length === 0) {
+      console.log('－ 取得なし');
+    } else {
+      allMatches.push(...matches);
+      console.log(`✅ ${matches.length}試合`);
+    }
+
+    if (i < RAPID_NATIONAL.length - 1) await sleep(1000);
+  }
+
+  return allMatches;
+}
+
+// ────────────────────────────────────────────────
+// メイン
+// ────────────────────────────────────────────────
+async function main() {
+  if (!fs.existsSync('data')) fs.mkdirSync('data');
+
+  const crestMap  = await buildCrestMap();
+  const playerMap = loadPlayerMap();
+
+  const allMatches = [];
+  const summary = { fd: 0, rapid: 0, failed: [] };
+
+  console.log(`\n📅 football-data.org クラブ試合取得 (${FD_CLUB_LEAGUES.length}リーグ)...\n`);
+  for (let i = 0; i < FD_CLUB_LEAGUES.length; i++) {
+    const league = FD_CLUB_LEAGUES[i];
+    process.stdout.write(`[${String(i+1).padStart(2)}/${FD_CLUB_LEAGUES.length}] ${league.key.padEnd(28)} `);
+
+    const matches = await fdFetchMatches(league.id, playerMap, league);
+    if (matches === null) {
+      console.log('❌ 取得失敗');
+      summary.failed.push(league.key);
+    } else if (matches.length === 0) {
+      console.log('－ 0試合');
+    } else {
+      allMatches.push(...matches);
+      summary.fd += matches.length;
+      console.log(`✅ ${matches.length}試合`);
+    }
+
+    if (i < FD_CLUB_LEAGUES.length - 1) await sleep(7000);
+  }
+
+  console.log(`\n📅 RapidAPI クラブ試合取得 (${RAPID_LEAGUES.length}リーグ)...\n`);
+  for (let i = 0; i < RAPID_LEAGUES.length; i++) {
+    const league = RAPID_LEAGUES[i];
+    process.stdout.write(`[${String(i+1).padStart(2)}/${RAPID_LEAGUES.length}] ${league.key.padEnd(28)} `);
+
+    const matches = await rapidFetchMatches(league, playerMap, crestMap);
+    if (matches === null) {
+      console.log('❌ 取得失敗');
+      summary.failed.push(league.key);
+    } else if (matches.length === 0) {
+      console.log('－ 0試合');
+    } else {
+      allMatches.push(...matches);
+      summary.rapid += matches.length;
+      console.log(`✅ ${matches.length}試合`);
+    }
+
+    if (i < RAPID_LEAGUES.length - 1) await sleep(1000);
+  }
+
+  allMatches.push(...(await fetchNationalMatches(playerMap, crestMap)));
+
+  // 重複除去・ソート
+  const seen   = new Set();
+  const unique = allMatches.filter(m => {
+    const key = `${m.kickoffUTC}|${m.home}|${m.away}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+  unique.sort((a, b) => a.kickoffUTC.localeCompare(b.kickoffUTC));
+
+  // 保存
+  const jstStr = new Date(Date.now() + 9*60*60*1000)
+    .toISOString().replace('T', ' ').slice(0, 16);
+  fs.writeFileSync('data/matches.json', JSON.stringify({ updatedAt: jstStr, matches: unique }, null, 2));
+
+  // サマリー
+  const byTab = {};
+  unique.forEach(m => { byTab[m.tab] = (byTab[m.tab] || 0) + 1; });
+  const jpMatches = unique.filter(m => m.japanese.length > 0).length;
+
+  console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  console.log(`✅ 保存完了: 合計 ${unique.length}試合`);
+  Object.entries(byTab).forEach(([tab, cnt]) => console.log(`   ${tab.padEnd(12)}: ${cnt}試合`));
+  console.log(`   ソース    : FD ${summary.fd}試合 / RapidAPI ${summary.rapid}試合`);
+  console.log(`   日本人関連: ${jpMatches}試合`);
+  if (summary.failed.length > 0) {
+    console.log(`   ❌ 取得失敗: ${summary.failed.join(', ')}`);
+  }
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+}
+
+main().catch(err => { console.error(err); process.exit(1); });
