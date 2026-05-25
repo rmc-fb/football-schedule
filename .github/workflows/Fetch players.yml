@@ -13,27 +13,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-
-      # ── デバッグ: ブライトンのスカッドAPIレスポンスを確認 ──
-      - name: Debug squad API response
-        run: |
-          node -e "
-          const url = 'https://free-api-live-football-data.p.rapidapi.com/football-get-team-squad?teamid=72';
-          fetch(url, {
-            headers: {
-              'x-rapidapi-key': process.env.RAPIDAPI_KEY,
-              'x-rapidapi-host': 'free-api-live-football-data.p.rapidapi.com'
-            }
-          }).then(r => r.json()).then(d => console.log(JSON.stringify(d, null, 2))).catch(console.error);
-          "
-        env:
-          RAPIDAPI_KEY: ${{ secrets.RAPIDAPI_KEY }}
-
       - name: Fetch players
         run: node scripts/fetch_players.js
         env:
-          RAPIDAPI_KEY: ${{ secrets.RAPIDAPI_KEY }}
-
+          FOOTBALLDATA_KEY: ${{ secrets.FOOTBALLDATA_KEY }}
       - name: Commit and push
         run: |
           git config user.name "github-actions"
