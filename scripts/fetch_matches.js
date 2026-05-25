@@ -47,6 +47,12 @@ const RAPID_LEAGUES = [
   { id: 130,   key: 'MLS',                     lClass: 'l-north',    tab: 'north',  gender: 'male'   },
   { id: 230,   key: 'Liga MX',                 lClass: 'l-north',    tab: 'north',  gender: 'male'   },
   { id: 9134,  key: 'NWSL',                    lClass: 'l-womens',   tab: 'north',  gender: 'female' },
+  // ユース代表
+  { id: 10369, key: 'U-20 World Cup',   lClass: 'l-youth', tab: 'youth', gender: 'male', national: true, youth: true },
+  { id: 306,   key: 'U-17 World Cup',   lClass: 'l-youth', tab: 'youth', gender: 'male', national: true, youth: true },
+  { id: 9571,  key: 'U-23 Asian Cup',   lClass: 'l-youth', tab: 'youth', gender: 'male', national: true, youth: true },
+  { id: 9841,  key: 'U-20 Asian Cup',   lClass: 'l-youth', tab: 'youth', gender: 'male', national: true, youth: true },
+  { id: 288,   key: 'UEFA U21',         lClass: 'l-youth', tab: 'youth', gender: 'male', national: true, youth: true },
 ];
 
 // ────────────────────────────────────────────────
