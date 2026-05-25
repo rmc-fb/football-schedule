@@ -154,8 +154,21 @@ async function fdFetch(path, retries = 3) {
 
 // ────────────────────────────────────────────────
 // エンブレムマップ構築（football-data.org）
+// キャッシュ: data/crests.json が存在すればAPIを叩かずそれを使用
+// 更新したい場合は data/crests.json を削除してから実行
 // ────────────────────────────────────────────────
 async function buildCrestMap() {
+  const CACHE_PATH = 'data/crests.json';
+
+  // キャッシュがあればそれを返す
+  if (fs.existsSync(CACHE_PATH)) {
+    const cached = JSON.parse(fs.readFileSync(CACHE_PATH, 'utf-8'));
+    const { _updatedAt, ...crestMap } = cached;
+    console.log(`\n🏅 エンブレムキャッシュ読み込み: ${Object.keys(crestMap).length}エントリ (更新: ${_updatedAt})\n`);
+    return crestMap;
+  }
+
+  // キャッシュなし → APIから取得
   if (!FOOTBALLDATA_KEY || FD_CREST_COMPETITIONS.length === 0) return {};
 
   console.log('\n🏅 football-data.org からエンブレムデータを取得中...');
@@ -179,7 +192,10 @@ async function buildCrestMap() {
     if (i < FD_CREST_COMPETITIONS.length - 1) await sleep(7000);
   }
 
-  console.log(`  📦 エンブレムマップ: ${Object.keys(crestMap).length}エントリ\n`);
+  // キャッシュ保存
+  const jstStr = new Date(Date.now() + 9*60*60*1000).toISOString().replace('T', ' ').slice(0, 16);
+  fs.writeFileSync(CACHE_PATH, JSON.stringify({ _updatedAt: jstStr, ...crestMap }, null, 2));
+  console.log(`  📦 エンブレムマップ: ${Object.keys(crestMap).length}エントリ (data/crests.json にキャッシュ保存)\n`);
   return crestMap;
 }
 
