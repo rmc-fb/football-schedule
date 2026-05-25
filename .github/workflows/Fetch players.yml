@@ -17,6 +17,7 @@ jobs:
         run: node scripts/fetch_players.js
         env:
           FOOTBALLDATA_KEY: ${{ secrets.FOOTBALLDATA_KEY }}
+          FORCE_UPDATE: '1'
       - name: Commit and push
         run: |
           git config user.name "github-actions"
