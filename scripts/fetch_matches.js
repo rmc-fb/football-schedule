@@ -388,6 +388,9 @@ async function main() {
   const nationalMatches = await fetchNationalMatches(playerMap);
   allMatches.push(...nationalMatches);
 
+　// 5.5. 表示除外処理（Copa Americaを消す）
+  allMatches = allMatches.filter(m => m.key !== 'Copa America' && m.tab !== 'other');
+  
   // 6. 重複除去・ソート
   const seen   = new Set();
   const unique = allMatches.filter(m => {
