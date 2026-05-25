@@ -959,12 +959,14 @@ function render() {
       const mGender   = getMatchGender(m);
 
       // クレスト
-      const hCrest = m.homeCrest
-        ? `<img class="crest" src="${m.homeCrest}" alt="" onerror="this.style.display='none'">`
-        : "";
-      const aCrest = m.awayCrest
-        ? `<img class="crest" src="${m.awayCrest}" alt="" onerror="this.style.display='none'">`
-        : "";
+      const hCrestUrl = m.homeCrest || TEAM_CREST[m.home] || null;
+const aCrestUrl = m.awayCrest || TEAM_CREST[m.away] || null;
+const hCrest = hCrestUrl
+  ? `<img class="crest" src="${hCrestUrl}" alt="" onerror="this.style.display='none'">`
+  : "";
+const aCrest = aCrestUrl
+  ? `<img class="crest" src="${aCrestUrl}" alt="" onerror="this.style.display='none'">`
+  : "";
 
       // 女子バッジ
       const womenBadge = mGender === "female"
