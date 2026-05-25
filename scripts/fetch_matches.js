@@ -53,22 +53,32 @@ const RAPID_LEAGUES = [
 ];
 
 // ────────────────────────────────────────────────
-// football-data.org フォールバック設定
+// football-data.org フォールバック設定（拡充版）
 // ────────────────────────────────────────────────
 const FD_FALLBACK_MAP = {
-  'EPL':              { id: 2021, lClass: 'l-epl',    tab: 'europe', gender: 'male' },
-  'LaLiga':           { id: 2014, lClass: 'l-laliga', tab: 'europe', gender: 'male' },
-  'Bundesliga':       { id: 2002, lClass: 'l-bund',   tab: 'europe', gender: 'male' },
-  'Serie A':          { id: 2019, lClass: 'l-serie',  tab: 'europe', gender: 'male' },
-  'Ligue 1':          { id: 2015, lClass: 'l-ligue',  tab: 'europe', gender: 'male' },
-  'Eredivisie':       { id: 2003, lClass: 'l-erediv', tab: 'europe', gender: 'male' },
-  'Liga Portugal':    { id: 2017, lClass: 'l-ligap',  tab: 'europe', gender: 'male' },
-  'Championship':     { id: 2016, lClass: 'l-champ2', tab: 'europe', gender: 'male' },
-  'Champions League': { id: 2001, lClass: 'l-champ',  tab: 'europe', gender: 'male' },
+  // 5大リーグ
+  'EPL':              { id: 2021, lClass: 'l-epl',      tab: 'europe', gender: 'male' },
+  'LaLiga':           { id: 2014, lClass: 'l-laliga',   tab: 'europe', gender: 'male' },
+  'Bundesliga':       { id: 2002, lClass: 'l-bund',     tab: 'europe', gender: 'male' },
+  'Serie A':          { id: 2019, lClass: 'l-serie',    tab: 'europe', gender: 'male' },
+  'Ligue 1':          { id: 2015, lClass: 'l-ligue',    tab: 'europe', gender: 'male' },
+  // その他欧州
+  'Eredivisie':       { id: 2003, lClass: 'l-erediv',   tab: 'europe', gender: 'male' },
+  'Liga Portugal':    { id: 2017, lClass: 'l-ligap',    tab: 'europe', gender: 'male' },
+  'Championship':     { id: 2016, lClass: 'l-champ2',   tab: 'europe', gender: 'male' },
+  'Scottish Prem':    { id: 2097, lClass: 'l-spl',      tab: 'europe', gender: 'male' },
+  'Belgian Pro League':{ id: 2267, lClass: 'l-belgique', tab: 'europe', gender: 'male' },
+  // 欧州カップ
+  'Champions League': { id: 2001, lClass: 'l-champ',    tab: 'europe', gender: 'male' },
+  'Europa League':    { id: 2146, lClass: 'l-uel',      tab: 'europe', gender: 'male' },
+  'Conference League':{ id: 2333, lClass: 'l-uel',      tab: 'europe', gender: 'male' },
+  // 北中米
+  'MLS':              { id: 2096, lClass: 'l-north',    tab: 'north',  gender: 'male' },
+  // ※ Liga MX / Saudi / UAE / Qatar / AFC は football-data.org 無料プランでは非対応のため除外
 };
 
 // ────────────────────────────────────────────────
-// football-data.org 代表戦設定（Copa America は除外済み）
+// football-data.org 代表戦設定
 // ────────────────────────────────────────────────
 const FD_NATIONAL = [
   { id: 2000, key: 'World Cup',       lClass: 'l-wc',    tab: 'national', gender: 'male',   national: true },
@@ -79,8 +89,8 @@ const FD_NATIONAL = [
   { id: 2077, key: 'Women World Cup', lClass: 'l-wc',    tab: 'national', gender: 'female', national: true },
 ];
 
-// football-data.org エンブレム補完用リーグ
-const FD_CREST_COMPETITIONS = [];
+// football-data.org エンブレム補完用リーグ（主要リーグを有効化）
+const FD_CREST_COMPETITIONS = [2021, 2014, 2002, 2019, 2015, 2001, 2003, 2017, 2016];
 
 // ────────────────────────────────────────────────
 // ユーティリティ
@@ -206,6 +216,7 @@ async function fdFetchMatches(compId, playerMap, meta) {
         national:  meta.national || false,
         youth:     meta.youth    || false,
         japanese,
+        source:    'fd',  // ← フォールバック元を明示
       };
     })
     .filter(Boolean);
@@ -279,10 +290,16 @@ function loadPlayerMap() {
 
 // ────────────────────────────────────────────────
 // RapidAPI クラブ試合取得
+// 戻り値: 試合配列 | null（APIエラー・データ構造異常）
 // ────────────────────────────────────────────────
 async function fetchLeagueMatches(league, playerMap, crestMap) {
   const data = await rapidFetch(`/football-get-all-matches-by-league?leagueid=${league.id}`);
-  if (!data?.response?.matches) return [];
+
+  // null = 通信エラー or 非200 → フォールバック候補
+  if (data === null) return null;
+
+  // レスポンスはあるが試合配列が取れない → フォールバック候補
+  if (!data?.response?.matches) return null;
 
   const now = Date.now();
   const upcoming = data.response.matches.filter(m => {
@@ -291,6 +308,8 @@ async function fetchLeagueMatches(league, playerMap, crestMap) {
     return new Date(m.status.utcTime).getTime() > now;
   });
 
+  // 試合が0件でもエラーではなく正常終了（シーズンオフ等）→ 空配列を返す
+  // ただし national/youth リーグは0件=開催なし扱いとし、フォールバックしない
   return upcoming.map(m => {
     const home = m.home?.name || m.home?.longName || '';
     const away = m.away?.name || m.away?.longName || '';
@@ -300,10 +319,10 @@ async function fetchLeagueMatches(league, playerMap, crestMap) {
     const awayCrest = m.away?.imageUrl || crestMap[away] || crestMap[m.away?.shortName] || null;
 
     const japanese = [
-      ...(playerMap[home] || []),
-      ...(playerMap[away] || []),
-      ...(playerMap[m.home?.shortName] || []),
-      ...(playerMap[m.away?.shortName] || []),
+      ...(playerMap[home]             || []),
+      ...(playerMap[away]             || []),
+      ...(playerMap[m.home?.shortName]|| []),
+      ...(playerMap[m.away?.shortName]|| []),
     ];
 
     return {
@@ -319,6 +338,7 @@ async function fetchLeagueMatches(league, playerMap, crestMap) {
       national: league.national || false,
       youth:    league.youth    || false,
       japanese: [...new Set(japanese)],
+      source:   'rapid',
     };
   }).filter(Boolean);
 }
@@ -338,27 +358,37 @@ async function main() {
   // 3. クラブ試合取得（RapidAPI）
   console.log(`\n📅 クラブ試合データ取得開始 (${RAPID_LEAGUES.length}リーグ)...\n`);
   const allMatches = [];
-  const failedLeagueKeys = [];
+
+  // null  = APIエラー / データ構造異常 → フォールバック
+  // []    = 正常だが試合なし（シーズンオフ等）→ フォールバックしない
+  // [...] = 正常取得
+  const failedLeagueKeys = [];   // → FDフォールバック対象
+  const emptyLeagueKeys  = [];   // → フォールバックなし（ログのみ）
 
   for (let i = 0; i < RAPID_LEAGUES.length; i++) {
     const league = RAPID_LEAGUES[i];
     process.stdout.write(`[${String(i+1).padStart(2)}/${RAPID_LEAGUES.length}] ${league.key.padEnd(28)} `);
 
     const matches = await fetchLeagueMatches(league, playerMap, crestMap);
-    allMatches.push(...matches);
 
-    if (matches.length === 0) {
-      failedLeagueKeys.push(league.key);
+    if (matches === null) {
+      // APIエラー or データ構造異常
       const hasFallback = !!FD_FALLBACK_MAP[league.key];
-      console.log(`0試合 ${hasFallback ? '→ FDフォールバック予定' : ''}`);
+      failedLeagueKeys.push(league.key);
+      console.log(`❌ 取得失敗 ${hasFallback ? '→ FDフォールバック予定' : '(FD対応なし)'}`);
+    } else if (matches.length === 0) {
+      // 正常だが0件（シーズンオフ等）
+      emptyLeagueKeys.push(league.key);
+      console.log('－ 0試合（シーズンオフ等）');
     } else {
+      allMatches.push(...matches);
       console.log(`✅ ${matches.length}試合`);
     }
 
     if (i < RAPID_LEAGUES.length - 1) await sleep(1000);
   }
 
-  // 4. フォールバック取得（football-data.org）
+  // 4. フォールバック取得（football-data.org）— エラーになったリーグのみ
   allMatches.push(...(await fetchFallbackMatches(failedLeagueKeys, playerMap)));
 
   // 5. 代表戦取得（football-data.org）
@@ -380,8 +410,12 @@ async function main() {
   fs.writeFileSync('data/matches.json', JSON.stringify({ updatedAt: jstStr, matches: unique }, null, 2));
 
   // サマリー
-  const byTab = {};
-  unique.forEach(m => { byTab[m.tab] = (byTab[m.tab] || 0) + 1; });
+  const byTab      = {};
+  const bySource   = { rapid: 0, fd: 0 };
+  unique.forEach(m => {
+    byTab[m.tab] = (byTab[m.tab] || 0) + 1;
+    if (m.source) bySource[m.source] = (bySource[m.source] || 0) + 1;
+  });
   const jpMatches      = unique.filter(m => m.japanese.length > 0).length;
   const withCrestTotal = unique.filter(m => m.homeCrest || m.awayCrest).length;
   const fbLeagues      = failedLeagueKeys.filter(k => FD_FALLBACK_MAP[k]);
@@ -389,10 +423,14 @@ async function main() {
   console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
   console.log(`✅ 保存完了: 合計 ${unique.length}試合`);
   Object.entries(byTab).forEach(([tab, cnt]) => console.log(`   ${tab.padEnd(12)}: ${cnt}試合`));
+  console.log(`   ソース    : RapidAPI ${bySource.rapid}試合 / football-data.org ${bySource.fd}試合`);
   console.log(`   日本人関連: ${jpMatches}試合`);
   console.log(`   エンブレムあり: ${withCrestTotal}/${unique.length}試合`);
   if (fbLeagues.length > 0) {
-    console.log(`   FDフォールバック: ${fbLeagues.join(', ')}`);
+    console.log(`   FDフォールバック実施: ${fbLeagues.join(', ')}`);
+  }
+  if (emptyLeagueKeys.length > 0) {
+    console.log(`   0試合（シーズンオフ等）: ${emptyLeagueKeys.join(', ')}`);
   }
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 }
