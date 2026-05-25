@@ -73,6 +73,7 @@ const RAPID_NATIONAL_MAP = {
   'Nations League':  { id: 9806,lClass: 'l-champ', tab: 'national', gender: 'male',   national: true },
   'Euro':            { id: 50,  lClass: 'l-champ', tab: 'national', gender: 'male',   national: true },
   'AFC Asian Cup':   { id: 290, lClass: 'l-champ', tab: 'national', gender: 'male',   national: true },
+  'AFCON':           { id: 289,  lClass: 'l-champ', tab: 'national', gender: 'male',   national: true },
   'Women World Cup': { id: 76,  lClass: 'l-wc',    tab: 'national', gender: 'female', national: true },
 };
 
