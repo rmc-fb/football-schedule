@@ -854,7 +854,13 @@ if (VALID_TABS.includes(hashTab)) currentTab = hashTab;
 // ユーティリティ
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 function playerJa(name) { return PLAYER_JA[name] || name; }
-function teamJa(name)   { return TEAM_JA[name]   || name; }
+function teamJa(name) {
+  if (TEAM_JA[name]) return TEAM_JA[name];
+  for (const [key, val] of Object.entries(TEAM_JA)) {
+    if (name.includes(key) || key.includes(name)) return val;
+  }
+  return name;
+}
 
 function toJST(utcStr) {
   const d = new Date(utcStr);
