@@ -1,23 +1,33 @@
 name: Fetch Players
-
 on:
   schedule:
-    # 毎月1日 07:00 JST (= 前日 22:00 UTC)
     - cron: '0 22 1 * *'
   workflow_dispatch:
-
 permissions:
   contents: write
-
 jobs:
   fetch:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
+
+      # ── デバッグ: ブライトンのスカッドAPIレスポンスを確認 ──
+      - name: Debug squad API response
+        run: |
+          node -e "
+          const url = 'https://free-api-live-football-data.p.rapidapi.com/football-get-team-squad?teamid=72';
+          fetch(url, {
+            headers: {
+              'x-rapidapi-key': process.env.RAPIDAPI_KEY,
+              'x-rapidapi-host': 'free-api-live-football-data.p.rapidapi.com'
+            }
+          }).then(r => r.json()).then(d => console.log(JSON.stringify(d, null, 2))).catch(console.error);
+          "
+        env:
+          RAPIDAPI_KEY: ${{ secrets.RAPIDAPI_KEY }}
 
       - name: Fetch players
         run: node scripts/fetch_players.js
