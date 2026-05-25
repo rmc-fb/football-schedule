@@ -202,12 +202,10 @@ async function fdFetchMatches(compId, playerMap, meta) {
       const away = m.awayTeam?.name || '';
       if (!home || !away) return null;
 
-      const japanese = meta.national
-        ? (home.includes('Japan') || away.includes('Japan')
-            ? [...new Set([...(playerMap[home] || []), ...(playerMap[away] || [])])]
-            : [])
-        : [...new Set([...(playerMap[home] || []), ...(playerMap[away] || [])])];
-
+     const japanese = meta.national
+  ? []
+  : [...new Set([...(playerMap[home] || []), ...(playerMap[away] || [])])];
+      
       return {
         kickoffUTC: m.utcDate,
         home,
@@ -251,7 +249,9 @@ async function rapidFetchMatches(league, playerMap, crestMap) {
     const homeCrest = m.home?.imageUrl || crestMap[home] || crestMap[m.home?.shortName] || null;
     const awayCrest = m.away?.imageUrl || crestMap[away] || crestMap[m.away?.shortName] || null;
 
-    const japanese = [...new Set([
+    const japanese = league.national
+  ? []
+  : [...new Set([
       ...(playerMap[home]              || []),
       ...(playerMap[away]              || []),
       ...(playerMap[m.home?.shortName] || []),
