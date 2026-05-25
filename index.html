@@ -33,17 +33,18 @@ header { background:var(--surface); border-bottom:1px solid var(--border); }
 .updated b { color:var(--green); }
 
 /* ── MAIN NAV ── */
-.main-nav { display:flex; gap:2px; overflow-x:auto; scrollbar-width:none; }
-.main-nav::-webkit-scrollbar { display:none; }
+.nav-rows { display:flex; flex-direction:column; }
+.main-nav { display:flex; gap:2px; }
+.main-nav.nav-row2 { border-top:1px solid var(--border); }
 .main-nav button {
   font-family:'Noto Sans JP',sans-serif; font-size:.78rem; font-weight:700;
   letter-spacing:.03em; padding:9px 11px;
-  flex-shrink:0;
-  text-align:center;
+  flex:1; text-align:center;
   background:transparent; color:var(--muted);
   border:none; border-bottom:3px solid transparent;
   cursor:pointer; transition:all .2s; white-space:nowrap;
 }
+.main-nav.nav-row2 button { font-size:.74rem; padding:7px 11px; }
 .main-nav button:hover { color:var(--text); }
 .main-nav button.active { color:#fff; border-bottom-color:var(--accent); background:rgba(230,51,35,.06); }
 
@@ -228,14 +229,18 @@ footer { text-align:center; padding:16px; border-top:1px solid var(--border); ba
       <span>毎日 07:00 JST 自動取得</span>
     </div>
   </div>
-  <nav class="main-nav">
+  <div class="nav-rows">
+    <nav class="main-nav nav-row1">
     <button id="tab-europe"   onclick="setTab('europe',this)"  >🌍 欧州日程</button>
     <button id="tab-japanese" onclick="setTab('japanese',this)">🇯🇵 日本人日程</button>
     <button id="tab-national" onclick="setTab('national',this)">🏆 代表戦日程</button>
-    <button id="tab-middle"   onclick="setTab('middle',this)"  >🕌 中東日程</button>
+  </nav>
+    <nav class="main-nav nav-row2">
+      <button id="tab-middle"   onclick="setTab('middle',this)"  >🕌 中東日程</button>
     <button id="tab-north"    onclick="setTab('north',this)"   >🌎 北米日程</button>
     <button id="tab-youth"    onclick="setTab('youth',this)"   >🌱 ユース代表</button>
   </nav>
+  </div>
 </div>
 </header>
 
