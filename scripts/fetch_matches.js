@@ -1,28 +1,26 @@
 // scripts/fetch_matches.js
 // RapidAPI (free-api-live-football-data) から試合データを取得して data/matches.json に保存
-// 実行: RAPIDAPI_KEY=xxx node scripts/fetch_matches.js
+// エンブレムは RapidAPI になければ football-data.org で補完
+// 実行: RAPIDAPI_KEY=xxx FOOTBALLDATA_KEY=xxx node scripts/fetch_matches.js
 
 'use strict';
 const fs = require('fs');
 
-const RAPID_KEY  = process.env.RAPIDAPI_KEY;
-const RAPID_HOST = 'free-api-live-football-data.p.rapidapi.com';
-const BASE_URL   = `https://${RAPID_HOST}`;
+const RAPID_KEY       = process.env.RAPIDAPI_KEY;
+const RAPID_HOST      = 'free-api-live-football-data.p.rapidapi.com';
+const BASE_URL        = `https://${RAPID_HOST}`;
+const FOOTBALLDATA_KEY = process.env.FOOTBALLDATA_KEY;
 
 if (!RAPID_KEY) {
   console.error('❌ 環境変数 RAPIDAPI_KEY が未設定');
   process.exit(1);
 }
+if (!FOOTBALLDATA_KEY) {
+  console.warn('⚠️  FOOTBALLDATA_KEY が未設定。エンブレム補完はスキップします。');
+}
 
 // ────────────────────────────────────────────────
 // 取得対象リーグ設定
-// id    : RapidAPI の leagueid
-// key   : matches.json に書き込む league 名
-// lClass: CSSクラス
-// tab   : フロントのタブ ('europe'|'middle'|'north'|'national'|'youth')
-// gender: 'male'|'female'
-// national: 代表戦フラグ
-// youth : ユース大会フラグ
 // ────────────────────────────────────────────────
 const LEAGUES = [
   // ── 欧州 5大リーグ ──
@@ -75,6 +73,24 @@ const LEAGUES = [
 ];
 
 // ────────────────────────────────────────────────
+// football-data.org のリーグID（無料プランで取得可能なもの）
+// https://www.football-data.org/coverage
+// ────────────────────────────────────────────────
+const FD_COMPETITION_IDS = [
+  2021, // EPL
+  2014, // LaLiga
+  2002, // Bundesliga
+  2019, // Serie A
+  2015, // Ligue 1
+  2003, // Eredivisie
+  2017, // Liga Portugal
+  2000, // World Cup
+  2001, // Champions League
+  2018, // Europa League
+  2152, // Copa Libertadores（参考）
+];
+
+// ────────────────────────────────────────────────
 // ユーティリティ
 // ────────────────────────────────────────────────
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
@@ -108,8 +124,73 @@ async function rapidFetch(path, retries = 3) {
   return null;
 }
 
+async function fdFetch(path, retries = 3) {
+  const url = `https://api.football-data.org/v4${path}`;
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      const res = await fetch(url, {
+        headers: { 'X-Auth-Token': FOOTBALLDATA_KEY },
+      });
+      if (res.status === 429) {
+        const wait = attempt * 20000;
+        console.warn(`  ⏳ [FD] 429 Too Many Requests. ${wait/1000}秒待機...`);
+        await sleep(wait);
+        continue;
+      }
+      if (!res.ok) {
+        console.warn(`  ⚠️ [FD] HTTP ${res.status}: ${url}`);
+        return null;
+      }
+      return res.json();
+    } catch (e) {
+      console.warn(`  ⚠️ [FD] fetch error (${attempt}/${retries}): ${e.message}`);
+      if (attempt < retries) await sleep(5000);
+    }
+  }
+  return null;
+}
+
 // ────────────────────────────────────────────────
-// 選手マップ読み込み（players.json から）
+// football-data.org からエンブレムマップを構築
+// { "Arsenal": "https://crests.football-data.org/57.png", ... }
+// ────────────────────────────────────────────────
+async function buildCrestMap() {
+  if (!FOOTBALLDATA_KEY) return {};
+
+  console.log('\n🏅 football-data.org からエンブレムデータを取得中...');
+  const crestMap = {};
+  let totalTeams = 0;
+
+  for (let i = 0; i < FD_COMPETITION_IDS.length; i++) {
+    const compId = FD_COMPETITION_IDS[i];
+    const data = await fdFetch(`/competitions/${compId}/teams`);
+
+    if (data?.teams) {
+      data.teams.forEach(t => {
+        // name / shortName / tla の3パターンで登録（チーム名の表記ゆれ対策）
+        if (t.crest) {
+          if (t.name)      crestMap[t.name]      = t.crest;
+          if (t.shortName) crestMap[t.shortName] = t.crest;
+          if (t.tla)       crestMap[t.tla]       = t.crest;
+          totalTeams++;
+        }
+      });
+      console.log(`  ✅ competition ${compId}: ${data.teams.length}チーム取得`);
+    } else {
+      console.log(`  － competition ${compId}: データなし`);
+    }
+
+    // football-data.org 無料プランは1分10リクエスト制限
+    // リーグ間に7秒待機（安全マージン込み）
+    if (i < FD_COMPETITION_IDS.length - 1) await sleep(7000);
+  }
+
+  console.log(`  📦 エンブレムマップ完成: ${Object.keys(crestMap).length}エントリ (${totalTeams}チーム)\n`);
+  return crestMap;
+}
+
+// ────────────────────────────────────────────────
+// 選手マップ読み込み
 // ────────────────────────────────────────────────
 function loadPlayerMap() {
   const path = 'data/players.json';
@@ -127,13 +208,12 @@ function loadPlayerMap() {
 // ────────────────────────────────────────────────
 // 1リーグ分の試合を取得・整形
 // ────────────────────────────────────────────────
-async function fetchLeagueMatches(league, playerMap) {
+async function fetchLeagueMatches(league, playerMap, crestMap) {
   const data = await rapidFetch(`/football-get-all-matches-by-league?leagueid=${league.id}`);
   if (!data?.response?.matches) return [];
 
   const now = Date.now();
 
-  // 未来の試合のみ（終了・キャンセル除外）
   const upcoming = data.response.matches.filter(m => {
     if (!m.status?.utcTime) return false;
     if (m.status.finished || m.status.cancelled) return false;
@@ -145,11 +225,20 @@ async function fetchLeagueMatches(league, playerMap) {
     const away = m.away?.name || m.away?.longName || '';
     if (!home || !away) return null;
 
+    // エンブレム: RapidAPIを優先、なければfootball-data.orgで補完
+    const homeCrest = m.home?.imageUrl
+      || crestMap[home]
+      || crestMap[m.home?.shortName]
+      || null;
+    const awayCrest = m.away?.imageUrl
+      || crestMap[away]
+      || crestMap[m.away?.shortName]
+      || null;
+
     // 日本人選手（players.json のチーム名と照合）
     const japanese = [
       ...(playerMap[home] || []),
       ...(playerMap[away] || []),
-      // shortName でも照合
       ...(playerMap[m.home?.shortName] || []),
       ...(playerMap[m.away?.shortName] || []),
     ];
@@ -159,15 +248,15 @@ async function fetchLeagueMatches(league, playerMap) {
       kickoffUTC: m.status.utcTime,
       home,
       away,
-      homeCrest: m.home?.imageUrl || null,
-      awayCrest: m.away?.imageUrl || null,
-      league:    league.key,
-      lClass:    league.lClass,
-      tab:       league.tab,
-      gender:    league.gender || 'male',
-      national:  league.national || false,
-      youth:     league.youth    || false,
-      japanese:  uniqueJapanese,
+      homeCrest,
+      awayCrest,
+      league:   league.key,
+      lClass:   league.lClass,
+      tab:      league.tab,
+      gender:   league.gender || 'male',
+      national: league.national || false,
+      youth:    league.youth    || false,
+      japanese: uniqueJapanese,
     };
   }).filter(Boolean);
 }
@@ -178,6 +267,9 @@ async function fetchLeagueMatches(league, playerMap) {
 async function main() {
   if (!fs.existsSync('data')) fs.mkdirSync('data');
 
+  // football-data.org からエンブレムマップを先に構築
+  const crestMap = await buildCrestMap();
+
   const playerMap = loadPlayerMap();
 
   console.log(`\n📅 試合データ取得開始 (${LEAGUES.length}リーグ)...\n`);
@@ -185,17 +277,20 @@ async function main() {
   const allMatches = [];
   let successCount = 0;
   let errorCount   = 0;
+  let crestHitCount = 0;
 
   for (let i = 0; i < LEAGUES.length; i++) {
     const league = LEAGUES[i];
     process.stdout.write(`[${String(i+1).padStart(2)}/${LEAGUES.length}] ${league.key.padEnd(28)} `);
 
-    const matches = await fetchLeagueMatches(league, playerMap);
+    const matches = await fetchLeagueMatches(league, playerMap, crestMap);
     allMatches.push(...matches);
     successCount++;
-    console.log(`✅ ${matches.length}試合`);
 
-    // API負荷軽減: リーグ間に1秒待機
+    const withCrest = matches.filter(m => m.homeCrest || m.awayCrest).length;
+    crestHitCount += withCrest;
+    console.log(`✅ ${matches.length}試合 (エンブレムあり: ${withCrest}試合)`);
+
     if (i < LEAGUES.length - 1) await sleep(1000);
   }
 
@@ -219,12 +314,14 @@ async function main() {
   // サマリー
   const byTab = {};
   unique.forEach(m => { byTab[m.tab] = (byTab[m.tab] || 0) + 1; });
-  const jpMatches = unique.filter(m => m.japanese.length > 0).length;
+  const jpMatches     = unique.filter(m => m.japanese.length > 0).length;
+  const withCrestTotal = unique.filter(m => m.homeCrest || m.awayCrest).length;
 
   console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
   console.log(`✅ 保存完了: 合計 ${unique.length}試合`);
   Object.entries(byTab).forEach(([tab, cnt]) => console.log(`   ${tab.padEnd(12)}: ${cnt}試合`));
   console.log(`   日本人関連: ${jpMatches}試合`);
+  console.log(`   エンブレムあり: ${withCrestTotal}/${unique.length}試合`);
   console.log(`   取得成功: ${successCount}/${LEAGUES.length}リーグ`);
   if (errorCount > 0) console.log(`   ⚠️ エラー: ${errorCount}リーグ`);
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
