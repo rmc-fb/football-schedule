@@ -73,10 +73,10 @@ const FD_FALLBACK_MAP = {
 // football-data.org 代表戦設定
 // ────────────────────────────────────────────────
 const FD_NATIONAL = [
-  { id: 2000, key: 'World Cup',       lClass: 'l-wc',    tab: 'national', gender: 'male',   national: true },
+{ id: 2000, key: 'World Cup',      lClass: 'l-wc',    tab: 'national', gender: 'male',   national: true },
   { id: 2186, key: 'Nations League',  lClass: 'l-champ', tab: 'national', gender: 'male',   national: true },
   { id: 2018, key: 'Euro',            lClass: 'l-champ', tab: 'national', gender: 'male',   national: true },
-  { id: 2152, key: 'Copa America',    lClass: 'l-champ', tab: 'national', gender: 'male',   national: true },
+  { id: 2152, key: 'Copa America',    lClass: 'l-champ', tab: 'other',    gender: 'male',   national: true },
   { id: 2119, key: 'AFC Asian Cup',   lClass: 'l-champ', tab: 'national', gender: 'male',   national: true },
   { id: 2165, key: 'AFCON',           lClass: 'l-champ', tab: 'national', gender: 'male',   national: true },
   { id: 2077, key: 'Women World Cup', lClass: 'l-wc',    tab: 'national', gender: 'female', national: true },
