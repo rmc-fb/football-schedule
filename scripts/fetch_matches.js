@@ -56,44 +56,33 @@ const RAPID_LEAGUES = [
 ];
 
 // ────────────────────────────────────────────────
-// football-data.org 代表戦（男子 World Cup のみ、失敗時RapidAPIフォールバック）
+// football-data.org 代表戦（男子 World Cup のみ）
 // ────────────────────────────────────────────────
 const FD_NATIONAL = [
   { id: 2000, key: 'World Cup', lClass: 'l-wc', tab: 'national', gender: 'male', national: true },
 ];
 
-// FD失敗時のRapidAPIフォールバック用
 const RAPID_NATIONAL_FALLBACK = {
   'World Cup': { id: 77, lClass: 'l-wc', tab: 'national', gender: 'male', national: true },
 };
 
-// ────────────────────────────────────────────────
-// RapidAPI のみで取得する代表戦
-// （Women World Cup・Nations League・Euro・AFC Asian Cup・AFCON 男女）
-// ────────────────────────────────────────────────
 const RAPID_NATIONAL = [
-  // World Cup
-  { id: 76, key: 'Women World Cup', lClass: 'l-wc', tab: 'national', gender: 'female', national: true },
-  // Nations League
-  { id: 9806,  key: 'Nations League A',   lClass: 'l-champ', tab: 'national', gender: 'male',   national: true },
-  { id: 9807,  key: 'Nations League B',   lClass: 'l-champ', tab: 'national', gender: 'male',   national: true },
-  { id: 9808,  key: 'Nations League C',   lClass: 'l-champ', tab: 'national', gender: 'male',   national: true },
-  { id: 9809,  key: 'Nations League D',   lClass: 'l-champ', tab: 'national', gender: 'male',   national: true },
-  { id: 10457, key: 'Nations League W-A', lClass: 'l-champ', tab: 'national', gender: 'female', national: true },
-  { id: 10458, key: 'Nations League W-B', lClass: 'l-champ', tab: 'national', gender: 'female', national: true },
-  { id: 10459, key: 'Nations League W-C', lClass: 'l-champ', tab: 'national', gender: 'female', national: true },
-  // Euro
-  { id: 50,    key: 'Euro',              lClass: 'l-champ', tab: 'national', gender: 'male',   national: true },
-  { id: 292,   key: 'Women Euro',        lClass: 'l-champ', tab: 'national', gender: 'female', national: true },
-  // AFC Asian Cup
-  { id: 290,   key: 'AFC Asian Cup',     lClass: 'l-champ', tab: 'national', gender: 'male',   national: true },
-  { id: 10269, key: 'Women Asian Cup',   lClass: 'l-champ', tab: 'national', gender: 'female', national: true },
-  // AFCON
-  { id: 289,   key: 'AFCON',            lClass: 'l-champ', tab: 'national', gender: 'male',   national: true },
-  { id: 10371, key: 'Women AFCON',      lClass: 'l-champ', tab: 'national', gender: 'female', national: true },
+  { id: 76,    key: 'Women World Cup',        lClass: 'l-wc',    tab: 'national', gender: 'female', national: true },
+  { id: 9806,  key: 'Nations League A',       lClass: 'l-champ', tab: 'national', gender: 'male',   national: true },
+  { id: 9807,  key: 'Nations League B',       lClass: 'l-champ', tab: 'national', gender: 'male',   national: true },
+  { id: 9808,  key: 'Nations League C',       lClass: 'l-champ', tab: 'national', gender: 'male',   national: true },
+  { id: 9809,  key: 'Nations League D',       lClass: 'l-champ', tab: 'national', gender: 'male',   national: true },
+  { id: 10457, key: 'Nations League W-A',     lClass: 'l-champ', tab: 'national', gender: 'female', national: true },
+  { id: 10458, key: 'Nations League W-B',     lClass: 'l-champ', tab: 'national', gender: 'female', national: true },
+  { id: 10459, key: 'Nations League W-C',     lClass: 'l-champ', tab: 'national', gender: 'female', national: true },
+  { id: 50,    key: 'Euro',                   lClass: 'l-champ', tab: 'national', gender: 'male',   national: true },
+  { id: 292,   key: 'Women Euro',             lClass: 'l-champ', tab: 'national', gender: 'female', national: true },
+  { id: 290,   key: 'AFC Asian Cup',          lClass: 'l-champ', tab: 'national', gender: 'male',   national: true },
+  { id: 10269, key: 'Women Asian Cup',        lClass: 'l-champ', tab: 'national', gender: 'female', national: true },
+  { id: 289,   key: 'AFCON',                  lClass: 'l-champ', tab: 'national', gender: 'male',   national: true },
+  { id: 10371, key: 'Women AFCON',            lClass: 'l-champ', tab: 'national', gender: 'female', national: true },
 ];
 
-// エンブレム補完用リーグ（football-data.org）
 const FD_CREST_COMPETITIONS = [2021, 2014, 2002, 2019, 2015, 2001, 2003, 2017, 2016];
 
 // ────────────────────────────────────────────────
@@ -153,14 +142,36 @@ async function fdFetch(path, retries = 3) {
 }
 
 // ────────────────────────────────────────────────
+// playerMap から複数キーで選手名を検索するヘルパー
+// fetch_players.js が name/shortName/tla を全キーとして保存しているため、
+// RapidAPI が返すどの表記でもヒットする
+// ────────────────────────────────────────────────
+function lookupPlayers(playerMap, ...teamNames) {
+  const result = new Set();
+  for (const name of teamNames) {
+    if (!name) continue;
+    // 完全一致
+    for (const p of (playerMap[name] || [])) result.add(p);
+    // "FC" / "AFC" / "CF" / "SC" 等の接尾辞を除いた短縮名で再試行
+    const stripped = name.replace(/\s+(FC|AFC|CF|SC|AC|BC|FK|SK|IF|BK|IK|NK|HNK|RCD|SV|TSG|VfL|VfB|RB|1\.\s*FC|1\.\s*FSV|SSC|AS|US|SS|CD|UD|SD|CP|SCP|GD|SL|CS|RC|OGC|SM|EA|En\s+Avant|Sporting\s+CP)\s*$/i, '').trim();
+    if (stripped !== name) {
+      for (const p of (playerMap[stripped] || [])) result.add(p);
+    }
+    // 先頭の "FC " 等を除いた名前でも試行
+    const prefixStripped = name.replace(/^(FC|AFC|CF|SC|AC|BC|FK|SK)\s+/i, '').trim();
+    if (prefixStripped !== name) {
+      for (const p of (playerMap[prefixStripped] || [])) result.add(p);
+    }
+  }
+  return [...result];
+}
+
+// ────────────────────────────────────────────────
 // エンブレムマップ構築（football-data.org）
-// キャッシュ: data/crests.json が存在すればAPIを叩かずそれを使用
-// 更新したい場合は data/crests.json を削除してから実行
 // ────────────────────────────────────────────────
 async function buildCrestMap() {
   const CACHE_PATH = 'data/crests.json';
 
-  // キャッシュがあればそれを返す
   if (fs.existsSync(CACHE_PATH)) {
     const cached = JSON.parse(fs.readFileSync(CACHE_PATH, 'utf-8'));
     const { _updatedAt, ...crestMap } = cached;
@@ -168,7 +179,6 @@ async function buildCrestMap() {
     return crestMap;
   }
 
-  // キャッシュなし → APIから取得
   if (!FOOTBALLDATA_KEY || FD_CREST_COMPETITIONS.length === 0) return {};
 
   console.log('\n🏅 football-data.org からエンブレムデータを取得中...');
@@ -192,7 +202,6 @@ async function buildCrestMap() {
     if (i < FD_CREST_COMPETITIONS.length - 1) await sleep(7000);
   }
 
-  // キャッシュ保存
   const jstStr = new Date(Date.now() + 9*60*60*1000).toISOString().replace('T', ' ').slice(0, 16);
   fs.writeFileSync(CACHE_PATH, JSON.stringify({ _updatedAt: jstStr, ...crestMap }, null, 2));
   console.log(`  📦 エンブレムマップ: ${Object.keys(crestMap).length}エントリ (data/crests.json にキャッシュ保存)\n`);
@@ -210,8 +219,8 @@ function loadPlayerMap() {
   }
   const saved = JSON.parse(fs.readFileSync(path, 'utf-8'));
   const map = saved.players || {};
-  const total = Object.values(map).flat().length;
-  console.log(`📋 選手データ: ${Object.keys(map).length}チーム / ${total}人 (更新: ${saved.updatedAt})`);
+  const uniquePlayers = new Set(Object.values(map).flat());
+  console.log(`📋 選手データ: ${Object.keys(map).length}キー / ${uniquePlayers.size}人 (更新: ${saved.updatedAt})`);
   return map;
 }
 
@@ -235,9 +244,18 @@ async function fdFetchMatches(compId, playerMap, meta) {
       const away = m.awayTeam?.name || '';
       if (!home || !away) return null;
 
+      // lookupPlayers で name/shortName/tla の全バリエーションを検索
       const japanese = meta.national
         ? []
-        : [...new Set([...(playerMap[home] || []), ...(playerMap[away] || [])])];
+        : lookupPlayers(
+            playerMap,
+            home,
+            away,
+            m.homeTeam?.shortName,
+            m.awayTeam?.shortName,
+            m.homeTeam?.tla,
+            m.awayTeam?.tla,
+          );
 
       return {
         kickoffUTC: m.utcDate,
@@ -260,7 +278,6 @@ async function fdFetchMatches(compId, playerMap, meta) {
 
 // ────────────────────────────────────────────────
 // RapidAPI 試合取得
-// 戻り値: 試合配列 | null（エラー）
 // ────────────────────────────────────────────────
 async function rapidFetchMatches(league, playerMap, crestMap) {
   const data = await rapidFetch(`/football-get-all-matches-by-league?leagueid=${league.id}`);
@@ -268,200 +285,3 @@ async function rapidFetchMatches(league, playerMap, crestMap) {
   if (!data?.response?.matches) return null;
 
   const now = Date.now();
-  const upcoming = data.response.matches.filter(m => {
-    if (!m.status?.utcTime) return false;
-    if (m.status.finished || m.status.cancelled) return false;
-    return new Date(m.status.utcTime).getTime() > now;
-  });
-
-  return upcoming.map(m => {
-    const home = m.home?.name || m.home?.longName || '';
-    const away = m.away?.name || m.away?.longName || '';
-    if (!home || !away) return null;
-
-    const homeCrest = m.home?.imageUrl || crestMap[home] || crestMap[m.home?.shortName] || null;
-    const awayCrest = m.away?.imageUrl || crestMap[away] || crestMap[m.away?.shortName] || null;
-
-    const japanese = league.national
-      ? []
-      : [...new Set([
-          ...(playerMap[home]              || []),
-          ...(playerMap[away]              || []),
-          ...(playerMap[m.home?.shortName] || []),
-          ...(playerMap[m.away?.shortName] || []),
-        ])];
-
-    return {
-      kickoffUTC: m.status.utcTime,
-      home,
-      away,
-      homeCrest,
-      awayCrest,
-      league:   league.key,
-      lClass:   league.lClass,
-      tab:      league.tab,
-      gender:   league.gender || 'male',
-      national: league.national || false,
-      youth:    league.youth    || false,
-      japanese,
-      source:   'rapid',
-    };
-  }).filter(Boolean);
-}
-
-// ────────────────────────────────────────────────
-// 代表戦取得
-//   FD担当: 男子 World Cup のみ（失敗時RapidAPIフォールバック）
-//   Rapid担当: Women World Cup・Nations League・Euro・AFC Asian Cup・AFCON（男女）
-// ────────────────────────────────────────────────
-async function fetchNationalMatches(playerMap, crestMap) {
-  console.log('\n🌍 代表戦データ取得中...');
-  const allMatches = [];
-
-  // ── FD担当（World Cup / Women World Cup）──
-  for (let i = 0; i < FD_NATIONAL.length; i++) {
-    const comp = FD_NATIONAL[i];
-    process.stdout.write(`  [FD ${String(i+1).padStart(2)}/${FD_NATIONAL.length}] ${comp.key.padEnd(20)} `);
-
-    const matches = await fdFetchMatches(comp.id, playerMap, comp);
-
-    if (matches && matches.length > 0) {
-      allMatches.push(...matches);
-      console.log(`✅ FD: ${matches.length}試合`);
-    } else {
-      // FD失敗時はRapidAPIフォールバック
-      const fallback = RAPID_NATIONAL_FALLBACK[comp.key];
-      if (fallback && RAPID_KEY) {
-        const rapidMatches = await rapidFetchMatches(
-          { ...fallback, key: comp.key },
-          playerMap,
-          crestMap
-        );
-        if (rapidMatches && rapidMatches.length > 0) {
-          allMatches.push(...rapidMatches);
-          console.log(`🔄 RapidAPI: ${rapidMatches.length}試合`);
-        } else {
-          console.log('－ 取得なし');
-        }
-      } else {
-        console.log('－ 取得なし');
-      }
-    }
-
-    if (i < FD_NATIONAL.length - 1) await sleep(7000);
-  }
-
-  // ── RapidAPI担当（Nations League・Euro・AFC Asian Cup・AFCON 男女）──
-  console.log(`\n  📡 RapidAPI 代表戦取得 (${RAPID_NATIONAL.length}件)...`);
-  for (let i = 0; i < RAPID_NATIONAL.length; i++) {
-    const comp = RAPID_NATIONAL[i];
-    process.stdout.write(`  [RA ${String(i+1).padStart(2)}/${RAPID_NATIONAL.length}] ${comp.key.padEnd(20)} `);
-
-    const matches = await rapidFetchMatches(comp, playerMap, crestMap);
-    if (matches === null) {
-      console.log('❌ 取得失敗');
-    } else if (matches.length === 0) {
-      console.log('－ 取得なし');
-    } else {
-      allMatches.push(...matches);
-      console.log(`✅ ${matches.length}試合`);
-    }
-
-    if (i < RAPID_NATIONAL.length - 1) await sleep(1000);
-  }
-
-  return allMatches;
-}
-
-// ────────────────────────────────────────────────
-// メイン
-// ────────────────────────────────────────────────
-async function main() {
-  if (!fs.existsSync('data')) fs.mkdirSync('data');
-
-  // 1. エンブレムマップ構築
-  const crestMap = await buildCrestMap();
-
-  // 2. 選手マップ読み込み
-  const playerMap = loadPlayerMap();
-
-  const allMatches = [];
-  const summary = { fd: 0, rapid: 0, failed: [] };
-
-  // 3. football-data.org クラブ試合取得
-  console.log(`\n📅 football-data.org クラブ試合取得 (${FD_CLUB_LEAGUES.length}リーグ)...\n`);
-  for (let i = 0; i < FD_CLUB_LEAGUES.length; i++) {
-    const league = FD_CLUB_LEAGUES[i];
-    process.stdout.write(`[${String(i+1).padStart(2)}/${FD_CLUB_LEAGUES.length}] ${league.key.padEnd(28)} `);
-
-    const matches = await fdFetchMatches(league.id, playerMap, league);
-    if (matches === null) {
-      console.log('❌ 取得失敗');
-      summary.failed.push(league.key);
-    } else if (matches.length === 0) {
-      console.log('－ 0試合');
-    } else {
-      allMatches.push(...matches);
-      summary.fd += matches.length;
-      console.log(`✅ ${matches.length}試合`);
-    }
-
-    if (i < FD_CLUB_LEAGUES.length - 1) await sleep(7000);
-  }
-
-  // 4. RapidAPI クラブ試合取得
-  console.log(`\n📅 RapidAPI クラブ試合取得 (${RAPID_LEAGUES.length}リーグ)...\n`);
-  for (let i = 0; i < RAPID_LEAGUES.length; i++) {
-    const league = RAPID_LEAGUES[i];
-    process.stdout.write(`[${String(i+1).padStart(2)}/${RAPID_LEAGUES.length}] ${league.key.padEnd(28)} `);
-
-    const matches = await rapidFetchMatches(league, playerMap, crestMap);
-    if (matches === null) {
-      console.log('❌ 取得失敗');
-      summary.failed.push(league.key);
-    } else if (matches.length === 0) {
-      console.log('－ 0試合');
-    } else {
-      allMatches.push(...matches);
-      summary.rapid += matches.length;
-      console.log(`✅ ${matches.length}試合`);
-    }
-
-    if (i < RAPID_LEAGUES.length - 1) await sleep(1000);
-  }
-
-  // 5. 代表戦取得（crestMap を渡す）
-  allMatches.push(...(await fetchNationalMatches(playerMap, crestMap)));
-
-  // 6. 重複除去・ソート
-  const seen   = new Set();
-  const unique = allMatches.filter(m => {
-    const key = `${m.kickoffUTC}|${m.home}|${m.away}`;
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
-  unique.sort((a, b) => a.kickoffUTC.localeCompare(b.kickoffUTC));
-
-  // 7. 保存
-  const jstStr = new Date(Date.now() + 9*60*60*1000)
-    .toISOString().replace('T', ' ').slice(0, 16);
-  fs.writeFileSync('data/matches.json', JSON.stringify({ updatedAt: jstStr, matches: unique }, null, 2));
-
-  // サマリー
-  const byTab = {};
-  unique.forEach(m => { byTab[m.tab] = (byTab[m.tab] || 0) + 1; });
-  const jpMatches = unique.filter(m => m.japanese.length > 0).length;
-
-  console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  console.log(`✅ 保存完了: 合計 ${unique.length}試合`);
-  Object.entries(byTab).forEach(([tab, cnt]) => console.log(`   ${tab.padEnd(12)}: ${cnt}試合`));
-  console.log(`   ソース    : FD ${summary.fd}試合 / RapidAPI ${summary.rapid}試合`);
-  console.log(`   日本人関連: ${jpMatches}試合`);
-  if (summary.failed.length > 0) {
-    console.log(`   ❌ 取得失敗: ${summary.failed.join(', ')}`);
-  }
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-}
-
-main().catch(err => { console.error(err); process.exit(1); });
