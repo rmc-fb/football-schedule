@@ -23,6 +23,7 @@
 * { margin:0; padding:0; box-sizing:border-box; }
 body { font-family:'Noto Sans JP',sans-serif; background:var(--main-bg); color:var(--text); min-height:100vh; }
 
+/* ── HEADER ── */
 header { background:var(--surface); border-bottom:1px solid var(--border); }
 .header-inner { max-width:1100px; margin:0 auto; padding:16px 20px 0; }
 .site-title { display:flex; align-items:center; gap:12px; padding-bottom:14px; }
@@ -31,11 +32,14 @@ header { background:var(--surface); border-bottom:1px solid var(--border); }
 .updated { margin-left:auto; font-size:.68rem; color:var(--muted); text-align:right; line-height:1.6; }
 .updated b { color:var(--green); }
 
-.main-nav { display:flex; gap:2px; }
+/* ── MAIN NAV ── */
+.main-nav { display:flex; gap:2px; overflow-x:auto; scrollbar-width:none; }
+.main-nav::-webkit-scrollbar { display:none; }
 .main-nav button {
-  font-family:'Noto Sans JP',sans-serif; font-size:.8rem; font-weight:700;
-  letter-spacing:.04em; padding:9px 12px;
-  flex:1; text-align:center;
+  font-family:'Noto Sans JP',sans-serif; font-size:.78rem; font-weight:700;
+  letter-spacing:.03em; padding:9px 11px;
+  flex-shrink:0;
+  text-align:center;
   background:transparent; color:var(--muted);
   border:none; border-bottom:3px solid transparent;
   cursor:pointer; transition:all .2s; white-space:nowrap;
@@ -43,6 +47,27 @@ header { background:var(--surface); border-bottom:1px solid var(--border); }
 .main-nav button:hover { color:var(--text); }
 .main-nav button.active { color:#fff; border-bottom-color:var(--accent); background:rgba(230,51,35,.06); }
 
+/* ── GENDER TOGGLE ── */
+.gender-bar {
+  background:var(--surf2); border-bottom:1px solid var(--border);
+  display:flex; align-items:center; gap:0;
+}
+.gender-inner {
+  max-width:1100px; margin:0 auto; padding:6px 20px;
+  display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+}
+.gender-toggle {
+  display:flex; border-radius:6px; overflow:hidden;
+  border:1px solid var(--border); flex-shrink:0;
+}
+.gender-toggle button {
+  font-family:'Noto Sans JP',sans-serif; font-size:.75rem; font-weight:700;
+  padding:5px 14px; background:transparent; color:var(--muted);
+  border:none; cursor:pointer; transition:all .2s; white-space:nowrap;
+}
+.gender-toggle button.active { background:var(--accent); color:#fff; }
+
+/* ── FILTER BAR ── */
 .filter-bar { background:var(--surf2); border-bottom:1px solid var(--border); }
 .filter-inner {
   max-width:1100px; margin:0 auto; padding:8px 20px;
@@ -67,6 +92,7 @@ header { background:var(--surface); border-bottom:1px solid var(--border); }
 }
 .btn-reset:hover { color:var(--text); border-color:var(--muted); }
 
+/* ── MAIN ── */
 main { max-width:1100px; margin:0 auto; padding:16px 20px 60px; background:var(--main-bg); }
 
 .loading { text-align:center; padding:60px 20px; color:var(--muted); }
@@ -77,6 +103,7 @@ main { max-width:1100px; margin:0 auto; padding:16px 20px 60px; background:var(-
 }
 @keyframes spin { to { transform:rotate(360deg); } }
 
+/* ── DAY HEADER ── */
 .day-header { display:flex; align-items:center; gap:10px; margin:20px 0 5px; }
 .day-header:first-child { margin-top:0; }
 .day-label {
@@ -88,7 +115,7 @@ main { max-width:1100px; margin:0 auto; padding:16px 20px 60px; background:var(-
 .day-hr   { flex:1; height:1px; background:var(--border); }
 .day-count{ font-size:.66rem; color:var(--muted); white-space:nowrap; }
 
-/* MATCH ROW */
+/* ── MATCH ROW ── */
 .match-row {
   display:grid;
   grid-template-columns: 52px 1fr;
@@ -112,37 +139,36 @@ main { max-width:1100px; margin:0 auto; padding:16px 20px 60px; background:var(-
 }
 .m-kick { font-family:'Bebas Neue',sans-serif; font-size:1.05rem; letter-spacing:.04em; line-height:1; }
 
-/* メインセル：縦レイアウト */
 .m-main {
   padding:5px 12px;
-  display:flex;
-  flex-direction:column;
-  gap:3px;
-  justify-content:center;
+  display:flex; flex-direction:column; gap:3px; justify-content:center;
 }
 .m-left { display:flex; flex-direction:column; gap:3px; }
 .m-top  { display:flex; align-items:center; gap:8px; white-space:nowrap; overflow:hidden; }
+
 .m-teams-inline {
   font-size:.82rem; font-weight:700;
   display:grid;
   grid-template-columns: 1fr 28px 1fr;
-  align-items:center; gap:4px;
-  flex:1;
+  align-items:center; gap:4px; flex:1;
 }
 .m-teams-inline span:first-child { text-align:right; }
 .m-teams-inline span:last-child  { text-align:left; }
 .m-vs { font-size:.62rem; color:var(--muted); font-weight:400; text-align:center; }
-  grid-template-columns: 1fr 28px 1fr;
-  align-items:center; gap:4px; width:100%;
-}
-.m-vs { font-size:.62rem; color:var(--muted); font-weight:400; text-align:center; }
 
-/* 選手タグ：右下に配置 */
+/* クレスト画像 */
+.crest { width:16px; height:16px; object-fit:contain; vertical-align:middle; flex-shrink:0; }
+
+/* チーム with crest */
+.team-cell { display:flex; align-items:center; gap:5px; }
+.team-cell.right { flex-direction:row-reverse; }
+
 .m-right {
   display:flex; flex-wrap:wrap; gap:4px;
   justify-content:flex-end; align-items:center;
 }
 
+/* ── LEAGUE BADGES ── */
 .l-badge {
   display:inline-block; padding:2px 7px; border-radius:3px;
   font-size:.63rem; font-weight:700; letter-spacing:.03em; white-space:nowrap; flex-shrink:0;
@@ -159,7 +185,11 @@ main { max-width:1100px; margin:0 auto; padding:16px 20px 60px; background:var(-
 .l-uel    { background:rgba(248,123,27,.15); color:#F09050; border:1px solid rgba(248,123,27,.35); }
 .l-champ2 { background:rgba(80,60,160,.18);  color:#9080D0; border:1px solid rgba(80,60,160,.35); }
 .l-belgique { background:rgba(0,0,0,.2); color:#f5d020; border:1px solid rgba(245,208,32,.3); }
-.l-champ2 { background:rgba(62,109,153,.15); color:#90c0e8; border:1px solid rgba(62,109,153,.25); }
+.l-middle { background:rgba(0,120,80,.18);   color:#40C890; border:1px solid rgba(0,120,80,.35); }
+.l-north  { background:rgba(0,60,180,.18);   color:#60A0F0; border:1px solid rgba(0,60,180,.35); }
+.l-womens { background:rgba(200,60,120,.18); color:#E080A0; border:1px solid rgba(200,60,120,.35); }
+.l-youth  { background:rgba(60,160,60,.18);  color:#70D070; border:1px solid rgba(60,160,60,.35); }
+.l-wc     { background:rgba(180,140,0,.18);  color:#E0B820; border:1px solid rgba(180,140,0,.35); }
 
 .p-tag {
   display:inline-block;
@@ -179,7 +209,7 @@ footer { text-align:center; padding:16px; border-top:1px solid var(--border); ba
   .updated { display:none; }
   .site-title h1 { font-size:1.3rem; }
   .m-teams-inline { font-size:.76rem; }
-
+  .main-nav button { font-size:.72rem; padding:9px 8px; }
 }
 </style>
 </head>
@@ -199,37 +229,35 @@ footer { text-align:center; padding:16px; border-top:1px solid var(--border); ba
     </div>
   </div>
   <nav class="main-nav">
-    <button class="active" onclick="setTab('europe',this)">🌍 欧州日程</button>
-    <button onclick="setTab('japanese',this)">🇯🇵 日本人日程</button>
-    <button onclick="setTab('national',this)">🏆 代表戦日程</button>
+    <button id="tab-europe"   onclick="setTab('europe',this)"  >🌍 欧州日程</button>
+    <button id="tab-japanese" onclick="setTab('japanese',this)">🇯🇵 日本人日程</button>
+    <button id="tab-national" onclick="setTab('national',this)">🏆 代表戦日程</button>
+    <button id="tab-middle"   onclick="setTab('middle',this)"  >🕌 中東日程</button>
+    <button id="tab-north"    onclick="setTab('north',this)"   >🌎 北米日程</button>
+    <button id="tab-youth"    onclick="setTab('youth',this)"   >🌱 ユース代表</button>
   </nav>
 </div>
 </header>
 
-<div class="filter-bar">
+<!-- 性別トグル（national/youth/europe/japanese/northで表示） -->
+<div class="gender-bar" id="genderBar" style="display:none">
+  <div class="gender-inner">
+    <span class="f-label">カテゴリ</span>
+    <div class="gender-toggle">
+      <button id="gBtn-male"   onclick="setGender('male',this)"  class="active">♂ 男子</button>
+      <button id="gBtn-female" onclick="setGender('female',this)"            >♀ 女子</button>
+    </div>
+  </div>
+</div>
+
+<!-- リーグフィルター（europe / japanese / middle / north タブで表示） -->
+<div class="filter-bar" id="filterBar" style="display:none">
   <div class="filter-inner">
     <span class="f-label">リーグ</span>
     <div class="f-select">
       <span style="font-size:.85rem">🏟</span>
       <select id="leagueSel" onchange="applyFilter()">
-        <option value="all">🌍 全リーグ</option>
-        <optgroup label="── 5大リーグ ──">
-          <option value="EPL">🏴󠁧󠁢󠁥󠁮󠁧󠁿 プレミア</option>
-          <option value="LaLiga">🇪🇸 ラ・リーガ</option>
-          <option value="Bundesliga">🇩🇪 ブンデスリーガ</option>
-          <option value="Serie A">🇮🇹 セリエA</option>
-          <option value="Ligue 1">🇫🇷 リーグ・アン</option>
-        </optgroup>
-        <optgroup label="── その他欧州 ──">
-          <option value="Eredivisie">🇳🇱 エールディヴィジ</option>
-          <option value="Belgian Pro League">🇧🇪 ベルギーリーグ</option>
-          <option value="Scottish Prem">🏴󠁧󠁢󠁳󠁣󠁴󠁿 スコティッシュプレミア</option>
-          <option value="Liga Portugal">🇵🇹 プリメイラリーガ</option>
-</optgroup>
-          <option value="Championship">🏴󠁧󠁢󠁥󠁮󠁧󠁿 チャンピオンシップ</option>
-          <option value="Champions League">🏆 チャンピオンズリーグ</option>
-          <option value="Europa League">🟠 ヨーロッパリーグ</option>
-        </optgroup>
+        <option value="all">全リーグ</option>
       </select>
     </div>
     <button class="btn-reset" onclick="resetFilter()">リセット</button>
@@ -246,7 +274,10 @@ footer { text-align:center; padding:16px; border-top:1px solid var(--border); ba
 </footer>
 
 <script>
-// ── 選手名 英語→日本語 ──
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 定数・マスタ
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 const PLAYER_JA = {
   "Kaoru Mitoma":      "三笘薫",
   "Wataru Endō":       "遠藤航",
@@ -285,14 +316,7 @@ const PLAYER_JA = {
   "Kou Itakura":       "板倉滉",
 };
 
-function playerJa(name) { return PLAYER_JA[name] || name; }
-
-// ── チーム名 英語→日本語 ──
 const TEAM_JA = {
-  "Brighton Hove":   "ブライトン",
-  "Nottingham":      "ノッティンガム",
-  "Wolverhampton":   "ウルヴス",
-  "Leeds United":    "リーズ",
   "Brighton":        "ブライトン",
   "Liverpool":       "リバプール",
   "Arsenal":         "アーセナル",
@@ -316,7 +340,6 @@ const TEAM_JA = {
   "Leeds":           "リーズ",
   "Sunderland":      "サンダーランド",
   "Burnley":         "バーンリー",
-  "Atleti":          "アトレティコ",
   "Real Madrid":     "レアル・マドリード",
   "Barcelona":       "バルセロナ",
   "Atletico Madrid": "アトレティコ",
@@ -349,16 +372,8 @@ const TEAM_JA = {
   "Augsburg":        "アウクスブルク",
   "Werder Bremen":   "ブレーメン",
   "Bochum":          "ボーフム",
-  "Paderborn":       "パーダーボルン",
-  "Heidenheim":      "ハイデンハイム",
-  "Kiel":            "キール",
   "Monchengladbach": "M・グラードバッハ",
   "Union Berlin":    "ウニオン・ベルリン",
-  "Hertha":          "ヘルタ",
-  "Hamburger SV":    "ハンブルガーSV",
-  "Como 1907":       "コモ1907",
-  "Cremonese":       "クレモネーゼ",
-  "Sassuolo":        "サッスオーロ",
   "Inter":           "インテル",
   "Milan":           "ACミラン",
   "Juventus":        "ユベントス",
@@ -383,8 +398,6 @@ const TEAM_JA = {
   "Marseille":       "マルセイユ",
   "Lyon":            "リヨン",
   "Monaco":          "モナコ",
-  "Lens":            "ランス",
-  "Reims":           "ランス（ランス）",
   "Lille":           "リール",
   "Nice":            "ニース",
   "Strasbourg":      "ストラスブール",
@@ -404,11 +417,36 @@ const TEAM_JA = {
   "Sporting CP":     "スポルティング",
   "Porto":           "ポルト",
   "Braga":           "ブラガ",
-  "Slavia Prague":   "スラビア・プラハ",
-  "Shakhtar":        "シャフタール",
   "Galatasaray":     "ガラタサライ",
   "Besiktas":        "ベシクタシュ",
   "Fenerbahce":      "フェネルバフチェ",
+  // 中東
+  "Al Hilal":        "アル・ヒラル",
+  "Al Nassr":        "アル・ナスル",
+  "Al Ittihad":      "アル・イテハド",
+  "Al Ahli":         "アル・アハリ",
+  "Al Qadsiah":      "アル・カドシア",
+  "Al Shabab":       "アル・シャバブ",
+  "Al Ain":          "アル・アイン",
+  "Al Jazira":       "アル・ジャジーラ",
+  "Al Wahda":        "アル・ワフダ",
+  "Al Sadd":         "アル・サッド",
+  "Al Duhail":       "アル・ドゥハイル",
+  // 北米
+  "LA Galaxy":       "LAギャラクシー",
+  "LAFC":            "LAFC",
+  "Inter Miami":     "インテル・マイアミ",
+  "New York City":   "NYシティ",
+  "New York RB":     "NYレッドブルズ",
+  "Atlanta United":  "アトランタ",
+  "Seattle Sounders":"シアトル",
+  "Portland Timbers":"ポートランド",
+  "FC Dallas":       "FCダラス",
+  "Columbus Crew":   "コロンバス",
+  "Toronto FC":      "トロントFC",
+  "CF Montreal":     "モントリオール",
+  "Vancouver Whitecaps":"バンクーバー",
+  // 代表
   "Netherlands":     "オランダ",
   "Japan":           "日本",
   "Tunisia":         "チュニジア",
@@ -477,49 +515,267 @@ const LEAGUE_JA = {
   "Champions League": "CL",
   "Europa League":    "EL",
   "World Cup":        "W杯",
+  "Saudi Pro League": "サウジPL",
+  "UAE League":       "UAEリーグ",
+  "Qatar Stars":      "カタールSL",
+  "MLS":              "MLS",
+  "NWSL":             "NWSL",
+  "Women Champions League": "女子CL",
+  "Women World Cup":  "女子W杯",
+  "Nations League":   "ネーションズL",
+  "AFCON":            "AFCON",
+  "AFC CL":           "AFCチャンピオンズ",
 };
 
-function teamJa(name) { return TEAM_JA[name] || name; }
+// ── どのリーグがどのタブに属するか ──
+// tab: 'europe' | 'middle' | 'north'
+// gender: 'male' | 'female'
+// national: true/false
+// youth: true/false
+
+const LEAGUE_CONFIG = {
+  // 欧州クラブ男子
+  "EPL":              { tab:"europe", gender:"male" },
+  "LaLiga":           { tab:"europe", gender:"male" },
+  "Bundesliga":       { tab:"europe", gender:"male" },
+  "Serie A":          { tab:"europe", gender:"male" },
+  "Ligue 1":          { tab:"europe", gender:"male" },
+  "Liga Portugal":    { tab:"europe", gender:"male" },
+  "Eredivisie":       { tab:"europe", gender:"male" },
+  "Scottish Prem":    { tab:"europe", gender:"male" },
+  "Championship":     { tab:"europe", gender:"male" },
+  "Belgian Pro League":{ tab:"europe", gender:"male" },
+  "Primeira Liga":    { tab:"europe", gender:"male" },
+  "Champions League": { tab:"europe", gender:"male" },
+  "Europa League":    { tab:"europe", gender:"male" },
+  "Conference League":{ tab:"europe", gender:"male" },
+  "Super Lig":        { tab:"europe", gender:"male" },
+  "Eredivisie Women": { tab:"europe", gender:"female" },
+  "WSL":              { tab:"europe", gender:"female" },
+  "Women Champions League": { tab:"europe", gender:"female" },
+  "Frauen Bundesliga":{ tab:"europe", gender:"female" },
+  "Division 1 Feminine":{ tab:"europe", gender:"female" },
+  // 中東クラブ（男子のみ）
+  "Saudi Pro League": { tab:"middle", gender:"male" },
+  "UAE Pro League":   { tab:"middle", gender:"male" },
+  "UAE League":       { tab:"middle", gender:"male" },
+  "Qatar Stars":      { tab:"middle", gender:"male" },
+  "AFC Champions":    { tab:"middle", gender:"male" },
+  "AFC CL":           { tab:"middle", gender:"male" },
+  // 北米クラブ
+  "MLS":              { tab:"north", gender:"male" },
+  "NWSL":             { tab:"north", gender:"female" },
+  "Liga MX":          { tab:"north", gender:"male" },
+  "Canadian Premier": { tab:"north", gender:"male" },
+  // 代表戦
+  "World Cup":        { tab:"national", gender:"male", national:true },
+  "Nations League":   { tab:"national", gender:"male", national:true },
+  "AFCON":            { tab:"national", gender:"male", national:true },
+  "Copa America":     { tab:"national", gender:"male", national:true },
+  "Euro":             { tab:"national", gender:"male", national:true },
+  "AFC Asian Cup":    { tab:"national", gender:"male", national:true },
+  "Friendly":         { tab:"national", gender:"male", national:true },
+  "Women World Cup":  { tab:"national", gender:"female", national:true },
+  "Women Nations League": { tab:"national", gender:"female", national:true },
+  "Women Asian Cup":  { tab:"national", gender:"female", national:true },
+  // ユース代表
+  "U-20 World Cup":   { tab:"youth", gender:"male", national:true },
+  "U-17 World Cup":   { tab:"youth", gender:"male", national:true },
+  "U-23 Asian Cup":   { tab:"youth", gender:"male", national:true },
+  "U-20 Asian Cup":   { tab:"youth", gender:"male", national:true },
+  "U-17 Asian Cup":   { tab:"youth", gender:"male", national:true },
+  "U-20 Women World Cup": { tab:"youth", gender:"female", national:true },
+  "U-17 Women World Cup": { tab:"youth", gender:"female", national:true },
+};
+
+// タブ別 リーグフィルター選択肢
+const TAB_LEAGUES = {
+  europe: [
+    { v:"EPL",               l:"🏴󠁧󠁢󠁥󠁮󠁧󠁿 プレミアリーグ" },
+    { v:"LaLiga",            l:"🇪🇸 ラ・リーガ" },
+    { v:"Bundesliga",        l:"🇩🇪 ブンデスリーガ" },
+    { v:"Serie A",           l:"🇮🇹 セリエA" },
+    { v:"Ligue 1",           l:"🇫🇷 リーグ・アン" },
+    { v:"Eredivisie",        l:"🇳🇱 エールディヴィジ" },
+    { v:"Belgian Pro League",l:"🇧🇪 ベルギーリーグ" },
+    { v:"Scottish Prem",     l:"🏴󠁧󠁢󠁳󠁣󠁴󠁿 スコティッシュ" },
+    { v:"Liga Portugal",     l:"🇵🇹 プリメイラリーガ" },
+    { v:"Championship",      l:"🏴󠁧󠁢󠁥󠁮󠁧󠁿 チャンピオンシップ" },
+    { v:"Champions League",  l:"🏆 チャンピオンズリーグ" },
+    { v:"Europa League",     l:"🟠 ヨーロッパリーグ" },
+    { v:"Conference League", l:"⚪ カンファレンスリーグ" },
+    { v:"Super Lig",         l:"🇹🇷 スュペル・リグ" },
+    { v:"WSL",               l:"🏴󠁧󠁢󠁥󠁮󠁧󠁿 WSL（女子）" },
+    { v:"Women Champions League", l:"🏆 女子CL" },
+    { v:"Frauen Bundesliga", l:"🇩🇪 女子ブンデス" },
+    { v:"Division 1 Feminine", l:"🇫🇷 女子D1" },
+  ],
+  middle: [
+    { v:"Saudi Pro League",  l:"🇸🇦 サウジPL" },
+    { v:"UAE Pro League",    l:"🇦🇪 UAEリーグ" },
+    { v:"UAE League",        l:"🇦🇪 UAEリーグ" },
+    { v:"Qatar Stars",       l:"🇶🇦 カタールSL" },
+    { v:"AFC CL",            l:"🏆 AFCチャンピオンズ" },
+  ],
+  north: [
+    { v:"MLS",               l:"🇺🇸 MLS（男子）" },
+    { v:"NWSL",              l:"🇺🇸 NWSL（女子）" },
+    { v:"Liga MX",           l:"🇲🇽 リーガMX" },
+    { v:"Canadian Premier",  l:"🇨🇦 カナダPL" },
+  ],
+  japanese: [],
+  national: [],
+  youth: [],
+};
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 状態
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+let MATCHES = [];
+let currentTab    = "europe";
+let currentGender = "male";   // 'male' | 'female'
+let fLeague       = "all";
+
+const VALID_TABS = ["europe","japanese","national","middle","north","youth"];
+
+// URLハッシュから初期タブを復元
+const hashTab = location.hash.replace('#','');
+if (VALID_TABS.includes(hashTab)) currentTab = hashTab;
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ユーティリティ
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function playerJa(name) { return PLAYER_JA[name] || name; }
+function teamJa(name)   { return TEAM_JA[name]   || name; }
 
 function toJST(utcStr) {
   const d = new Date(utcStr);
-  const jst = new Date(d.getTime() + 9 * 60 * 60 * 1000);
+  const jst = new Date(d.getTime() + 9*60*60*1000);
   let h = jst.getUTCHours();
   const m = jst.getUTCMinutes();
   if (h < 6) h += 24;
   return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
 }
-
 function toJSTDate(utcStr) {
   const d = new Date(utcStr);
-  const jst = new Date(d.getTime() + 9 * 60 * 60 * 1000);
+  const jst = new Date(d.getTime() + 9*60*60*1000);
   if (jst.getUTCHours() < 6) {
-    const prev = new Date(jst.getTime() - 24 * 60 * 60 * 1000);
+    const prev = new Date(jst.getTime() - 24*60*60*1000);
     return prev.toISOString().split('T')[0];
   }
   return jst.toISOString().split('T')[0];
 }
 
-function isFinished(kickoffUTC) { return false; }
-
-const DATA_URL = 'data/matches.json';
-let MATCHES = [];
-let currentTab = "europe", fLeague = "all";
-
-const hash = location.hash.replace('#', '');
-if (['europe', 'japanese', 'national'].includes(hash)) {
-  currentTab = hash;
-  document.querySelectorAll(".main-nav button").forEach(b => {
-    b.classList.toggle("active", b.getAttribute("onclick").includes(hash));
-  });
-}
-
-if (currentTab === "national") {
-  document.querySelector(".filter-bar").style.display = "none";
-}
-
 const todayJST = toJSTDate(new Date().toISOString());
 const DOW = ["日","月","火","水","木","金","土"];
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// タブ別マッチ分類ロジック
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+/*
+  matches.jsonの各試合をどのタブに表示するかは以下ルールで判定:
+
+  1. m.tab フィールドがあればそれを優先（将来拡張用）
+  2. なければ m.league を LEAGUE_CONFIG で引く
+  3. それもなければ m.national フラグで代表/欧州クラブを判別（後方互換）
+
+  日本人日程: europe/middle/north のうち m.japanese.length > 0 のもの
+  女子フラグ: m.gender === 'female'  or  LEAGUE_CONFIG[m.league].gender === 'female'
+  ユースフラグ: m.youth === true  or  LEAGUE_CONFIG[m.league].tab === 'youth'
+*/
+
+function getMatchTab(m) {
+  // 明示的フィールドがあれば優先
+  if (m.tab) return m.tab;
+  // ユース
+  if (m.youth) return "youth";
+  // リーグ設定で引く
+  const cfg = LEAGUE_CONFIG[m.league];
+  if (cfg) return cfg.tab;
+  // 後方互換: national フラグ
+  if (m.national) return "national";
+  // デフォルトは欧州
+  return "europe";
+}
+
+function getMatchGender(m) {
+  if (m.gender) return m.gender;
+  const cfg = LEAGUE_CONFIG[m.league];
+  if (cfg && cfg.gender) return cfg.gender;
+  return "male";
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// UI 制御
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+// 性別トグルを表示するタブ
+const GENDER_TABS   = ["europe","japanese","national","north","youth"];
+// リーグフィルターを表示するタブ
+const FILTER_TABS   = ["europe","middle","north"];
+
+function updateUI() {
+  // タブボタン active
+  document.querySelectorAll(".main-nav button").forEach(b => b.classList.remove("active"));
+  const activeBtn = document.getElementById("tab-" + currentTab);
+  if (activeBtn) activeBtn.classList.add("active");
+
+  // 性別トグル
+  const gBar = document.getElementById("genderBar");
+  gBar.style.display = GENDER_TABS.includes(currentTab) ? "" : "none";
+  document.getElementById("gBtn-male").classList.toggle("active",   currentGender === "male");
+  document.getElementById("gBtn-female").classList.toggle("active", currentGender === "female");
+
+  // リーグフィルター
+  const fBar = document.getElementById("filterBar");
+  if (FILTER_TABS.includes(currentTab)) {
+    fBar.style.display = "";
+    rebuildLeagueSelect();
+  } else {
+    fBar.style.display = "none";
+  }
+}
+
+function rebuildLeagueSelect() {
+  const sel = document.getElementById("leagueSel");
+  const options = TAB_LEAGUES[currentTab] || [];
+  let html = `<option value="all">全リーグ</option>`;
+  options.forEach(o => {
+    html += `<option value="${o.v}">${o.l}</option>`;
+  });
+  sel.innerHTML = html;
+  sel.value = fLeague;
+}
+
+function setTab(tab, el) {
+  currentTab = tab;
+  fLeague = "all";
+  history.replaceState(null, '', '#' + tab);
+  updateUI();
+  render();
+}
+
+function setGender(g) {
+  currentGender = g;
+  updateUI();
+  render();
+}
+
+function applyFilter() {
+  fLeague = document.getElementById("leagueSel").value;
+  render();
+}
+function resetFilter() {
+  fLeague = "all";
+  document.getElementById("leagueSel").value = "all";
+  render();
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// データ読み込み
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+const DATA_URL = 'data/matches.json';
 
 async function loadData() {
   try {
@@ -535,36 +791,41 @@ async function loadData() {
   }
 }
 
-function setTab(tab, el) {
-  currentTab = tab;
-  document.querySelectorAll(".main-nav button").forEach(b => b.classList.remove("active"));
-  el.classList.add("active");
-  history.replaceState(null, '', '#' + tab);
-  document.querySelector(".filter-bar").style.display = tab === "national" ? "none" : "";
-  render();
-}
-
-function applyFilter() {
-  fLeague = document.getElementById("leagueSel").value;
-  render();
-}
-
-function resetFilter() {
-  fLeague = "all";
-  document.getElementById("leagueSel").value = "all";
-  render();
-}
-
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// レンダリング
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 function render() {
   let data = MATCHES.filter(m => {
-    if (isFinished(m.kickoffUTC)) return false;
-    if (currentTab === "europe")   { if (m.national) return false; }
-    if (currentTab === "national") { return !!m.national; }
+    const mTab    = getMatchTab(m);
+    const mGender = getMatchGender(m);
+
+    // ── タブ別フィルタ ──
     if (currentTab === "japanese") {
-      if (m.national) return false;
+      // 欧州・中東・北米から日本人所属チームの試合
+      if (!["europe","middle","north"].includes(mTab)) return false;
       if (!m.japanese || m.japanese.length === 0) return false;
+      // 日本人日程では性別切替あり
+      if (mGender !== currentGender) return false;
+    } else if (currentTab === "national") {
+      if (mTab !== "national") return false;
+      if (mGender !== currentGender) return false;
+    } else if (currentTab === "youth") {
+      if (mTab !== "youth") return false;
+      if (mGender !== currentGender) return false;
+    } else if (currentTab === "europe") {
+      if (mTab !== "europe") return false;
+      if (mGender !== currentGender) return false;
+    } else if (currentTab === "middle") {
+      if (mTab !== "middle") return false;
+      // 中東は男子のみ（性別トグル非表示）
+    } else if (currentTab === "north") {
+      if (mTab !== "north") return false;
+      if (mGender !== currentGender) return false;
     }
+
+    // ── リーグフィルタ ──
     if (fLeague !== "all" && m.league !== fLeague) return false;
+
     return true;
   });
 
@@ -574,6 +835,7 @@ function render() {
     return;
   }
 
+  // 日付グループ
   const grouped = {};
   data.forEach(m => {
     const dateKey = toJSTDate(m.kickoffUTC);
@@ -595,18 +857,30 @@ function render() {
     </div>`;
 
     list.forEach((m, i) => {
-      const leagueJa = LEAGUE_JA[m.league] || m.league;
-      const homeJa   = teamJa(m.home);
-      const awayJa   = teamJa(m.away);
-      const jstTime  = toJST(m.kickoffUTC);
+      const leagueJa  = LEAGUE_JA[m.league] || m.league;
+      const homeJa    = teamJa(m.home);
+      const awayJa    = teamJa(m.away);
+      const jstTime   = toJST(m.kickoffUTC);
+      const lClass    = m.lClass || "l-champ";
+      const mGender   = getMatchGender(m);
 
-      // 選手名を日本語に変換
+      // クレスト
+      const hCrest = m.homeCrest
+        ? `<img class="crest" src="${m.homeCrest}" alt="" onerror="this.style.display='none'">`
+        : "";
+      const aCrest = m.awayCrest
+        ? `<img class="crest" src="${m.awayCrest}" alt="" onerror="this.style.display='none'">`
+        : "";
+
+      // 女子バッジ
+      const womenBadge = mGender === "female"
+        ? `<span class="l-badge l-womens">♀</span>` : "";
+
+      // 日本人選手タグ
       const playersJa = (m.japanese && m.japanese.length > 0)
-        ? m.japanese.map(n => playerJa(n))
-        : [];
-
+        ? m.japanese.map(n => playerJa(n)) : [];
       const pHtml = playersJa.length > 0
-        ? `<div class="m-right">${playersJa.map(n => `<span class="p-tag">${n}</span>`).join("")}</div>`
+        ? `<div class="m-right">${playersJa.map(n=>`<span class="p-tag">${n}</span>`).join("")}</div>`
         : "";
 
       html += `<div class="match-row" style="animation-delay:${i*.04}s">
@@ -614,11 +888,12 @@ function render() {
         <div class="m-main">
           <div class="m-left">
             <div class="m-top">
-              <span class="l-badge ${m.lClass}">${leagueJa}</span>
+              <span class="l-badge ${lClass}">${leagueJa}</span>
+              ${womenBadge}
               <div class="m-teams-inline">
-                <span>${homeJa}</span>
+                <span class="team-cell right">${hCrest}${homeJa}</span>
                 <span class="m-vs">vs</span>
-                <span>${awayJa}</span>
+                <span class="team-cell">${aCrest}${awayJa}</span>
               </div>
             </div>
           </div>
@@ -631,9 +906,13 @@ function render() {
   document.getElementById("content").innerHTML = html;
 }
 
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 初期化
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+updateUI();
 loadData();
-setInterval(loadData, 60 * 60 * 1000);
-setInterval(render, 60 * 1000);
+setInterval(loadData, 60*60*1000);
+setInterval(render,   60*1000);
 </script>
 </body>
 </html>
