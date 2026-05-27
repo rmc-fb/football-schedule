@@ -23,7 +23,7 @@ jobs:
  
       # 月1日のみ選手マスタを強制更新
       - name: Update players master (月1回)
-        if: github.event.schedule == '0 21 1 * *' || github.event_name == 'workflow_dispatch'
+        if: github.event.schedule == '0 21 1 * *'
         run: node scripts/fetch_players.js
         env:
           FOOTBALLDATA_KEY: ${{ secrets.FOOTBALLDATA_KEY }}
