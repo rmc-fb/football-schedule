@@ -528,92 +528,18 @@ async function fetchNationalMatches(playerMap, crestMap) {
 // ────────────────────────────────────────────────
 async function main() {
   if (!fs.existsSync('data')) fs.mkdirSync('data');
-
   const crestMap  = await buildCrestMap();
   const playerMap = loadPlayerMap();
 
-  const allMatches = [];
-  const summary = { fd: 0, rapid: 0, apify: 0, failed: [] };
-
-  console.log(`\n📅 football-data.org クラブ試合取得 (${FD_CLUB_LEAGUES.length}リーグ)...\n`);
-  for (let i = 0; i < FD_CLUB_LEAGUES.length; i++) {
-    const league = FD_CLUB_LEAGUES[i];
-    process.stdout.write(`[${String(i+1).padStart(2)}/${FD_CLUB_LEAGUES.length}] ${league.key.padEnd(28)} `);
-
-    const matches = await fdFetchMatches(league.id, playerMap, league);
-    if (matches === null) {
-      console.log('❌ 取得失敗');
-      summary.failed.push(league.key);
-    } else if (matches.length === 0) {
-      console.log('－ 0試合');
-    } else {
-      allMatches.push(...matches);
-      summary.fd += matches.length;
-      console.log(`✅ ${matches.length}試合`);
-    }
-
-    if (i < FD_CLUB_LEAGUES.length - 1) await sleep(7000);
-  }
-
-  console.log(`\n📅 RapidAPI クラブ試合取得 (${RAPID_LEAGUES.length}リーグ)...\n`);
-  for (let i = 0; i < RAPID_LEAGUES.length; i++) {
-    const league = RAPID_LEAGUES[i];
-    process.stdout.write(`[${String(i+1).padStart(2)}/${RAPID_LEAGUES.length}] ${league.key.padEnd(28)} `);
-
-    const matches = await rapidFetchMatches(league, playerMap, crestMap);
-    if (matches === null) {
-      console.log('❌ 取得失敗');
-      summary.failed.push(league.key);
-    } else if (matches.length === 0) {
-      console.log('－ 0試合');
-    } else {
-      allMatches.push(...matches);
-      summary.rapid += matches.length;
-      console.log(`✅ ${matches.length}試合`);
-    }
-
-    if (i < RAPID_LEAGUES.length - 1) await sleep(1000);
-  }
-
-  allMatches.push(...(await fetchNationalMatches(playerMap, crestMap)));
-
-  // Apify経由 MLSデータ取得（メイン）
+  // Apify MLS だけ実行（動作確認用）
   const apifyMatches = await apifyFetchMLS(playerMap, crestMap);
-  allMatches.push(...apifyMatches);
-  summary.apify += apifyMatches.length;
 
-  // 重複除去・ソート（同じ試合がRapidAPIとApifyで重複した場合、apifyを優先）
-  // kickoffUTC|home|away をキーにして最後に追加されたもの（apify）で上書き
-  const matchMap = new Map();
-  for (const m of allMatches) {
-    const key = `${m.kickoffUTC}|${m.home}|${m.away}`;
-    // apifyは後から追加されるので、既存エントリがあってもapifyで上書き
-    if (!matchMap.has(key) || m.source === 'apify') {
-      matchMap.set(key, m);
-    }
-  }
-  const unique = [...matchMap.values()];
-  unique.sort((a, b) => a.kickoffUTC.localeCompare(b.kickoffUTC));
-
-  // 保存
   const jstStr = new Date(Date.now() + 9*60*60*1000)
     .toISOString().replace('T', ' ').slice(0, 16);
-  fs.writeFileSync('data/matches.json', JSON.stringify({ updatedAt: jstStr, matches: unique }, null, 2));
+  fs.writeFileSync('data/matches.json', JSON.stringify({
+    updatedAt: jstStr,
+    matches: apifyMatches
+  }, null, 2));
 
-  // サマリー
-  const byTab = {};
-  unique.forEach(m => { byTab[m.tab] = (byTab[m.tab] || 0) + 1; });
-  const jpMatches = unique.filter(m => m.japanese.length > 0).length;
-
-  console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  console.log(`✅ 保存完了: 合計 ${unique.length}試合`);
-  Object.entries(byTab).forEach(([tab, cnt]) => console.log(`   ${tab.padEnd(12)}: ${cnt}試合`));
-  console.log(`   ソース    : FD ${summary.fd}試合 / RapidAPI ${summary.rapid}試合 / Apify ${summary.apify}試合`);
-  console.log(`   日本人関連: ${jpMatches}試合`);
-  if (summary.failed.length > 0) {
-    console.log(`   ❌ 取得失敗: ${summary.failed.join(', ')}`);
-  }
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  console.log(`✅ 保存完了: ${apifyMatches.length}試合`);
 }
-
-main().catch(err => { console.error(err); process.exit(1); });
