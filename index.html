@@ -6,15 +6,23 @@
 const GENDER_TABS = ["europe","japanese","national","north","youth"];
 const FILTER_TABS = ["europe","middle","north"];
 
+/**
+ * gender に応じたリーグ一覧を返す
+ */
 function getFilteredTabLeagues(tab) {
+
   const list = TAB_LEAGUES[tab] || [];
 
   return list.filter(item => {
+
     if (!item || !item.v) return false;
 
     const cfg = LEAGUE_CONFIG[item.v];
 
-    if (!cfg || !cfg.gender) return true;
+    // gender未指定は表示
+    if (!cfg || !cfg.gender) {
+      return true;
+    }
 
     return cfg.gender === currentGender;
   });
@@ -22,9 +30,12 @@ function getFilteredTabLeagues(tab) {
 
 function updateUI() {
 
-  document.querySelectorAll(".main-nav button")
-    .forEach(b => b.classList.remove("active"));
+  // ── active解除 ──
+  document
+    .querySelectorAll(".main-nav button")
+    .forEach(btn => btn.classList.remove("active"));
 
+  // ── active付与 ──
   const activeBtn =
     document.getElementById("tab-" + currentTab);
 
@@ -32,31 +43,41 @@ function updateUI() {
     activeBtn.classList.add("active");
   }
 
-  const gBar = document.getElementById("genderBar");
+  // ── gender toggle ──
+  const gBar =
+    document.getElementById("genderBar");
 
   gBar.style.display =
     GENDER_TABS.includes(currentTab)
       ? ""
       : "none";
 
-  document.getElementById("gBtn-male")
+  document
+    .getElementById("gBtn-male")
     .classList.toggle(
       "active",
       currentGender === "male"
     );
 
-  document.getElementById("gBtn-female")
+  document
+    .getElementById("gBtn-female")
     .classList.toggle(
       "active",
       currentGender === "female"
     );
 
-  const fBar = document.getElementById("filterBar");
+  // ── filter bar ──
+  const fBar =
+    document.getElementById("filterBar");
 
   if (FILTER_TABS.includes(currentTab)) {
+
     fBar.style.display = "";
+
     rebuildLeagueSelect();
+
   } else {
+
     fBar.style.display = "none";
   }
 }
@@ -75,12 +96,17 @@ function rebuildLeagueSelect() {
     `<option value="all">全リーグ</option>`;
 
   options.forEach(o => {
-    html +=
-      `<option value="${o.v}">${o.l}</option>`;
+
+    html += `
+      <option value="${o.v}">
+        ${o.l}
+      </option>
+    `;
   });
 
   sel.innerHTML = html;
 
+  // 現在のリーグが存在しない場合はリセット
   const exists =
     options.some(o => o.v === fLeague);
 
@@ -95,6 +121,7 @@ function setTab(tab, el) {
 
   currentTab = tab;
 
+  // タブ変更時はリーグリセット
   fLeague = "all";
 
   history.replaceState(
@@ -112,6 +139,7 @@ function setGender(g, el) {
 
   currentGender = g;
 
+  // gender変更時はリーグリセット
   fLeague = "all";
 
   updateUI();
@@ -137,17 +165,6 @@ function resetFilter() {
 
   const sel =
     document.getElementById("leagueSel");
-
-  if (sel) {
-    sel.value = "all";
-  }
-
-  render();
-}
-
-  fLeague = "all";
-
-  const sel = document.getElementById("leagueSel");
 
   if (sel) {
     sel.value = "all";
