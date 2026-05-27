@@ -212,6 +212,23 @@ footer { text-align:center; padding:16px; border-top:1px solid var(--border); ba
   .m-teams-inline { font-size:.76rem; }
   .main-nav button { font-size:.72rem; padding:9px 8px; }
 }
+
+/* ── 選手スタッツ行 ── */
+.stats-row {
+  display:flex; flex-wrap:wrap; gap:4px;
+  padding:4px 12px 7px; border-top:1px solid var(--border);
+}
+.stat-chip {
+  display:inline-flex; align-items:center; gap:4px;
+  background:rgba(245,200,66,.07); border:1px solid rgba(245,200,66,.18);
+  border-radius:4px; padding:2px 8px;
+  font-size:.65rem;
+}
+.stat-chip .s-player { color:#c89c18; font-weight:700; }
+.stat-chip .s-val    { font-family:'Bebas Neue',sans-serif; font-size:.88rem; color:#f5c842; letter-spacing:.04em; }
+.stat-chip .s-label  { color:var(--muted); }
+.match-row.has-stats { border-color:rgba(245,200,66,.25); }
+.match-row.has-stats::before { background:var(--gold); }
 </style>
 </head>
 <body>
@@ -844,6 +861,7 @@ const TAB_LEAGUES = {
 // 状態
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 let MATCHES = [];
+let PLAYER_STATS = {}; // { [sofascoreId]: { playerStats: { 選手名: { 指標: 値 } } } }
 let currentTab    = "europe";
 let currentGender = "male";
 let fLeague       = "all";
@@ -965,15 +983,31 @@ function resetFilter() {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // データ読み込み
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-const DATA_URL = 'data/matches.json';
+const DATA_URL       = 'data/matches.json';
+const STATS_DATA_URL = 'data/player_stats.json';
 
 async function loadData() {
   try {
-    const res = await fetch(DATA_URL + '?t=' + Date.now());
-    if (!res.ok) throw new Error('fetch failed');
-    const json = await res.json();
-    MATCHES = json.matches || [];
-    document.getElementById('updatedAt').textContent = json.updatedAt || '—';
+    // 試合データと選手スタッツを同時取得
+    const [matchRes, statsRes] = await Promise.all([
+      fetch(DATA_URL       + '?t=' + Date.now()),
+      fetch(STATS_DATA_URL + '?t=' + Date.now()),
+    ]);
+
+    if (!matchRes.ok) throw new Error('matches fetch failed');
+    const matchJson = await matchRes.json();
+    MATCHES = matchJson.matches || [];
+    document.getElementById('updatedAt').textContent = matchJson.updatedAt || '—';
+
+    // スタッツ（ファイルがなくてもエラーにしない）
+    if (statsRes.ok) {
+      const statsJson = await statsRes.json();
+      PLAYER_STATS = {};
+      for (const [id, s] of Object.entries(statsJson.stats || {})) {
+        PLAYER_STATS[String(id)] = s;
+      }
+    }
+
     render();
   } catch (e) {
     document.getElementById('content').innerHTML =
@@ -1065,7 +1099,41 @@ function render() {
         ? `<div class="m-right">${playersJa.map(n=>`<span class="p-tag">${n}</span>`).join("")}</div>`
         : "";
 
-      html += `<div class="match-row" style="animation-delay:${i*.04}s">
+      // ── 選手スタッツ（Sofascore取得分） ──────────────
+      const STAT_LABELS = {
+        "Goals":           { label:"G",    unit:"" },
+        "Assists":         { label:"A",    unit:"" },
+        "Shots on target": { label:"枠内S", unit:"" },
+        "Minutes played":  { label:"出場",  unit:"分" },
+        "Rating":          { label:"採点",  unit:"" },
+        "Key passes":      { label:"KP",   unit:"" },
+        "Dribbles":        { label:"突破",  unit:"" },
+      };
+      let statsHtml = "";
+      const statsEntry = m.sofascoreId ? PLAYER_STATS[String(m.sofascoreId)] : null;
+      if (statsEntry && statsEntry.playerStats) {
+        const chips = [];
+        for (const [playerEn, stats] of Object.entries(statsEntry.playerStats)) {
+          const pJa = PLAYER_JA[playerEn] || playerEn;
+          for (const [statKey, statVal] of Object.entries(stats)) {
+            const def = STAT_LABELS[statKey];
+            if (!def) continue;
+            chips.push(
+              `<span class="stat-chip">` +
+              `<span class="s-player">${pJa}</span>` +
+              `<span class="s-val">${statVal}${def.unit}</span>` +
+              `<span class="s-label">${def.label}</span>` +
+              `</span>`
+            );
+          }
+        }
+        if (chips.length > 0) {
+          statsHtml = `<div class="stats-row">${chips.join("")}</div>`;
+        }
+      }
+      const hasStatsClass = statsHtml ? " has-stats" : "";
+
+      html += `<div class="match-row${hasStatsClass}" style="animation-delay:${i*.04}s">
         <div class="m-time"><div class="m-kick">${jstTime}</div></div>
         <div class="m-main">
           <div class="m-left">
@@ -1081,6 +1149,7 @@ function render() {
           </div>
           ${pHtml}
         </div>
+        ${statsHtml}
       </div>`;
     });
   });
