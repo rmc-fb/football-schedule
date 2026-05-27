@@ -344,12 +344,13 @@ async function apifyFetchMLS(playerMap, crestMap) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          searchQuery:  'MLS',
-          sport:        'football',
-          mode:         'events',
-          maxItems:     200,
-          fetchDetails: false,
-        }),
+  　　　　searchQuery:  'MLS',
+  　　　　sport:        'football',
+  　　　　mode:         'events',
+  　　　　date:         '2026-07-17',  // ← これを追加
+  　　　　maxItems:     200,
+  　　　　fetchDetails: false,
+　　　　}),
       }
     );
     if (!runRes.ok) {
