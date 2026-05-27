@@ -6,9 +6,12 @@ const RAPID_KEY        = process.env.RAPIDAPI_KEY;
 const RAPID_HOST       = 'free-api-live-football-data.p.rapidapi.com';
 const BASE_URL         = `https://${RAPID_HOST}`;
 const FOOTBALLDATA_KEY = process.env.FOOTBALLDATA_KEY;
+const APIFY_TOKEN      = process.env.APIFY_TOKEN;
+const APIFY_ACTOR      = 'parseforge~sofascore-live-scraper';
 
 if (!RAPID_KEY)        console.warn('⚠️  RAPIDAPI_KEY が未設定。RapidAPI取得はスキップします。');
 if (!FOOTBALLDATA_KEY) console.warn('⚠️  FOOTBALLDATA_KEY が未設定。FD取得はスキップします。');
+if (!APIFY_TOKEN)      console.warn('⚠️  APIFY_TOKEN が未設定。Apify MLS取得はスキップします。');
 
 // ────────────────────────────────────────────────
 // football-data.org 担当クラブリーグ（メイン）
@@ -43,7 +46,7 @@ const RAPID_LEAGUES = [
   { id: 538,   key: 'UAE Pro League',          lClass: 'l-middle',   tab: 'middle', gender: 'male'   },
   { id: 535,   key: 'Qatar Stars',             lClass: 'l-middle',   tab: 'middle', gender: 'male'   },
   { id: 525,   key: 'AFC Champions',           lClass: 'l-middle',   tab: 'middle', gender: 'male'   },
-  // 北米
+  // 北米（MLSはApify経由に変更したが、RapidAPIもフォールバックとして残す）
   { id: 130,   key: 'MLS',                     lClass: 'l-north',    tab: 'north',  gender: 'male'   },
   { id: 230,   key: 'Liga MX',                 lClass: 'l-north',    tab: 'north',  gender: 'male'   },
   { id: 9134,  key: 'NWSL',                    lClass: 'l-womens',   tab: 'north',  gender: 'female' },
@@ -244,7 +247,6 @@ async function fdFetchMatches(compId, playerMap, meta) {
       const away = m.awayTeam?.name || '';
       if (!home || !away) return null;
 
-      // lookupPlayers で name/shortName/tla の全バリエーションを検索
       const japanese = meta.national
         ? []
         : lookupPlayers(
@@ -301,7 +303,6 @@ async function rapidFetchMatches(league, playerMap, crestMap) {
     const homeCrest = m.home?.imageUrl || crestMap[home] || crestMap[homeShort] || null;
     const awayCrest = m.away?.imageUrl || crestMap[away] || crestMap[awayShort] || null;
 
-    // lookupPlayers で name/shortName 両方を検索
     const japanese = league.national
       ? []
       : lookupPlayers(playerMap, home, away, homeShort, awayShort);
@@ -322,6 +323,145 @@ async function rapidFetchMatches(league, playerMap, crestMap) {
       source:   'rapid',
     };
   }).filter(Boolean);
+}
+
+// ────────────────────────────────────────────────
+// Apify経由 MLS試合取得
+// Sofascore Live Events Scraperを使ってMLSの予定試合を取得する
+// RapidAPIがMLSデータを返さない場合のメイン取得元として使用
+// ────────────────────────────────────────────────
+async function apifyFetchMLS(playerMap, crestMap) {
+  if (!APIFY_TOKEN) return [];
+
+  console.log('\n🏟️  Apify経由 MLS取得中...');
+
+  // ① Actorを実行してRunを起動
+  let runId;
+  try {
+    const runRes = await fetch(
+      `https://api.apify.com/v2/acts/${APIFY_ACTOR}/runs?token=${APIFY_TOKEN}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          searchQuery:  'MLS',
+          sport:        'football',
+          mode:         'events',
+          maxItems:     200,
+          fetchDetails: false,
+        }),
+      }
+    );
+    if (!runRes.ok) {
+      console.warn(`  ⚠️ Apify Run起動失敗: HTTP ${runRes.status}`);
+      return [];
+    }
+    const runData = await runRes.json();
+    runId = runData?.data?.id;
+    if (!runId) {
+      console.warn('  ⚠️ Apify Run IDが取得できませんでした');
+      return [];
+    }
+    console.log(`  ▶ Run ID: ${runId} — 完了待ち...`);
+  } catch (e) {
+    console.warn(`  ⚠️ Apify Run起動エラー: ${e.message}`);
+    return [];
+  }
+
+  // ② Run完了まで最大3分ポーリング（8秒ごと）
+  const maxWait = 180000;
+  const interval = 8000;
+  const startTime = Date.now();
+
+  while (Date.now() - startTime < maxWait) {
+    await sleep(interval);
+    try {
+      const statusRes = await fetch(
+        `https://api.apify.com/v2/actor-runs/${runId}?token=${APIFY_TOKEN}`
+      );
+      const statusData = await statusRes.json();
+      const status = statusData?.data?.status;
+
+      if (status === 'SUCCEEDED') {
+        console.log(' 完了');
+        break;
+      }
+      if (['FAILED', 'ABORTED', 'TIMED-OUT'].includes(status)) {
+        console.warn(`\n  ⚠️ Apify Run失敗: ${status}`);
+        return [];
+      }
+      process.stdout.write('.');
+    } catch (e) {
+      console.warn(`\n  ⚠️ ステータス確認エラー: ${e.message}`);
+      return [];
+    }
+  }
+
+  // ③ Datasetから結果を取得
+  let items;
+  try {
+    const dataRes = await fetch(
+      `https://api.apify.com/v2/actor-runs/${runId}/dataset/items?token=${APIFY_TOKEN}&clean=true`
+    );
+    if (!dataRes.ok) {
+      console.warn(`  ⚠️ Dataset取得失敗: HTTP ${dataRes.status}`);
+      return [];
+    }
+    items = await dataRes.json();
+  } catch (e) {
+    console.warn(`  ⚠️ Dataset取得エラー: ${e.message}`);
+    return [];
+  }
+
+  if (!Array.isArray(items) || items.length === 0) {
+    console.log('  － MLS: 0試合');
+    return [];
+  }
+
+  // ④ MLSのみフィルタして既存フォーマットに変換
+  const now = Date.now();
+  const matches = items
+    .filter(item => {
+      // MLSの試合のみ（tournamentSlugで判定）
+      if (item.tournamentSlug !== 'mls') return false;
+      // 未来の試合のみ
+      if (!item.startTimestamp) return false;
+      return item.startTimestamp * 1000 > now;
+    })
+    .map(item => {
+      const home      = item.homeTeam?.name || '';
+      const away      = item.awayTeam?.name || '';
+      const homeSlug  = item.homeTeam?.slug || '';
+      const awaySlug  = item.awayTeam?.slug || '';
+      if (!home || !away) return null;
+
+      // Sofascoreのロゴ or エンブレムキャッシュを使用
+      const homeCrest = item.homeTeam?.logo || crestMap[home] || null;
+      const awayCrest = item.awayTeam?.logo || crestMap[away] || null;
+
+      // 日本人選手の在籍確認（slug/nameで検索）
+      const japanese = lookupPlayers(playerMap, home, away, homeSlug, awaySlug);
+
+      return {
+        kickoffUTC: item.startDate,          // ISO形式: "2026-07-16T23:30:00.000Z"
+        home,
+        away,
+        homeCrest,
+        awayCrest,
+        league:   'MLS',
+        lClass:   'l-north',
+        tab:      'north',
+        gender:   'male',
+        national: false,
+        youth:    false,
+        japanese,
+        source:   'apify',
+      };
+    })
+    .filter(Boolean);
+
+  console.log(`  ✅ Apify MLS: ${matches.length}試合`);
+  return matches;
 }
 
 // ────────────────────────────────────────────────
@@ -393,7 +533,7 @@ async function main() {
   const playerMap = loadPlayerMap();
 
   const allMatches = [];
-  const summary = { fd: 0, rapid: 0, failed: [] };
+  const summary = { fd: 0, rapid: 0, apify: 0, failed: [] };
 
   console.log(`\n📅 football-data.org クラブ試合取得 (${FD_CLUB_LEAGUES.length}リーグ)...\n`);
   for (let i = 0; i < FD_CLUB_LEAGUES.length; i++) {
@@ -437,14 +577,22 @@ async function main() {
 
   allMatches.push(...(await fetchNationalMatches(playerMap, crestMap)));
 
-  // 重複除去・ソート
-  const seen   = new Set();
-  const unique = allMatches.filter(m => {
+  // Apify経由 MLSデータ取得（メイン）
+  const apifyMatches = await apifyFetchMLS(playerMap, crestMap);
+  allMatches.push(...apifyMatches);
+  summary.apify += apifyMatches.length;
+
+  // 重複除去・ソート（同じ試合がRapidAPIとApifyで重複した場合、apifyを優先）
+  // kickoffUTC|home|away をキーにして最後に追加されたもの（apify）で上書き
+  const matchMap = new Map();
+  for (const m of allMatches) {
     const key = `${m.kickoffUTC}|${m.home}|${m.away}`;
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
+    // apifyは後から追加されるので、既存エントリがあってもapifyで上書き
+    if (!matchMap.has(key) || m.source === 'apify') {
+      matchMap.set(key, m);
+    }
+  }
+  const unique = [...matchMap.values()];
   unique.sort((a, b) => a.kickoffUTC.localeCompare(b.kickoffUTC));
 
   // 保存
@@ -460,7 +608,7 @@ async function main() {
   console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
   console.log(`✅ 保存完了: 合計 ${unique.length}試合`);
   Object.entries(byTab).forEach(([tab, cnt]) => console.log(`   ${tab.padEnd(12)}: ${cnt}試合`));
-  console.log(`   ソース    : FD ${summary.fd}試合 / RapidAPI ${summary.rapid}試合`);
+  console.log(`   ソース    : FD ${summary.fd}試合 / RapidAPI ${summary.rapid}試合 / Apify ${summary.apify}試合`);
   console.log(`   日本人関連: ${jpMatches}試合`);
   if (summary.failed.length > 0) {
     console.log(`   ❌ 取得失敗: ${summary.failed.join(', ')}`);
