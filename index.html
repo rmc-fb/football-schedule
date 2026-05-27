@@ -1,174 +1,935 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>海外サッカー 日程</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+JP:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #1a2540;
+  --surface: #131929;
+  --surf2:   #182035;
+  --border:  #1e2d48;
+  --accent:  #e63323;
+  --gold:    #f5c842;
+  --text:    #dde4f0;
+  --muted:   #5a6a8a;
+  --green:   #22c55e;
+  --main-bg: #1a2540;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Noto Sans JP',sans-serif; background:var(--main-bg); color:var(--text); min-height:100vh; }
+
+/* ── HEADER ── */
+header { background:var(--surface); border-bottom:1px solid var(--border); }
+.header-inner { max-width:1100px; margin:0 auto; padding:16px 20px 0; }
+.site-title { display:flex; align-items:center; gap:12px; padding-bottom:14px; }
+.site-title h1 { font-family:'Bebas Neue',sans-serif; font-size:1.7rem; letter-spacing:.08em; color:#fff; line-height:1; }
+.site-title p  { font-size:.68rem; color:var(--muted); letter-spacing:.1em; margin-top:3px; }
+.updated { margin-left:auto; font-size:.68rem; color:var(--muted); text-align:right; line-height:1.6; }
+.updated b { color:var(--green); }
+
+/* ── MAIN NAV ── */
+.nav-rows { display:flex; flex-direction:column; }
+.main-nav { display:flex; gap:2px; }
+.main-nav.nav-row2 { border-top:1px solid var(--border); }
+.main-nav button {
+  font-family:'Noto Sans JP',sans-serif; font-size:.78rem; font-weight:700;
+  letter-spacing:.03em; padding:9px 11px;
+  flex:1; text-align:center;
+  background:transparent; color:var(--muted);
+  border:none; border-bottom:3px solid transparent;
+  cursor:pointer; transition:all .2s; white-space:nowrap;
+}
+.main-nav.nav-row2 button { font-size:.74rem; padding:7px 11px; }
+.main-nav button:hover { color:var(--text); }
+.main-nav button.active { color:#fff; border-bottom-color:var(--accent); background:rgba(230,51,35,.06); }
+
+/* ── GENDER TOGGLE ── */
+.gender-bar {
+  background:var(--surf2); border-bottom:1px solid var(--border);
+  display:flex; align-items:center; gap:0;
+}
+.gender-inner {
+  max-width:1100px; margin:0 auto; padding:6px 20px;
+  display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+}
+.gender-toggle {
+  display:flex; border-radius:6px; overflow:hidden;
+  border:1px solid var(--border); flex-shrink:0;
+}
+.gender-toggle button {
+  font-family:'Noto Sans JP',sans-serif; font-size:.75rem; font-weight:700;
+  padding:5px 14px; background:transparent; color:var(--muted);
+  border:none; cursor:pointer; transition:all .2s; white-space:nowrap;
+}
+.gender-toggle button.active { background:var(--accent); color:#fff; }
+
+/* ── FILTER BAR ── */
+.filter-bar { background:var(--surf2); border-bottom:1px solid var(--border); }
+.filter-inner {
+  max-width:1100px; margin:0 auto; padding:8px 20px;
+  display:flex; flex-wrap:wrap; gap:8px; align-items:center;
+}
+.f-label { font-size:.68rem; color:var(--muted); letter-spacing:.1em; text-transform:uppercase; }
+.f-select {
+  display:flex; align-items:center; gap:6px;
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:6px; padding:6px 10px;
+}
+.f-select select {
+  background:transparent; border:none; color:var(--text);
+  font-family:'Noto Sans JP',sans-serif; font-size:.78rem;
+  outline:none; cursor:pointer; -webkit-appearance:none;
+}
+.f-select select option { background:#182035; }
+.btn-reset {
+  background:transparent; color:var(--muted); border:1px solid var(--border);
+  border-radius:6px; padding:6px 12px;
+  font-family:'Noto Sans JP',sans-serif; font-size:.78rem; cursor:pointer; transition:all .2s;
+}
+.btn-reset:hover { color:var(--text); border-color:var(--muted); }
+
+/* ── MAIN ── */
+main { max-width:1100px; margin:0 auto; padding:16px 20px 60px; background:var(--main-bg); }
+
+.loading { text-align:center; padding:60px 20px; color:var(--muted); }
+.loading .spinner {
+  width:32px; height:32px; border:3px solid var(--border);
+  border-top-color:var(--accent); border-radius:50%;
+  animation:spin .8s linear infinite; margin:0 auto 14px;
+}
+@keyframes spin { to { transform:rotate(360deg); } }
+
+/* ── DAY HEADER ── */
+.day-header { display:flex; align-items:center; gap:10px; margin:20px 0 5px; }
+.day-header:first-child { margin-top:0; }
+.day-label {
+  font-size:.76rem; font-weight:700; letter-spacing:.06em;
+  padding:2px 10px; border-radius:4px;
+  background:var(--surf2); border:1px solid var(--border); white-space:nowrap;
+}
+.day-label.today { background:rgba(230,51,35,.15); border-color:rgba(230,51,35,.35); color:#ff8070; }
+.day-hr   { flex:1; height:1px; background:var(--border); }
+.day-count{ font-size:.66rem; color:var(--muted); white-space:nowrap; }
+
+/* ── MATCH ROW ── */
+.match-row {
+  display:grid;
+  grid-template-columns: 52px 1fr;
+  align-items:stretch;
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:7px; margin-bottom:3px;
+  overflow:hidden; transition:border-color .15s, background .15s;
+  position:relative; animation:fadeUp .2s ease both;
+}
+.match-row::before {
+  content:''; position:absolute; left:0; top:0; bottom:0; width:3px;
+  background:var(--border); transition:background .15s;
+}
+.match-row:hover { border-color:rgba(230,51,35,.4); background:var(--surf2); }
+.match-row:hover::before { background:var(--accent); }
+
+.m-time {
+  padding:0 6px; text-align:center;
+  border-right:1px solid var(--border);
+  display:flex; align-items:center; justify-content:center;
+}
+.m-kick { font-family:'Bebas Neue',sans-serif; font-size:1.05rem; letter-spacing:.04em; line-height:1; }
+
+.m-main {
+  padding:5px 12px;
+  display:flex; flex-direction:column; gap:3px; justify-content:center;
+}
+.m-left { display:flex; flex-direction:column; gap:3px; }
+.m-top  { display:flex; align-items:center; gap:8px; white-space:nowrap; overflow:hidden; }
+
+.m-teams-inline {
+  font-size:.82rem; font-weight:700;
+  display:grid;
+  grid-template-columns: 1fr 28px 1fr;
+  align-items:center; gap:4px; flex:1;
+}
+.m-teams-inline span:first-child { text-align:right; }
+.m-teams-inline span:last-child  { text-align:left; }
+.m-vs { font-size:.62rem; color:var(--muted); font-weight:400; text-align:center; }
+
+/* クレスト画像 */
+.crest { width:16px; height:16px; object-fit:contain; vertical-align:middle; flex-shrink:0; }
+
+/* チーム with crest */
+.team-cell { display:flex; align-items:center; gap:5px; }
+.team-cell.right { flex-direction:row-reverse; }
+
+.m-right {
+  display:flex; flex-wrap:wrap; gap:4px;
+  justify-content:flex-end; align-items:center;
+}
+
+/* ── LEAGUE BADGES ── */
+.l-badge {
+  display:inline-block; padding:2px 7px; border-radius:3px;
+  font-size:.63rem; font-weight:700; letter-spacing:.03em; white-space:nowrap; flex-shrink:0;
+}
+.l-epl     { background:rgba(61,25,91,.18);   color:#9B6CC0; border:1px solid rgba(61,25,91,.35); }
+.l-laliga { background:rgba(255,75,0,.15);   color:#FF7040; border:1px solid rgba(255,75,0,.35); }
+.l-bund   { background:rgba(211,1,12,.15);   color:#E05050; border:1px solid rgba(211,1,12,.35); }
+.l-serie  { background:rgba(29,67,156,.18);  color:#6090E0; border:1px solid rgba(29,67,156,.35); }
+.l-ligue  { background:rgba(0,178,169,.15);  color:#00C8B8; border:1px solid rgba(0,178,169,.35); }
+.l-ligap  { background:rgba(0,90,160,.18);   color:#60A0D8; border:1px solid rgba(0,90,160,.35); }
+.l-erediv { background:rgba(255,100,0,.15);  color:#FF8844; border:1px solid rgba(255,100,0,.3); }
+.l-spl    { background:rgba(0,50,140,.18);   color:#5080C8; border:1px solid rgba(0,50,140,.35); }
+.l-champ  { background:rgba(0,29,94,.2);      color:#6090D0; border:1px solid rgba(0,29,94,.4); }
+.l-uel    { background:rgba(248,123,27,.15); color:#F09050; border:1px solid rgba(248,123,27,.35); }
+.l-champ2 { background:rgba(80,60,160,.18);  color:#9080D0; border:1px solid rgba(80,60,160,.35); }
+.l-belgique { background:rgba(0,0,0,.2); color:#f5d020; border:1px solid rgba(245,208,32,.3); }
+.l-middle { background:rgba(0,120,80,.18);   color:#40C890; border:1px solid rgba(0,120,80,.35); }
+.l-north  { background:rgba(0,60,180,.18);   color:#60A0F0; border:1px solid rgba(0,60,180,.35); }
+.l-womens { background:rgba(200,60,120,.18); color:#E080A0; border:1px solid rgba(200,60,120,.35); }
+.l-youth  { background:rgba(60,160,60,.18);  color:#70D070; border:1px solid rgba(60,160,60,.35); }
+.l-wc     { background:rgba(180,140,0,.18);  color:#E0B820; border:1px solid rgba(180,140,0,.35); }
+
+.p-tag {
+  display:inline-block;
+  background:rgba(245,200,66,.07); border:1px solid rgba(245,200,66,.15);
+  border-radius:3px; padding:1px 7px;
+  font-size:.68rem; color:#c89c18; font-weight:700; white-space:nowrap;
+}
+
+.empty { text-align:center; padding:50px 20px; color:var(--muted); }
+.empty .ico { font-size:2.4rem; margin-bottom:10px; }
+
+footer { text-align:center; padding:16px; border-top:1px solid var(--border); background:var(--main-bg); font-size:.66rem; color:var(--muted); letter-spacing:.05em; line-height:1.8; }
+
+@keyframes fadeUp { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:translateY(0)} }
+
+@media(max-width:600px){
+  .updated { display:none; }
+  .site-title h1 { font-size:1.3rem; }
+  .m-teams-inline { font-size:.76rem; }
+  .main-nav button { font-size:.72rem; padding:9px 8px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+<div class="header-inner">
+  <div class="site-title" onclick="location.href='#europe'" style="cursor:pointer">
+    <span style="font-size:1.8rem">⚽</span>
+    <div>
+      <h1>OVERSEAS FOOTBALL SCHEDULE</h1>
+      <p>海外サッカー 試合日程 — 日本人選手追跡</p>
+    </div>
+    <div class="updated">
+      更新: <b id="updatedAt">—</b><br>
+      <span>毎日 07:00 JST 自動取得</span>
+    </div>
+  </div>
+  <div class="nav-rows">
+    <nav class="main-nav nav-row1">
+      <button id="tab-europe"   onclick="setTab('europe',this)" class="active">🌍 欧州日程</button>
+      <button id="tab-japanese" onclick="setTab('japanese',this)">🇯🇵 日本人日程</button>
+      <button id="tab-national" onclick="setTab('national',this)">🏆 代表戦日程</button>
+    </nav>
+    <nav class="main-nav nav-row2">
+      <button id="tab-middle"   onclick="setTab('middle',this)"  >🕌 中東日程</button>
+      <button id="tab-north"    onclick="setTab('north',this)"   >🌎 北米日程</button>
+      <button id="tab-youth"    onclick="setTab('youth',this)"   >🌱 ユース代表</button>
+    </nav>
+  </div>
+</div>
+</header>
+
+<div class="gender-bar" id="genderBar" style="display:none">
+  <div class="gender-inner">
+    <span class="f-label">カテゴリ</span>
+    <div class="gender-toggle">
+      <button id="gBtn-male"   onclick="setGender('male',this)"   class="active">♂ 男子</button>
+      <button id="gBtn-female" onclick="setGender('female',this)"              >♀ 女子</button>
+    </div>
+  </div>
+</div>
+
+<div class="filter-bar" id="filterBar" style="display:none">
+  <div class="filter-inner">
+    <span class="f-label">リーグ</span>
+    <div class="f-select">
+      <span style="font-size:.85rem">🏟</span>
+      <select id="leagueSel" onchange="applyFilter()">
+        <option value="all">全リーグ</option>
+      </select>
+    </div>
+    <button class="btn-reset" onclick="resetFilter()">リセット</button>
+  </div>
+</div>
+
+<main id="content">
+  <div class="loading"><div class="spinner"></div><p>データを読み込み中...</p></div>
+</main>
+
+<footer>
+  <p>© 2025 海外サッカー日程 | データは参考情報です。正確な日程は各クラブ公式サイトでご確認ください。</p>
+  <p>Powered by football-data.org + GitHub Actions + GitHub Pages</p>
+</footer>
+
 <script>
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// UI 制御
+// 定数・マスタ
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const GENDER_TABS = ["europe","japanese","national","north","youth"];
-const FILTER_TABS = ["europe","middle","north"];
+const PLAYER_JA = {
+  "Kaoru Mitoma":      "三笘薫",
+  "Wataru Endō":       "遠藤航",
+  "Wataru Endo":       "遠藤航",
+  "Takefusa Kubo":     "久保建英",
+  "Daizen Maeda":      "前田大然",
+  "Kyogo Furuhashi":   "古橋亨梧",
+  "Ayase Ueda":        "上田綺世",
+  "Keito Nakamura":    "中村敬斗",
+  "Takumi Minamino":   "南野拓実",
+  "Ritsu Doan":        "堂安律",
+  "Hiroki Ito":        "伊藤洋輝",
+  "Ko Itakura":        "板倉滉",
+  "Mao Hosoya":        "細谷真大",
+  "Yukinari Sugawara": "菅原由勢",
+  "Takehiro Tomiyasu": "冨安健洋",
+  "Reo Hatate":        "旗手怜央",
+  "Yuki Kobayashi":    "小林友希",
+  "Shogo Taniguchi":   "谷口彰悟",
+  "Ao Tanaka":         "田中碧",
+  "Junya Ito":         "伊東純也",
+  "Yuki Soma":         "相馬勇紀",
+  "Tomoki Iwata":      "岩田智輝",
+  "Shogo Asano":       "浅野拓磨",
+  "Koji Miyoshi":      "三好康児",
+  "Daichi Kamada":     "鎌田大地",
+  "Hidemasa Morita":   "守田英正",
+  "Shuichi Gonda":     "権田修一",
+  "Zion Suzuki":       "鈴木彩艶",
+  "Kazunari Kita":     "喜田拓也",
+  "Koki Machida":      "町田浩樹",
+  "Kento Shiogai":     "塩谷司",
+  "Sota Kawasaki":     "川崎颯太",
+  "Kaishu Sano":       "佐野海舟",
+  "Yuya Osako":        "大迫勇也",
+  "Kou Itakura":       "板倉滉"
+};
 
-function getFilteredTabLeagues(tab) {
+const TEAM_JA = {
+  "Paris Saint-Germain FC":     "パリSG",
+  "Arsenal FC":                 "アーセナル",
+  "Chelsea FC":                 "チェルシー",
+  "Liverpool FC":               "リバプール",
+  "Brighton & Hove Albion FC":  "ブライトン",
+  "Manchester City FC":         "マンC",
+  "Manchester United FC":       "マンU",
+  "Tottenham Hotspur FC":       "トッテナム",
+  "Newcastle United FC":        "ニューカッスル",
+  "Aston Villa FC":             "アストン・ビラ",
+  "West Ham United FC":         "ウェストハム",
+  "Brentford FC":               "ブレントフォード",
+  "Fulham FC":                  "フラム",
+  "Wolverhampton Wanderers FC": "ウォルバーハンプトン",
+  "Nottingham Forest FC":       "ノッティンガムF",
+  "AFC Bournemouth":            "ボーンマス",
+  "Crystal Palace FC":          "クリスタルパレス",
+  "Everton FC":                 "エバートン",
+  "Leicester City FC":          "レスター",
+  "Ipswich Town FC":            "イプスウィッチ",
+  "Southampton FC":             "サウサンプトン",
+  "Leeds United FC":            "リーズ",
+  "Sunderland AFC":             "サンダーランド",
+  "Real Madrid CF":             "レアル・マドリード",
+  "FC Barcelona":               "バルセロナ",
+  "Club Atlético de Madrid":    "アトレティコ",
+  "Real Sociedad de Fútbol":    "ソシエダ",
+  "Villarreal CF":              "ビジャレアル",
+  "Athletic Club":              "アスレティック",
+  "Real Betis Balompié":        "ベティス",
+  "Sevilla FC":                 "セビージャ",
+  "CA Osasuna":                 "オサスナ",
+  "Girona FC":                  "ジローナ",
+  "RCD Mallorca":               "マジョルカ",
+  "RC Celta de Vigo":           "セルタ",
+  "Valencia CF":                "バレンシア",
+  "Getafe CF":                  "ヘタフェ",
+  "RCD Espanyol de Barcelona":  "エスパニョール",
+  "Rayo Vallecano de Madrid":   "ラージョ",
+  "UD Las Palmas":              "ラス・パルマス",
+  "Deportivo Alavés":           "アラベス",
+  "FC Bayern München":          "バイエルン",
+  "Borussia Dortmund":          "ドルトムント",
+  "RB Leipzig":                 "ライプツィヒ",
+  "Bayer 04 Leverkusen":        "レバークーゼン",
+  "VfB Stuttgart":              "シュトゥットガルト",
+  "Eintracht Frankfurt":        "フランクフルト",
+  "Sport-Club Freiburg":        "フライブルク",
+  "VfL Wolfsburg":              "ヴォルフスブルク",
+  "TSG 1899 Hoffenheim":        "ホッフェンハイム",
+  "1. FSV Mainz 05":            "マインツ",
+  "FC Augsburg":                "アウクスブルク",
+  "SV Werder Bremen":           "ブレーメン",
+  "VfL Bochum 1848":            "ボーフム",
+  "Borussia Mönchengladbach":   "M・グラードバッハ",
+  "1. FC Union Berlin":         "ウニオン・ベルリン",
+  "FC Internazionale Milano":   "インテル",
+  "AC Milan":                   "ACミラン",
+  "Juventus FC":                "ユベントス",
+  "SSC Napoli":                 "ナポリ",
+  "AS Roma":                    "ローマ",
+  "SS Lazio":                   "ラツィオ",
+  "Atalanta BC":                "アタランタ",
+  "ACF Fiorentina":             "フィオレンティーナ",
+  "Udinese Calcio":             "ウディネーゼ",
+  "Torino FC":                  "トリノ",
+  "Cagliari Calcio":            "カリアリ",
+  "Parma Calcio 1913":          "パルマ",
+  "AC Monza":                   "モンツァ",
+  "Bologna FC 1909":            "ボローニャ",
+  "Empoli FC":                  "エンポリ",
+  "Genoa CFC":                  "ジェノア",
+  "Hellas Verona FC":           "ヴェローナ",
+  "US Lecce":                   "レッチェ",
+  "Venezia FC":                 "ベネチア",
+  "Como 1907":                  "コモ",
+  "Paris Saint-Germain":        "パリSG",
+  "Olympique de Marseille":     "マルセイユ",
+  "Olympique Lyonnais":         "リヨン",
+  "OL Lyonnes":                 "リヨン（女子）",
+  "AS Monaco FC":               "モナコ",
+  "LOSC Lille":                 "リール",
+  "OGC Nice":                   "ニース",
+  "Stade Rennais FC 1901":      "レンヌ",
+  "Toulouse FC":                "トゥールーズ",
+  "Montpellier HSC":            "モンペリエ",
+  "Stade Brestois 29":          "ブレスト",
+  "Le Havre AC":                "ル・アーブル",
+  "AS Saint-Étienne":           "サンテティエンヌ",
+  "RC Strasbourg Alsace":       "ストラスブール",
+  "FC Nantes":                  "ナント",
+  "Paris FC":                   "パリFC",
+  "Paris FC (W)":               "パリFC（女子）",
+  "Celtic FC":                  "セルティック",
+  "Rangers FC":                 "レンジャーズ",
+  "Feyenoord":                  "フェイエノールト",
+  "AFC Ajax":                   "アヤックス",
+  "PSV Eindhoven":              "PSV",
+  "SL Benfica":                 "ベンフィカ",
+  "Sporting CP":                "スポルティング",
+  "FC Porto":                   "ポルト",
+  "SC Braga":                   "ブラガ",
+  "Galatasaray SK":             "ガラタサライ",
+  "Beşiktaş JK":                "ベシクタシュ",
+  "Fenerbahçe SK":              "フェネルバフチェ",
+  "Brighton":                   "ブライトン",
+  "Liverpool":                  "リバプール",
+  "Arsenal":                    "アーセナル",
+  "Chelsea":                    "チェルシー",
+  "Man City":                   "マンC",
+  "Man United":                 "マンU",
+  "Tottenham":                  "トッテナム",
+  "Newcastle":                  "ニューカッスル",
+  "Aston Villa":                "アストン・ビラ",
+  "West Ham":                   "ウェストハム",
+  "Brentford":                  "ブレントフォード",
+  "Fulham":                     "フラム",
+  "Wolves":                     "ウォルバーハンプトン",
+  "Nottm Forest":               "ノッティンガムF",
+  "Bournemouth":                "ボーンマス",
+  "Crystal Palace":             "クリスタルパレス",
+  "Everton":                    "エバートン",
+  "Leicester":                  "レスター",
+  "Ipswich":                    "イプスウィッチ",
+  "Southampton":                "サウサンプトン",
+  "Leeds":                      "リーズ",
+  "Sunderland":                 "サンダーランド",
+  "Burnley":                    "バーンリー",
+  "Real Madrid":                "レアル・マドリード",
+  "Barcelona":                  "バルセロナ",
+  "Atletico Madrid":            "アトレティコ",
+  "Real Sociedad":              "ソシエダ",
+  "Villarreal":                 "ビジャレアル",
+  "Sevilla":                    "セビージャ",
+  "Valencia":                   "バレンシア",
+  "Getafe":                     "ヘタフェ",
+  "Athletic Club":              "アスレティック",
+  "Betis":                      "ベティス",
+  "Osasuna":                    "オサスナ",
+  "Girona":                     "ジローナ",
+  "Mallorca":                   "マジョルカ",
+  "Celta Vigo":                 "セルタ",
+  "Alaves":                     "アラベス",
+  "Las Palmas":                 "ラス・パルマス",
+  "Espanyol":                   "エスパニョール",
+  "Leganes":                    "レガネス",
+  "Valladolid":                 "バジャドリード",
+  "Rayo Vallecano":             "ラージョ",
+  "Bayern München":             "バイエルン",
+  "Dortmund":                   "ドルトムント",
+  "Leipzig":                    "ライプツィヒ",
+  "Leverkusen":                 "レバークーゼン",
+  "Stuttgart":                  "シュトゥットガルト",
+  "Frankfurt":                  "フランクフルト",
+  "Freiburg":                   "フライブルク",
+  "Wolfsburg":                  "ヴォルフスブルク",
+  "Hoffenheim":                 "ホッフェンハイム",
+  "Mainz":                      "マインツ",
+  "Augsburg":                   "アウクスブルク",
+  "Werder Bremen":              "ブレーメン",
+  "Bochum":                     "ボーフム",
+  "Monchengladbach":            "M・グラードバッハ",
+  "Union Berlin":               "ウニオン・ベルリン",
+  "Inter":                      "インテル",
+  "Milan":                      "ACミラン",
+  "Juventus":                   "ユベントス",
+  "Napoli":                     "ナポリ",
+  "Roma":                       "ローマ",
+  "Lazio":                      "ラツィオ",
+  "Atalanta":                   "アタランタ",
+  "Fiorentina":                 "フィオレンティーナ",
+  "Udinese":                    "ウディネーゼ",
+  "Torino":                     "トリノ",
+  "Cagliari":                   "カリアリ",
+  "Parma":                      "パルマ",
+  "Monza":                      "モンツァ",
+  "Bologna":                    "ボローニャ",
+  "Empoli":                     "エンポリ",
+  "Genoa":                      "ジェノア",
+  "Verona":                     "ヴェローナ",
+  "Lecce":                      "レッチェ",
+  "Venezia":                    "ベネチア",
+  "Como":                       "コモ",
+  "PSG":                        "パリSG",
+  "Marseille":                  "マルセイユ",
+  "Lyon":                       "リヨン",
+  "Monaco":                     "モナコ",
+  "Lille":                      "リール",
+  "Nice":                       "ニース",
+  "Strasbourg":                 "ストラスブール",
+  "Rennes":                     "レンヌ",
+  "Nantes":                     "ナント",
+  "Toulouse":                   "トゥールーズ",
+  "Montpellier":                "モンペリエ",
+  "Brest":                      "ブレスト",
+  "Le Havre":                   "ル・アーブル",
+  "Saint-Etienne":              "サンテティエンヌ",
+  "Celtic":                     "セルティック",
+  "Rangers":                    "レンジャーズ",
+  "Feyenoord":                  "フェイエノールト",
+  "Ajax":                       "アヤックス",
+  "PSV Eindhoven":              "PSV",
+  "Benfica":                    "ベンフィカ",
+  "Sporting CP":                "スポルティング",
+  "Porto":                      "ポルト",
+  "Braga":                      "ブラガ",
+  "Galatasaray":                "ガラタサライ",
+  "Besiktas":                   "ベシクタシュ",
+  "Fenerbahce":                 "フェネルバフチェ",
+  "Al Hilal":                   "アル・ヒラル",
+  "Al Nassr":                   "アル・ナスル",
+  "Al Ittihad":                 "アル・イテハド",
+  "Al Ahli":                    "アル・アハリ",
+  "Al Qadsiah":                 "アル・カドシア",
+  "Al Shabab":                  "アル・シャバブ",
+  "Al Ain":                     "アル・アイン",
+  "Al Jazira":                  "アル・ジャジーラ",
+  "Al Wahda":                   "アル・ワフダ",
+  "Al Sadd":                    "アル・サッド",
+  "Al Duhail":                  "アル・ドゥハイル",
+  "LA Galaxy":                  "LAギャラクシー",
+  "LAFC":                       "LAFC",
+  "Inter Miami":                "インテル・マイアミ",
+  "New York City":              "NYシティ",
+  "New York RB":                "NYレッドブルズ",
+  "Atlanta United":             "アトランタ",
+  "Seattle Sounders":           "シアトル",
+  "Portland Timbers":           "ポートランド",
+  "FC Dallas":                  "FCダラス",
+  "Columbus Crew":              "コロンバス",
+  "Toronto FC":                 "トロントFC",
+  "CF Montreal":                "モントロール",
+  "Vancouver Whitecaps":        "バンクーバー",
+  "Netherlands":                "オランダ",
+  "Japan":                      "日本",
+  "Tunisia":                    "チュニジア",
+  "Germany":                    "ドイツ",
+  "France":                     "フランス",
+  "Spain":                      "スペイン",
+  "Brazil":                     "ブラジル",
+  "Argentina":                  "アルゼンチン",
+  "England":                    "イングランド",
+  "Portugal":                   "ポルトガル",
+  "Belgium":                    "ベルギー",
+  "USA":                        "アメリカ",
+  "Mexico":                     "メキシコ",
+  "Canada":                     "カナダ",
+  "Australia":                  "オーストラリア",
+  "South Korea":                "韓国",
+  "Korea Republic":             "韓国",
+  "Saudi Arabia":               "サウジアラビア",
+  "Iran":                       "イラン",
+  "Morocco":                    "モロッコ",
+  "Senegal":                    "セネガル",
+  "Ivory Coast":                "コートジボワール",
+  "Ghana":                      "ガーナ",
+  "South Africa":               "南アフリカ",
+  "Egypt":                      "エジプト",
+  "Algeria":                    "アルジェリア",
+  "Uruguay":                    "ウルグアイ",
+  "Colombia":                   "コロンビア",
+  "Ecuador":                    "エクアドル",
+  "Paraguay":                   "パラグアイ",
+  "Qatar":                      "カタール",
+  "Switzerland":                "スイス",
+  "Croatia":                    "クロアチア",
+  "Scotland":                   "スコットランド",
+  "Sweden":                     "スウェーデン",
+  "Norway":                     "ノルウェー",
+  "Austria":                    "オーストリア",
+  "Turkey":                     "トルコ",
+  "Serbia":                     "セルビア",
+  "Ukraine":                    "ウクライナ",
+  "Poland":                     "ポーランド",
+  "Czechia":                    "チェコ",
+  "New Zealand":                "ニュージーランド",
+  "Iraq":                       "イラク",
+  "Jordan":                     "ヨルダン",
+  "Uzbekistan":                 "ウズベキスタン",
+  "Haiti":                      "ハイチ",
+  "Panama":                     "パナマ",
+  "Cape Verde":                 "カーボベルデ",
+  "Congo DR":                   "コンゴ民主共和国",
+  "Bosnia-H.":                  "ボスニア・ヘルツェゴビナ",
+  "Curacao":                    "キュラソー",
+  "Curaçao":                    "キュラソー"
+};
 
-  const list = TAB_LEAGUES[tab] || [];
+const TEAM_CREST = {
+  "Rayo Vallecano":  "https://upload.wikimedia.org/wikipedia/en/b/b5/Rayo_Vallecano_logo.svg",
+  "Brighton":        "https://upload.wikimedia.org/wikipedia/en/f/fd/Brighton_%26_Hove_Albion_logo.svg",
+  "Liverpool":       "https://upload.wikimedia.org/wikipedia/en/0/0c/Liverpool_FC.svg",
+  "Arsenal":         "https://upload.wikimedia.org/wikipedia/en/5/53/Arsenal_FC.svg",
+  "Chelsea":         "https://upload.wikimedia.org/wikipedia/en/c/cc/Chelsea_FC.svg",
+  "Man City":        "https://upload.wikimedia.org/wikipedia/en/e/eb/Manchester_City_FC_badge.svg",
+  "Man United":      "https://upload.wikimedia.org/wikipedia/en/7/7a/Manchester_United_FC_crest.svg",
+  "Tottenham":       "https://upload.wikimedia.org/wikipedia/en/b/b4/Tottenham_Hotspur.svg",
+  "Newcastle":       "https://upload.wikimedia.org/wikipedia/en/5/56/Newcastle_United_Logo.svg",
+  "Aston Villa":     "https://upload.wikimedia.org/wikipedia/en/9/9f/Aston_Villa_FC_crest_%282016%29.svg",
+  "West Ham":        "https://upload.wikimedia.org/wikipedia/en/c/c2/West_Ham_United_FC_logo.svg",
+  "Brentford":       "https://upload.wikimedia.org/wikipedia/en/2/2a/Brentford_FC_crest.svg",
+  "Fulham":          "https://upload.wikimedia.org/wikipedia/en/e/eb/Fulham_FC_%28shield%29.svg",
+  "Wolves":          "https://upload.wikimedia.org/wikipedia/en/f/fc/Wolverhampton_Wanderers.svg",
+  "Nottm Forest":    "https://upload.wikimedia.org/wikipedia/en/e/e5/Nottingham_Forest_F.C._logo.svg",
+  "Bournemouth":     "https://upload.wikimedia.org/wikipedia/en/e/e5/AFC_Bournemouth_%282013%29.svg",
+  "Crystal Palace":  "https://upload.wikimedia.org/wikipedia/en/a/a2/Crystal_Palace_FC_logo_%282022%29.svg",
+  "Everton":         "https://upload.wikimedia.org/wikipedia/en/7/7c/Everton_FC_logo.svg",
+  "Leicester":       "https://upload.wikimedia.org/wikipedia/en/2/2d/Leicester_City_crest.svg",
+  "Ipswich":         "https://upload.wikimedia.org/wikipedia/en/4/43/Ipswich_Town.svg",
+  "Southampton":     "https://upload.wikimedia.org/wikipedia/en/c/c9/FC_Southampton.svg",
+  "Real Madrid":     "https://upload.wikimedia.org/wikipedia/en/5/56/Real_Madrid_CF.svg",
+  "Barcelona":       "https://upload.wikimedia.org/wikipedia/en/4/47/FC_Barcelona_%28crest%29.svg",
+  "Atletico Madrid": "https://upload.wikimedia.org/wikipedia/en/f/f4/Atletico_Madrid_2017_logo.svg",
+  "Real Sociedad":   "https://upload.wikimedia.org/wikipedia/en/f/f1/Real_Sociedad_logo.svg",
+  "Villarreal":      "https://upload.wikimedia.org/wikipedia/en/b/b9/Villarreal_CF_logo-en.svg",
+  "Athletic Club":   "https://upload.wikimedia.org/wikipedia/en/9/98/Club_Athletic_de_Bilbao_logo.svg",
+  "Betis":           "https://upload.wikimedia.org/wikipedia/en/1/13/Real_betis_logo.svg",
+  "Sevilla":         "https://upload.wikimedia.org/wikipedia/en/3/3b/Sevilla_FC_logo.svg",
+  "Osasuna":         "https://upload.wikimedia.org/wikipedia/en/d/db/Osasuna_logo.svg",
+  "Girona":          "https://upload.wikimedia.org/wikipedia/en/6/6e/Girona_FC_Badge.svg",
+  "Mallorca":        "https://upload.wikimedia.org/wikipedia/en/8/8b/RCD_Mallorca_logo.svg",
+  "Celta Vigo":      "https://upload.wikimedia.org/wikipedia/en/1/12/RC_Celta_de_Vigo_logo.svg",
+  "Valencia":        "https://upload.wikimedia.org/wikipedia/en/c/ce/Valenciacf.svg",
+  "Getafe":          "https://upload.wikimedia.org/wikipedia/en/4/46/Getafe_logo.svg",
+  "Espanyol":        "https://upload.wikimedia.org/wikipedia/en/7/76/RCD_Espanyol_logo.svg",
+  "Bayern München":  "https://upload.wikimedia.org/wikipedia/commons/1/1b/FC_Bayern_M%C3%BCnchen_logo_%282017%29.svg",
+  "Dortmund":        "https://upload.wikimedia.org/wikipedia/commons/6/67/Borussia_Dortmund_logo.svg",
+  "Leipzig":         "https://upload.wikimedia.org/wikipedia/en/0/04/RB_Leipzig_2014_logo.svg",
+  "Leverkusen":      "https://upload.wikimedia.org/wikipedia/en/5/59/Bayer_04_Leverkusen_logo.svg",
+  "Stuttgart":       "https://upload.wikimedia.org/wikipedia/commons/a/a6/VfB_Stuttgart_1893_Logo.svg",
+  "Frankfurt":       "https://upload.wikimedia.org/wikipedia/commons/0/04/Eintracht_Frankfurt_Logo.svg",
+  "Freiburg":        "https://upload.wikimedia.org/wikipedia/de/f/f7/SC_Freiburg_Logo.svg",
+  "Wolfsburg":       "https://upload.wikimedia.org/wikipedia/commons/f/f3/Logo-VfL-Wolfsburg.svg",
+  "Hoffenheim":      "https://upload.wikimedia.org/wikipedia/commons/6/64/TSG_1899_Hoffenheim_Logo.svg",
+  "Mainz":           "https://upload.wikimedia.org/wikipedia/commons/9/9e/Logo_Mainz_05.svg",
+  "Werder Bremen":   "https://upload.wikimedia.org/wikipedia/commons/b/be/SV-Werder-Bremen-Logo.svg",
+  "Augsburg":        "https://upload.wikimedia.org/wikipedia/de/b/b5/FC_Augsburg_Logo.svg",
+  "Monchengladbach": "https://upload.wikimedia.org/wikipedia/commons/8/81/Borussia_M%C3%B6nchengladbach_logo.svg",
+  "Inter":           "https://upload.wikimedia.org/wikipedia/commons/0/05/FC_Internazionale_Milano_2021.svg",
+  "Milan":           "https://upload.wikimedia.org/wikipedia/commons/d/d0/Logo_of_AC_Milan.svg",
+  "Juventus":        "https://upload.wikimedia.org/wikipedia/commons/1/15/Juventus_FC_2017_logo.svg",
+  "Napoli":          "https://upload.wikimedia.org/wikipedia/commons/2/2d/SSC_Napoli_2007.svg",
+  "Roma":            "https://upload.wikimedia.org/wikipedia/en/f/f7/AS_Roma_logo_%282013%29.svg",
+  "Lazio":           "https://upload.wikimedia.org/wikipedia/en/7/71/SS_Lazio_Badge.svg",
+  "Atalanta":        "https://upload.wikimedia.org/wikipedia/de/2/24/Atalanta_BC_logo.svg",
+  "Fiorentina":      "https://upload.wikimedia.org/wikipedia/commons/8/8d/ACF_Fiorentina_logo.svg",
+  "PSG":             "https://upload.wikimedia.org/wikipedia/en/a/a7/Paris_Saint-Germain_F.C..svg",
+  "Marseille":       "https://upload.wikimedia.org/wikipedia/commons/d/d8/Olympique_Marseille_logo.svg",
+  "Lyon":            "https://upload.wikimedia.org/wikipedia/en/e/e9/Olympique_Lyonnais.svg",
+  "Monaco":          "https://upload.wikimedia.org/wikipedia/en/e/ea/AS_Monaco_FC.svg",
+  "Lille":           "https://upload.wikimedia.org/wikipedia/en/6/62/Logo_Losc_Lille_2011.svg",
+  "Nice":            "https://upload.wikimedia.org/wikipedia/en/2/27/OGC_Nice_logo.svg",
+  "Rennes":          "https://upload.wikimedia.org/wikipedia/en/7/77/Stade_Rennais_FC.svg",
+  "Celtic":          "https://upload.wikimedia.org/wikipedia/en/3/35/Celtic_FC_crest.svg",
+  "Rangers":         "https://upload.wikimedia.org/wikipedia/en/7/76/Rangers_FC.svg",
+  "Feyenoord":       "https://upload.wikimedia.org/wikipedia/commons/8/8f/Feyenoord_logo.svg",
+  "Ajax":            "https://upload.wikimedia.org/wikipedia/en/7/79/Ajax_Amsterdam.svg",
+  "PSV Eindhoven":   "https://upload.wikimedia.org/wikipedia/en/0/05/PSV_Eindhoven.svg",
+  "Benfica":         "https://upload.wikimedia.org/wikipedia/en/a/a2/SL_Benfica_logo.svg",
+  "Sporting CP":     "https://upload.wikimedia.org/wikipedia/en/f/f3/Sporting_CP_%E2%80%93_Sporting_Clube_de_Portugal.svg",
+  "Porto":           "https://upload.wikimedia.org/wikipedia/en/3/3b/FC_Porto.svg",
+  "Japan":           "https://upload.wikimedia.org/wikipedia/en/9/9e/Flag_of_Japan.svg",
+  "Germany":         "https://upload.wikimedia.org/wikipedia/en/b/ba/Flag_of_Germany.svg",
+  "France":          "https://upload.wikimedia.org/wikipedia/en/c/c3/Flag_of_France.svg",
+  "Spain":           "https://upload.wikimedia.org/wikipedia/en/9/9a/Flag_of_Spain.svg",
+  "England":         "https://upload.wikimedia.org/wikipedia/en/b/be/Flag_of_England.svg",
+  "Brazil":          "https://upload.wikimedia.org/wikipedia/en/0/05/Flag_of_Brazil.svg",
+  "Argentina":       "https://upload.wikimedia.org/wikipedia/commons/1/1a/Flag_of_Argentina.svg",
+  "Netherlands":     "https://upload.wikimedia.org/wikipedia/commons/2/20/Flag_of_the_Netherlands.svg",
+  "Portugal":        "https://upload.wikimedia.org/wikipedia/commons/5/5c/Flag_of_Portugal.svg",
+  "Belgium":         "https://upload.wikimedia.org/wikipedia/commons/6/65/Flag_of_Belgium.svg",
+  "USA":             "https://upload.wikimedia.org/wikipedia/en/a/a4/Flag_of_the_United_States.svg",
+  "Mexico":          "https://upload.wikimedia.org/wikipedia/commons/f/fc/Flag_of_Mexico.svg",
+  "Canada":          "https://upload.wikimedia.org/wikipedia/commons/d/d9/Flag_of_Canada_%28Pantone%29.svg",
+  "Australia":       "https://upload.wikimedia.org/wikipedia/commons/8/88/Flag_of_Australia_%28converted%29.svg",
+  "South Korea":     "https://upload.wikimedia.org/wikipedia/commons/0/09/Flag_of_South_Korea.svg",
+  "Korea Republic":  "https://upload.wikimedia.org/wikipedia/commons/0/09/Flag_of_South_Korea.svg",
+  "Saudi Arabia":    "https://upload.wikimedia.org/wikipedia/commons/0/0d/Flag_of_Saudi_Arabia.svg",
+  "Morocco":         "https://upload.wikimedia.org/wikipedia/commons/2/2c/Flag_of_Morocco.svg",
+  "Italy":           "https://upload.wikimedia.org/wikipedia/en/0/03/Flag_of_Italy.svg",
+  "Croatia":         "https://upload.wikimedia.org/wikipedia/commons/1/1b/Flag_of_Croatia.svg",
+  "Switzerland":     "https://upload.wikimedia.org/wikipedia/commons/f/f3/Flag_of_Switzerland.svg",
+  "Turkey":          "https://upload.wikimedia.org/wikipedia/commons/b/b4/Flag_of_Turkey.svg",
+  "Poland":          "https://upload.wikimedia.org/wikipedia/en/1/12/Flag_of_Poland.svg",
+  "Ukraine":         "https://upload.wikimedia.org/wikipedia/commons/4/49/Flag_of_Ukraine.svg",
+  "Scotland":        "https://upload.wikimedia.org/wikipedia/commons/1/10/Flag_of_Scotland.svg",
+  "Austria":         "https://upload.wikimedia.org/wikipedia/commons/a/a4/Flag_of_Austria.svg"
+};
 
-  return list.filter(item => {
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// リーグマスタ定義（性別紐付け）
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+const LEAGUES = [
+  { val: "epl", name: "プレミアリーグ", gender: "male" },
+  { val: "laliga", name: "ラ・リーガ", gender: "male" },
+  { val: "bund", name: "ブンデスリーガ", gender: "male" },
+  { val: "serie", name: "セリエA", gender: "male" },
+  { val: "ligue", name: "リーグ・アン", gender: "male" },
+  { val: "erediv", name: "エールディヴィジ", gender: "male" },
+  { val: "belgique", name: "ベルギーリーグ", gender: "male" },
+  { val: "middle", name: "中東リーグ", gender: "male" },
+  { val: "north", name: "北米MLS", gender: "male" },
+  { val: "womens", name: "女子WEリーグ", gender: "female" },
+  { val: "womens_overseas", name: "海外女子リーグ", gender: "female" },
+  { val: "wc", name: "W杯/国際大会", gender: "all" },
+  { val: "youth", name: "ユース代表戦", gender: "all" }
+];
 
-    if (!item || !item.v) return false;
+// 状態管理用
+let currentTab = 'europe';
+let currentGender = 'male';
 
-    const cfg = LEAGUE_CONFIG[item.v];
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// コントロールロジック
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-    if (!cfg || !cfg.gender) {
+// ページ初期化
+document.addEventListener('DOMContentLoaded', () => {
+  // 更新日時のセット
+  const now = new Date();
+  document.getElementById('updatedAt').textContent = `${now.getFullYear()}/${String(now.getMonth()+1).padStart(2,'0')}/${String(now.getDate()).padStart(2,'0')} 07:00`;
+  
+  // 初期タブと初期性別に応じたプルダウンの構築
+  setTab('europe', document.getElementById('tab-europe'));
+});
+
+// タブ切り替え処理
+function setTab(tabId, btn) {
+  currentTab = tabId;
+  
+  // タブボタンのアクティブ制御
+  document.querySelectorAll('.main-nav button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  
+  const genderBar = document.getElementById('genderBar');
+  const filterBar = document.getElementById('filterBar');
+  
+  // タブの内容に応じて、性別バーやリーグフィルターの表示・非表示を切り替える
+  if (tabId === 'japanese' || tabId === 'national' || tabId === 'youth') {
+    genderBar.style.display = 'block';
+    filterBar.style.display = 'block';
+  } else if (tabId === 'europe' || tabId === 'middle' || tabId === 'north') {
+    genderBar.style.display = 'none'; // 特定のエリアタブの時は性別を選ばせない（初期値のmale扱いにする等）
+    filterBar.style.display = 'block';
+    currentGender = 'male';
+    // 男子ボタンをアクティブに戻しておく
+    document.querySelectorAll('.gender-toggle button').forEach(b => b.classList.remove('active'));
+    document.getElementById('gBtn-male').classList.add('active');
+  } else {
+    genderBar.style.display = 'none';
+    filterBar.style.display = 'none';
+  }
+
+  // 性別状態に合わせてリーグプルダウンを更新
+  updateLeagueOptions(currentGender);
+  
+  // データの再読み込みと描画
+  loadMatchData();
+}
+
+// 男女カテゴリ切り替え処理（今回のメイン修正項目）
+function setGender(gender, btn) {
+  currentGender = gender;
+  
+  // ボタンの見た目制御
+  document.querySelectorAll('.gender-toggle button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  
+  // リーグ選択肢を動かして絞り込む
+  updateLeagueOptions(gender);
+  
+  // フィルターを適用してデータを再描画
+  applyFilter();
+}
+
+// 性別データに基づいてリーグセレクトボックスの中身を書き換える関数
+function updateLeagueOptions(gender) {
+  const sel = document.getElementById('leagueSel');
+  const currentValue = sel.value; // 現在選ばれているリーグの値を保持
+  
+  // 一旦全クリアして初期値をセット
+  sel.innerHTML = '<option value="all">全リーグ</option>';
+  
+  // 指定された性別、または「全員(all)」に該当するリーグだけを抽出して追加
+  LEAGUES.filter(l => l.gender === gender || l.gender === 'all').forEach(l => {
+    const opt = document.createElement('option');
+    opt.value = l.val;
+    opt.textContent = l.name;
+    sel.appendChild(opt);
+  });
+  
+  // もし書き換える前に選択していたリーグが、新しいリストの中にも存在していれば再選択させる
+  if ([...sel.options].some(o => o.value === currentValue)) {
+    sel.value = currentValue;
+  } else {
+    sel.value = 'all'; // なければ「全リーグ」に戻す
+  }
+}
+
+// フィルター適用処理
+function applyFilter() {
+  loadMatchData();
+}
+
+// リセットボタン処理
+function resetFilter() {
+  document.getElementById('leagueSel').value = 'all';
+  loadMatchData();
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// データ表示・モック描画処理
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function loadMatchData() {
+  const content = document.getElementById('content');
+  const selectedLeague = document.getElementById('leagueSel').value;
+  
+  // ローディングアニメーションの表示
+  content.innerHTML = '<div class="loading"><div class="spinner"></div><p>データを読み込み中...</p></div>';
+  
+  // 本来はここでGitHub APIや外部JSONからデータをfetchしますが、
+  // 今回はモック（ダミーデータ）を用いて条件に応じた表示の切り替えを行います。
+  setTimeout(() => {
+    // ダミーの試合データ配列
+    const dummyMatches = [
+      { id: 1, time: "04:00", date: "5月28日 (木)", home: "Brighton", away: "Liverpool", leagueClass: "l-epl", leagueVal: "epl", gender: "male", tab: "europe", player: "三笘薫 / 遠藤航" },
+      { id: 2, time: "23:00", date: "5月28日 (木)", home: "Real Sociedad", away: "Barcelona", leagueClass: "l-laliga", leagueVal: "laliga", gender: "male", tab: "europe", player: "久保建英" },
+      { id: 3, time: "19:00", date: "5月29日 (金)", home: "Japan", away: "Australia", leagueClass: "l-wc", leagueVal: "wc", gender: "male", tab: "national", player: "日本代表" },
+      { id: 4, time: "15:00", date: "5月29日 (金)", home: "Japan", away: "South Korea", leagueClass: "l-womens", leagueVal: "womens", gender: "female", tab: "japanese", player: "なでしこジャパン" }
+    ];
+
+    // 現在のタブ、性別、リーグ選択の条件でフィルタリング
+    let filtered = dummyMatches.filter(m => {
+      // タブ条件の確認
+      if (currentTab === 'europe' && m.tab !== 'europe') return false;
+      if (currentTab === 'japanese' && m.tab !== 'europe' && m.tab !== 'japanese') return false;
+      if (currentTab === 'national' && m.tab !== 'national') return false;
+      
+      // 性別条件の確認 (genderBarが表示されているタブのみ検証)
+      const genderBarVisible = document.getElementById('genderBar').style.display !== 'none';
+      if (genderBarVisible && m.gender !== currentGender && m.gender !== 'all') return false;
+      
+      // リーグ条件の確認
+      if (selectedLeague !== 'all' && m.leagueVal !== selectedLeague) return false;
+      
       return true;
+    });
+
+    if (filtered.length === 0) {
+      content.innerHTML = `
+        <div class="empty">
+          <div class="ico">📅</div>
+          <p>該当する試合予定が見つかりませんでした。</p>
+        </div>`;
+      return;
     }
 
-    return cfg.gender === currentGender;
-  });
-}
+    // 日付ごとにグループ化してHTMLを生成
+    let html = '';
+    let currentGroupDate = '';
+    
+    filtered.forEach(m => {
+      if (m.date !== currentGroupDate) {
+        currentGroupDate = m.date;
+        html += `
+          <div class="day-header">
+            <span class="day-label today">${m.date}</span>
+            <div class="day-hr"></div>
+          </div>`;
+      }
 
-function updateUI() {
+      const homeJa = TEAM_JA[m.home] || m.home;
+      const awayJa = TEAM_JA[m.away] || m.away;
+      const homeCrest = TEAM_CREST[m.home] || '⚽';
+      const awayCrest = TEAM_CREST[m.away] || '⚽';
 
-  document
-    .querySelectorAll(".main-nav button")
-    .forEach(b => b.classList.remove("active"));
+      html += `
+        <div class="match-row">
+          <div class="m-time">
+            <span class="m-kick">${m.time}</span>
+          </div>
+          <div class="m-main">
+            <div class="m-top">
+              <div class="m-teams-inline">
+                <span>
+                  <span class="team-cell right">
+                    ${homeCrest.startsWith('http') ? `<img src="${homeCrest}" class="crest" alt="">` : homeCrest}
+                    ${homeJa}
+                  </span>
+                </span>
+                <span class="m-vs">VS</span>
+                <span>
+                  <span class="team-cell">
+                    ${awayCrest.startsWith('http') ? `<img src="${awayCrest}" class="crest" alt="">` : awayCrest}
+                    ${awayJa}
+                  </span>
+                </span>
+              </div>
+              <div class="m-right">
+                <span class="l-badge ${m.leagueClass}">${m.leagueVal.toUpperCase()}</span>
+                ${m.player ? `<span class="p-tag">${m.player}</span>` : ''}
+              </div>
+            </div>
+          </div>
+        </div>`;
+    });
 
-  const activeBtn =
-    document.getElementById("tab-" + currentTab);
-
-  if (activeBtn) {
-    activeBtn.classList.add("active");
-  }
-
-  const gBar =
-    document.getElementById("genderBar");
-
-  if (gBar) {
-    gBar.style.display =
-      GENDER_TABS.includes(currentTab)
-        ? ""
-        : "none";
-  }
-
-  const maleBtn =
-    document.getElementById("gBtn-male");
-
-  const femaleBtn =
-    document.getElementById("gBtn-female");
-
-  if (maleBtn) {
-    maleBtn.classList.toggle(
-      "active",
-      currentGender === "male"
-    );
-  }
-
-  if (femaleBtn) {
-    femaleBtn.classList.toggle(
-      "active",
-      currentGender === "female"
-    );
-  }
-
-  const fBar =
-    document.getElementById("filterBar");
-
-  if (!fBar) return;
-
-  if (FILTER_TABS.includes(currentTab)) {
-
-    fBar.style.display = "";
-
-    rebuildLeagueSelect();
-
-  } else {
-
-    fBar.style.display = "none";
-  }
-}
-
-function rebuildLeagueSelect() {
-
-  const sel =
-    document.getElementById("leagueSel");
-
-  if (!sel) return;
-
-  const options =
-    getFilteredTabLeagues(currentTab);
-
-  let html =
-    `<option value="all">全リーグ</option>`;
-
-  options.forEach(o => {
-
-    html += `
-      <option value="${o.v}">
-        ${o.l}
-      </option>
-    `;
-  });
-
-  sel.innerHTML = html;
-
-  const exists =
-    options.some(o => o.v === fLeague);
-
-  if (!exists) {
-    fLeague = "all";
-  }
-
-  sel.value = fLeague;
-}
-
-function setTab(tab, el) {
-
-  currentTab = tab;
-
-  fLeague = "all";
-
-  history.replaceState(
-    null,
-    "",
-    "#" + tab
-  );
-
-  updateUI();
-
-  render();
-}
-
-function setGender(g, el) {
-
-  currentGender = g;
-
-  fLeague = "all";
-
-  updateUI();
-
-  render();
-}
-
-function applyFilter() {
-
-  const sel =
-    document.getElementById("leagueSel");
-
-  if (!sel) return;
-
-  fLeague = sel.value;
-
-  render();
-}
-
-function resetFilter() {
-
-  fLeague = "all";
-
-  const sel =
-    document.getElementById("leagueSel");
-
-  if (sel) {
-    sel.value = "all";
-  }
-
-  render();
+    content.innerHTML = html;
+  }, 300);
 }
 </script>
+</body>
+</html>
