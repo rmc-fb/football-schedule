@@ -14,7 +14,6 @@ function getFilteredTabLeagues(tab) {
 
     const cfg = LEAGUE_CONFIG[item.v];
 
-    // gender設定なしは表示
     if (!cfg || !cfg.gender) return true;
 
     return cfg.gender === currentGender;
@@ -23,18 +22,16 @@ function getFilteredTabLeagues(tab) {
 
 function updateUI() {
 
-  // active解除
   document.querySelectorAll(".main-nav button")
     .forEach(b => b.classList.remove("active"));
 
-  // active付与
-  const activeBtn = document.getElementById("tab-" + currentTab);
+  const activeBtn =
+    document.getElementById("tab-" + currentTab);
 
   if (activeBtn) {
     activeBtn.classList.add("active");
   }
 
-  // gender toggle
   const gBar = document.getElementById("genderBar");
 
   gBar.style.display =
@@ -43,12 +40,17 @@ function updateUI() {
       : "none";
 
   document.getElementById("gBtn-male")
-    .classList.toggle("active", currentGender === "male");
+    .classList.toggle(
+      "active",
+      currentGender === "male"
+    );
 
   document.getElementById("gBtn-female")
-    .classList.toggle("active", currentGender === "female");
+    .classList.toggle(
+      "active",
+      currentGender === "female"
+    );
 
-  // filter bar
   const fBar = document.getElementById("filterBar");
 
   if (FILTER_TABS.includes(currentTab)) {
@@ -61,22 +63,26 @@ function updateUI() {
 
 function rebuildLeagueSelect() {
 
-  const sel = document.getElementById("leagueSel");
+  const sel =
+    document.getElementById("leagueSel");
 
   if (!sel) return;
 
-  const options = getFilteredTabLeagues(currentTab);
+  const options =
+    getFilteredTabLeagues(currentTab);
 
-  let html = `<option value="all">全リーグ</option>`;
+  let html =
+    `<option value="all">全リーグ</option>`;
 
   options.forEach(o => {
-    html += `<option value="${o.v}">${o.l}</option>`;
+    html +=
+      `<option value="${o.v}">${o.l}</option>`;
   });
 
   sel.innerHTML = html;
 
-  // 存在しないリーグならリセット
-  const exists = options.some(o => o.v === fLeague);
+  const exists =
+    options.some(o => o.v === fLeague);
 
   if (!exists) {
     fLeague = "all";
@@ -91,7 +97,11 @@ function setTab(tab, el) {
 
   fLeague = "all";
 
-  history.replaceState(null, '', '#' + tab);
+  history.replaceState(
+    null,
+    '',
+    '#' + tab
+  );
 
   updateUI();
 
@@ -111,7 +121,8 @@ function setGender(g, el) {
 
 function applyFilter() {
 
-  const sel = document.getElementById("leagueSel");
+  const sel =
+    document.getElementById("leagueSel");
 
   if (!sel) return;
 
@@ -121,6 +132,18 @@ function applyFilter() {
 }
 
 function resetFilter() {
+
+  fLeague = "all";
+
+  const sel =
+    document.getElementById("leagueSel");
+
+  if (sel) {
+    sel.value = "all";
+  }
+
+  render();
+}
 
   fLeague = "all";
 
