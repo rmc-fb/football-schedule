@@ -6,9 +6,6 @@
 const GENDER_TABS = ["europe","japanese","national","north","youth"];
 const FILTER_TABS = ["europe","middle","north"];
 
-/**
- * gender に応じたリーグ一覧を返す
- */
 function getFilteredTabLeagues(tab) {
 
   const list = TAB_LEAGUES[tab] || [];
@@ -19,7 +16,6 @@ function getFilteredTabLeagues(tab) {
 
     const cfg = LEAGUE_CONFIG[item.v];
 
-    // gender未指定は表示
     if (!cfg || !cfg.gender) {
       return true;
     }
@@ -30,12 +26,10 @@ function getFilteredTabLeagues(tab) {
 
 function updateUI() {
 
-  // ── active解除 ──
   document
     .querySelectorAll(".main-nav button")
-    .forEach(btn => btn.classList.remove("active"));
+    .forEach(b => b.classList.remove("active"));
 
-  // ── active付与 ──
   const activeBtn =
     document.getElementById("tab-" + currentTab);
 
@@ -43,32 +37,40 @@ function updateUI() {
     activeBtn.classList.add("active");
   }
 
-  // ── gender toggle ──
   const gBar =
     document.getElementById("genderBar");
 
-  gBar.style.display =
-    GENDER_TABS.includes(currentTab)
-      ? ""
-      : "none";
+  if (gBar) {
+    gBar.style.display =
+      GENDER_TABS.includes(currentTab)
+        ? ""
+        : "none";
+  }
 
-  document
-    .getElementById("gBtn-male")
-    .classList.toggle(
+  const maleBtn =
+    document.getElementById("gBtn-male");
+
+  const femaleBtn =
+    document.getElementById("gBtn-female");
+
+  if (maleBtn) {
+    maleBtn.classList.toggle(
       "active",
       currentGender === "male"
     );
+  }
 
-  document
-    .getElementById("gBtn-female")
-    .classList.toggle(
+  if (femaleBtn) {
+    femaleBtn.classList.toggle(
       "active",
       currentGender === "female"
     );
+  }
 
-  // ── filter bar ──
   const fBar =
     document.getElementById("filterBar");
+
+  if (!fBar) return;
 
   if (FILTER_TABS.includes(currentTab)) {
 
@@ -106,7 +108,6 @@ function rebuildLeagueSelect() {
 
   sel.innerHTML = html;
 
-  // 現在のリーグが存在しない場合はリセット
   const exists =
     options.some(o => o.v === fLeague);
 
@@ -121,13 +122,12 @@ function setTab(tab, el) {
 
   currentTab = tab;
 
-  // タブ変更時はリーグリセット
   fLeague = "all";
 
   history.replaceState(
     null,
-    '',
-    '#' + tab
+    "",
+    "#" + tab
   );
 
   updateUI();
@@ -139,7 +139,6 @@ function setGender(g, el) {
 
   currentGender = g;
 
-  // gender変更時はリーグリセット
   fLeague = "all";
 
   updateUI();
