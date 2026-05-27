@@ -1,0 +1,67 @@
+name: Fetch Matches (Sofascore)
+
+on:
+  schedule:
+    # 毎日 07:00 JST (= 22:00 UTC 前日) に実行
+    - cron: '0 22 * * *'
+    # 毎日 13:00 JST (= 04:00 UTC) にも実行（昼間の試合対応）
+    - cron: '0 4 * * *'
+  workflow_dispatch:
+    inputs:
+      force_stats:
+        description: '選手スタッツを強制再取得する'
+        required: false
+        default: 'false'
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+
+    steps:
+      # ── 1. チェックアウト ────────────────────────────
+      - uses: actions/checkout@v4
+
+      # ── 2. Node.js セットアップ ──────────────────────
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # ── 3. Sofascore から試合日程・選手スタッツ取得 ──
+      - name: Fetch from Sofascore
+        run: node scripts/fetch_sofascore.js
+        env:
+          FORCE_STATS: ${{ github.event.inputs.force_stats || 'false' }}
+
+      # ── 4. football-data.org から補完データ取得 ───────
+      #    (Sofascoreにない代表戦・W杯など)
+      - name: Fetch supplemental data (football-data.org)
+        run: node scripts/fetch_matches.js
+        env:
+          RAPIDAPI_KEY:     ${{ secrets.RAPIDAPI_KEY }}
+          FOOTBALLDATA_KEY: ${{ secrets.FOOTBALLDATA_KEY }}
+          SOFASCORE_MODE:   '1'
+        # エラーでも続行（補完データなので任意）
+        continue-on-error: true
+
+      # ── 5. 日本人選手マスタ更新（月1回相当：月曜のみ）─
+      - name: Update Japanese players master
+        if: ${{ github.event.schedule == '0 22 * * 0' || github.event_name == 'workflow_dispatch' }}
+        run: node scripts/fetch_players.js
+        env:
+          FOOTBALLDATA_KEY: ${{ secrets.FOOTBALLDATA_KEY }}
+          FORCE_UPDATE: '1'
+        continue-on-error: true
+
+      # ── 6. 変更があればコミット＆プッシュ ────────────
+      - name: Commit and push
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/matches.json data/player_stats.json data/players.json || true
+          git diff --cached --quiet || \
+            git commit -m "chore: update data [$(date +'%Y-%m-%d %H:%M') JST]"
+          git pull --rebase origin ${{ github.ref_name || 'main' }}
+          git push
