@@ -1,63 +1,6 @@
 {
-  "updatedAt": "2026-06-02 21:30",
+  "updatedAt": "2026-07-02 17:29",
   "players": {
-    "Liverpool FC": [
-      "Wataru Endō"
-    ],
-    "Liverpool": [
-      "Wataru Endō"
-    ],
-    "LIV": [
-      "Wataru Endō"
-    ],
-    "Leeds United FC": [
-      "Ao Tanaka"
-    ],
-    "Leeds United": [
-      "Ao Tanaka"
-    ],
-    "LEE": [
-      "Ao Tanaka"
-    ],
-    "Crystal Palace FC": [
-      "Daichi Kamada"
-    ],
-    "Crystal Palace": [
-      "Daichi Kamada"
-    ],
-    "CRY": [
-      "Daichi Kamada"
-    ],
-    "Brighton & Hove Albion FC": [
-      "Kaoru Mitoma"
-    ],
-    "Brighton Hove": [
-      "Kaoru Mitoma"
-    ],
-    "BHA": [
-      "Kaoru Mitoma"
-    ],
-    "RCD Mallorca": [
-      "Takuma Asano"
-    ],
-    "Mallorca": [
-      "Takuma Asano"
-    ],
-    "MAL": [
-      "Takuma Asano"
-    ],
-    "Real Sociedad de Fútbol": [
-      "Kazunari Kita",
-      "Takefusa Kubo"
-    ],
-    "Real Sociedad": [
-      "Kazunari Kita",
-      "Takefusa Kubo"
-    ],
-    "RSO": [
-      "Kazunari Kita",
-      "Takefusa Kubo"
-    ],
     "TSG 1899 Hoffenheim": [
       "Koki Machida"
     ],
@@ -157,83 +100,6 @@
       "Nick Schmidt",
       "Taichi Hara"
     ],
-    "Parma Calcio 1913": [
-      "Zion Suzuki"
-    ],
-    "Parma": [
-      "Zion Suzuki"
-    ],
-    "PAR": [
-      "Zion Suzuki"
-    ],
-    "Stade Rennais FC 1901": [
-      "Keito Nakamura"
-    ],
-    "Stade Rennais": [
-      "Keito Nakamura"
-    ],
-    "REN": [
-      "Keito Nakamura"
-    ],
-    "Le Havre AC": [
-      "Ayumu Seko"
-    ],
-    "Le Havre": [
-      "Ayumu Seko"
-    ],
-    "HAC": [
-      "Ayumu Seko"
-    ],
-    "AS Monaco FC": [
-      "Takumi Minamino"
-    ],
-    "Monaco": [
-      "Takumi Minamino"
-    ],
-    "ASM": [
-      "Takumi Minamino"
-    ],
-    "Feyenoord Rotterdam": [
-      "Tsuyoshi Watanabe",
-      "Ayase Ueda"
-    ],
-    "Feyenoord": [
-      "Tsuyoshi Watanabe",
-      "Ayase Ueda"
-    ],
-    "FEY": [
-      "Tsuyoshi Watanabe",
-      "Ayase Ueda"
-    ],
-    "AFC Ajax": [
-      "Takehiro Tomiyasu",
-      "Ko Itakura"
-    ],
-    "Ajax": [
-      "Takehiro Tomiyasu",
-      "Ko Itakura"
-    ],
-    "AJA": [
-      "Takehiro Tomiyasu",
-      "Ko Itakura"
-    ],
-    "AZ": [
-      "Rion Ichihara",
-      "Seiya Maikuma"
-    ],
-    "NEC": [
-      "Koki Ogawa",
-      "Kodai Sano"
-    ],
-    "Sparta Rotterdam": [
-      "Shunsuke Mito"
-    ],
-    "Sparta": [
-      "Shunsuke Mito"
-    ],
-    "SPA": [
-      "Shunsuke Mito"
-    ],
     "Sporting Clube de Portugal": [
       "Hidemasa Morita"
     ],
@@ -252,74 +118,35 @@
     "FCA": [
       "Taichi Fukui"
     ],
-    "Blackburn Rovers FC": [
-      "Ryoya Morishita",
-      "Yuki Ohashi"
+    "Liverpool FC": [
+      "Wataru Endō"
     ],
-    "Blackburn": [
-      "Ryoya Morishita",
-      "Yuki Ohashi"
+    "Liverpool": [
+      "Wataru Endō"
     ],
-    "BLA": [
-      "Ryoya Morishita",
-      "Yuki Ohashi"
+    "LIV": [
+      "Wataru Endō"
     ],
-    "Queens Park Rangers FC": [
-      "Koki Saito"
+    "AS Monaco FC": [
+      "Takumi Minamino"
     ],
-    "QPR": [
-      "Koki Saito"
+    "Monaco": [
+      "Takumi Minamino"
     ],
-    "Stoke City FC": [
-      "Tatsuki Seko"
+    "ASM": [
+      "Takumi Minamino"
     ],
-    "Stoke": [
-      "Tatsuki Seko"
+    "AFC Ajax": [
+      "Takehiro Tomiyasu",
+      "Ko Itakura"
     ],
-    "STK": [
-      "Tatsuki Seko"
+    "Ajax": [
+      "Takehiro Tomiyasu",
+      "Ko Itakura"
     ],
-    "Hull City AFC": [
-      "Yu Hirakawa"
-    ],
-    "Hull City": [
-      "Yu Hirakawa"
-    ],
-    "HUL": [
-      "Yu Hirakawa"
-    ],
-    "Birmingham City FC": [
-      "Tomoki Iwata",
-      "Kanya Fujimoto",
-      "Kyogo Furuhashi"
-    ],
-    "Birmingham": [
-      "Tomoki Iwata",
-      "Kanya Fujimoto",
-      "Kyogo Furuhashi"
-    ],
-    "BIR": [
-      "Tomoki Iwata",
-      "Kanya Fujimoto",
-      "Kyogo Furuhashi"
-    ],
-    "Southampton FC": [
-      "Kuryu Matsuki"
-    ],
-    "Southampton": [
-      "Kuryu Matsuki"
-    ],
-    "SOU": [
-      "Kuryu Matsuki"
-    ],
-    "Coventry City FC": [
-      "Tatsuhiro Sakamoto"
-    ],
-    "Coventry City": [
-      "Tatsuhiro Sakamoto"
-    ],
-    "COV": [
-      "Tatsuhiro Sakamoto"
+    "AJA": [
+      "Takehiro Tomiyasu",
+      "Ko Itakura"
     ],
     "FC København": [
       "Junnosuke Suzuki"
