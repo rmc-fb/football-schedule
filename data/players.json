@@ -1,6 +1,78 @@
 {
-  "updatedAt": "2026-07-02 17:36",
+  "updatedAt": "2026-08-02 06:43",
   "players": {
+    "Liverpool FC": [
+      "Wataru Endō"
+    ],
+    "Liverpool": [
+      "Wataru Endō"
+    ],
+    "LIV": [
+      "Wataru Endō"
+    ],
+    "Tottenham Hotspur FC": [
+      "Kota Takai"
+    ],
+    "Tottenham": [
+      "Kota Takai"
+    ],
+    "TOT": [
+      "Kota Takai"
+    ],
+    "Hull City AFC": [
+      "Hidemasa Morita"
+    ],
+    "Hull City": [
+      "Hidemasa Morita"
+    ],
+    "HUL": [
+      "Hidemasa Morita"
+    ],
+    "Leeds United FC": [
+      "Ao Tanaka"
+    ],
+    "Leeds United": [
+      "Ao Tanaka"
+    ],
+    "LEE": [
+      "Ao Tanaka"
+    ],
+    "Ipswich Town FC": [
+      "Daizen Maeda"
+    ],
+    "Ipswich Town": [
+      "Daizen Maeda"
+    ],
+    "IPS": [
+      "Daizen Maeda"
+    ],
+    "Crystal Palace FC": [
+      "Daichi Kamada"
+    ],
+    "Crystal Palace": [
+      "Daichi Kamada"
+    ],
+    "CRY": [
+      "Daichi Kamada"
+    ],
+    "Brighton & Hove Albion FC": [
+      "Kaoru Mitoma"
+    ],
+    "Brighton Hove": [
+      "Kaoru Mitoma"
+    ],
+    "BHA": [
+      "Kaoru Mitoma"
+    ],
+    "Coventry City FC": [
+      "Tatsuhiro Sakamoto"
+    ],
+    "Coventry City": [
+      "Tatsuhiro Sakamoto"
+    ],
+    "COV": [
+      "Tatsuhiro Sakamoto"
+    ],
     "TSG 1899 Hoffenheim": [
       "Koki Machida"
     ],
@@ -19,23 +91,14 @@
     "FCB": [
       "Hiroki Ito"
     ],
-    "VfL Wolfsburg": [
-      "Kento Shiogai"
+    "FC Schalke 04": [
+      "Satoshi Tanaka"
     ],
-    "Wolfsburg": [
-      "Kento Shiogai"
+    "Schalke": [
+      "Satoshi Tanaka"
     ],
-    "WOB": [
-      "Kento Shiogai"
-    ],
-    "SV Werder Bremen": [
-      "Yukinari Sugawara"
-    ],
-    "Bremen": [
-      "Yukinari Sugawara"
-    ],
-    "SVW": [
-      "Yukinari Sugawara"
+    "S04": [
+      "Satoshi Tanaka"
     ],
     "1. FSV Mainz 05": [
       "Kaishu Sano",
@@ -50,24 +113,30 @@
       "Sota Kawasaki"
     ],
     "SC Freiburg": [
-      "Yuito Suzuki"
+      "Rihito Yamamoto",
+      "Yuito Suzuki",
+      "Keisuke Goto"
     ],
     "Freiburg": [
-      "Yuito Suzuki"
+      "Rihito Yamamoto",
+      "Yuito Suzuki",
+      "Keisuke Goto"
     ],
     "SCF": [
-      "Yuito Suzuki"
+      "Rihito Yamamoto",
+      "Yuito Suzuki",
+      "Keisuke Goto"
     ],
     "Borussia Mönchengladbach": [
-      "Kota Takai",
+      "Zento Uno",
       "Shuto Machino"
     ],
     "M'gladbach": [
-      "Kota Takai",
+      "Zento Uno",
       "Shuto Machino"
     ],
     "BMG": [
-      "Kota Takai",
+      "Zento Uno",
       "Shuto Machino"
     ],
     "Eintracht Frankfurt": [
@@ -82,50 +151,20 @@
       "Keita Kosugi",
       "Ritsu Doan"
     ],
-    "FC St. Pauli 1910": [
-      "Tomoya Ando",
-      "Joel Fujita",
-      "Nick Schmidt",
-      "Taichi Hara"
+    "Le Havre AC": [
+      "Ayumu Seko",
+      "Kaito Mizuta",
+      "Sota Nakamura"
     ],
-    "St. Pauli": [
-      "Tomoya Ando",
-      "Joel Fujita",
-      "Nick Schmidt",
-      "Taichi Hara"
+    "Le Havre": [
+      "Ayumu Seko",
+      "Kaito Mizuta",
+      "Sota Nakamura"
     ],
-    "STP": [
-      "Tomoya Ando",
-      "Joel Fujita",
-      "Nick Schmidt",
-      "Taichi Hara"
-    ],
-    "Sporting Clube de Portugal": [
-      "Hidemasa Morita"
-    ],
-    "Sporting CP": [
-      "Hidemasa Morita"
-    ],
-    "SPO": [
-      "Hidemasa Morita"
-    ],
-    "FC Arouca": [
-      "Taichi Fukui"
-    ],
-    "Arouca": [
-      "Taichi Fukui"
-    ],
-    "FCA": [
-      "Taichi Fukui"
-    ],
-    "Liverpool FC": [
-      "Wataru Endō"
-    ],
-    "Liverpool": [
-      "Wataru Endō"
-    ],
-    "LIV": [
-      "Wataru Endō"
+    "HAC": [
+      "Ayumu Seko",
+      "Kaito Mizuta",
+      "Sota Nakamura"
     ],
     "AS Monaco FC": [
       "Takumi Minamino"
@@ -135,6 +174,18 @@
     ],
     "ASM": [
       "Takumi Minamino"
+    ],
+    "Feyenoord Rotterdam": [
+      "Tsuyoshi Watanabe",
+      "Ayase Ueda"
+    ],
+    "Feyenoord": [
+      "Tsuyoshi Watanabe",
+      "Ayase Ueda"
+    ],
+    "FEY": [
+      "Tsuyoshi Watanabe",
+      "Ayase Ueda"
     ],
     "AFC Ajax": [
       "Takehiro Tomiyasu",
@@ -147,6 +198,113 @@
     "AJA": [
       "Takehiro Tomiyasu",
       "Ko Itakura"
+    ],
+    "AZ": [
+      "Seiya Maikuma",
+      "Rion Ichihara"
+    ],
+    "NEC": [
+      "Kodai Sano",
+      "Koki Ogawa"
+    ],
+    "Sparta Rotterdam": [
+      "Shunsuke Mito"
+    ],
+    "Sparta": [
+      "Shunsuke Mito"
+    ],
+    "SPA": [
+      "Shunsuke Mito"
+    ],
+    "FC Arouca": [
+      "Taichi Fukui"
+    ],
+    "Arouca": [
+      "Taichi Fukui"
+    ],
+    "FCA": [
+      "Taichi Fukui"
+    ],
+    "CS Marítimo": [
+      "Tyler Keating"
+    ],
+    "Marítimo": [
+      "Tyler Keating"
+    ],
+    "CSM": [
+      "Tyler Keating"
+    ],
+    "Blackburn Rovers FC": [
+      "Ryoya Morishita",
+      "Yuki Ohashi"
+    ],
+    "Blackburn": [
+      "Ryoya Morishita",
+      "Yuki Ohashi"
+    ],
+    "BLA": [
+      "Ryoya Morishita",
+      "Yuki Ohashi"
+    ],
+    "Queens Park Rangers FC": [
+      "Koki Saito"
+    ],
+    "QPR": [
+      "Koki Saito"
+    ],
+    "Stoke City FC": [
+      "Tatsuki Seko"
+    ],
+    "Stoke": [
+      "Tatsuki Seko"
+    ],
+    "STK": [
+      "Tatsuki Seko"
+    ],
+    "Birmingham City FC": [
+      "Kanya Fujimoto",
+      "Tomoki Iwata",
+      "Kyogo Furuhashi"
+    ],
+    "Birmingham": [
+      "Kanya Fujimoto",
+      "Tomoki Iwata",
+      "Kyogo Furuhashi"
+    ],
+    "BIR": [
+      "Kanya Fujimoto",
+      "Tomoki Iwata",
+      "Kyogo Furuhashi"
+    ],
+    "Southampton FC": [
+      "Yukinari Sugawara",
+      "Kuryu Matsuki"
+    ],
+    "Southampton": [
+      "Yukinari Sugawara",
+      "Kuryu Matsuki"
+    ],
+    "SOU": [
+      "Yukinari Sugawara",
+      "Kuryu Matsuki"
+    ],
+    "Bristol City FC": [
+      "Yu Hirakawa"
+    ],
+    "Bristol City": [
+      "Yu Hirakawa"
+    ],
+    "BRI": [
+      "Yu Hirakawa"
+    ],
+    "Sporting Clube de Portugal": [
+      "Hidemasa Morita"
+    ],
+    "Sporting CP": [
+      "Hidemasa Morita"
+    ],
+    "SPO": [
+      "Hidemasa Morita"
     ],
     "FC København": [
       "Junnosuke Suzuki"
