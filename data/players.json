@@ -1,6 +1,15 @@
 {
-  "updatedAt": "2026-08-02 07:54",
+  "updatedAt": "2026-09-02 07:53",
   "players": {
+    "Aston Villa FC": [
+      "Zion Suzuki"
+    ],
+    "Aston Villa": [
+      "Zion Suzuki"
+    ],
+    "AVL": [
+      "Zion Suzuki"
+    ],
     "Liverpool FC": [
       "Wataru Endō"
     ],
@@ -47,12 +56,15 @@
       "Daizen Maeda"
     ],
     "Crystal Palace FC": [
+      "Takehiro Tomiyasu",
       "Daichi Kamada"
     ],
     "Crystal Palace": [
+      "Takehiro Tomiyasu",
       "Daichi Kamada"
     ],
     "CRY": [
+      "Takehiro Tomiyasu",
       "Daichi Kamada"
     ],
     "Brighton & Hove Albion FC": [
@@ -72,6 +84,27 @@
     ],
     "COV": [
       "Tatsuhiro Sakamoto"
+    ],
+    "Real Sociedad de Fútbol": [
+      "Kazunari Kita",
+      "Takefusa Kubo"
+    ],
+    "Real Sociedad": [
+      "Kazunari Kita",
+      "Takefusa Kubo"
+    ],
+    "RSO": [
+      "Kazunari Kita",
+      "Takefusa Kubo"
+    ],
+    "Valencia CF": [
+      "Ryunosuke Sato"
+    ],
+    "Valencia": [
+      "Ryunosuke Sato"
+    ],
+    "VAL": [
+      "Ryunosuke Sato"
     ],
     "TSG 1899 Hoffenheim": [
       "Koki Machida"
@@ -128,14 +161,20 @@
       "Keisuke Goto"
     ],
     "Borussia Mönchengladbach": [
+      "Daiki Hashioka",
+      "Ko Itakura",
       "Zento Uno",
       "Shuto Machino"
     ],
     "M'gladbach": [
+      "Daiki Hashioka",
+      "Ko Itakura",
       "Zento Uno",
       "Shuto Machino"
     ],
     "BMG": [
+      "Daiki Hashioka",
+      "Ko Itakura",
       "Zento Uno",
       "Shuto Machino"
     ],
@@ -150,6 +189,15 @@
     "SGE": [
       "Keita Kosugi",
       "Ritsu Doan"
+    ],
+    "Parma Calcio 1913": [
+      "Zion Suzuki"
+    ],
+    "Parma": [
+      "Zion Suzuki"
+    ],
+    "PAR": [
+      "Zion Suzuki"
     ],
     "Le Havre AC": [
       "Ayumu Seko",
@@ -175,6 +223,9 @@
     "ASM": [
       "Takumi Minamino"
     ],
+    "PSV": [
+      "Kodai Sano"
+    ],
     "Feyenoord Rotterdam": [
       "Tsuyoshi Watanabe",
       "Ayase Ueda"
@@ -188,15 +239,12 @@
       "Ayase Ueda"
     ],
     "AFC Ajax": [
-      "Takehiro Tomiyasu",
       "Ko Itakura"
     ],
     "Ajax": [
-      "Takehiro Tomiyasu",
       "Ko Itakura"
     ],
     "AJA": [
-      "Takehiro Tomiyasu",
       "Ko Itakura"
     ],
     "AZ": [
@@ -296,24 +344,6 @@
     ],
     "BRI": [
       "Yu Hirakawa"
-    ],
-    "Sporting Clube de Portugal": [
-      "Hidemasa Morita"
-    ],
-    "Sporting CP": [
-      "Hidemasa Morita"
-    ],
-    "SPO": [
-      "Hidemasa Morita"
-    ],
-    "FC København": [
-      "Junnosuke Suzuki"
-    ],
-    "København": [
-      "Junnosuke Suzuki"
-    ],
-    "KOB": [
-      "Junnosuke Suzuki"
     ]
   }
 }
