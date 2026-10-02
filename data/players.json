@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-02 08:48",
+  "updatedAt": "2026-10-02 09:18",
   "players": {
     "Aston Villa FC": [
       "Zion Suzuki"
@@ -18,15 +18,6 @@
     ],
     "LIV": [
       "Wataru Endō"
-    ],
-    "Tottenham Hotspur FC": [
-      "Kota Takai"
-    ],
-    "Tottenham": [
-      "Kota Takai"
-    ],
-    "TOT": [
-      "Kota Takai"
     ],
     "Hull City AFC": [
       "Hidemasa Morita"
@@ -86,15 +77,12 @@
       "Tatsuhiro Sakamoto"
     ],
     "Real Sociedad de Fútbol": [
-      "Kazunari Kita",
       "Takefusa Kubo"
     ],
     "Real Sociedad": [
-      "Kazunari Kita",
       "Takefusa Kubo"
     ],
     "RSO": [
-      "Kazunari Kita",
       "Takefusa Kubo"
     ],
     "Valencia CF": [
@@ -190,14 +178,23 @@
       "Keita Kosugi",
       "Ritsu Doan"
     ],
-    "Parma Calcio 1913": [
-      "Zion Suzuki"
+    "Cagliari Calcio": [
+      "Yukinari Sugawara"
     ],
-    "Parma": [
-      "Zion Suzuki"
+    "Cagliari": [
+      "Yukinari Sugawara"
     ],
-    "PAR": [
-      "Zion Suzuki"
+    "CAG": [
+      "Yukinari Sugawara"
+    ],
+    "Lille OSC": [
+      "Ayase Ueda"
+    ],
+    "Lille": [
+      "Ayase Ueda"
+    ],
+    "LIL": [
+      "Ayase Ueda"
     ],
     "Le Havre AC": [
       "Ayumu Seko",
@@ -227,33 +224,17 @@
       "Kodai Sano"
     ],
     "Feyenoord Rotterdam": [
-      "Tsuyoshi Watanabe",
-      "Ayase Ueda"
+      "Tsuyoshi Watanabe"
     ],
     "Feyenoord": [
-      "Tsuyoshi Watanabe",
-      "Ayase Ueda"
+      "Tsuyoshi Watanabe"
     ],
     "FEY": [
-      "Tsuyoshi Watanabe",
-      "Ayase Ueda"
-    ],
-    "AFC Ajax": [
-      "Ko Itakura"
-    ],
-    "Ajax": [
-      "Ko Itakura"
-    ],
-    "AJA": [
-      "Ko Itakura"
+      "Tsuyoshi Watanabe"
     ],
     "AZ": [
       "Seiya Maikuma",
       "Rion Ichihara"
-    ],
-    "NEC": [
-      "Kodai Sano",
-      "Koki Ogawa"
     ],
     "Sparta Rotterdam": [
       "Shunsuke Mito"
@@ -273,15 +254,6 @@
     "FCA": [
       "Taichi Fukui"
     ],
-    "CS Marítimo": [
-      "Tyler Keating"
-    ],
-    "Marítimo": [
-      "Tyler Keating"
-    ],
-    "CSM": [
-      "Tyler Keating"
-    ],
     "Blackburn Rovers FC": [
       "Ryoya Morishita",
       "Yuki Ohashi"
@@ -294,46 +266,49 @@
       "Ryoya Morishita",
       "Yuki Ohashi"
     ],
+    "Bolton Wanderers FC": [
+      "Atsuki Ito"
+    ],
+    "Bolton": [
+      "Atsuki Ito"
+    ],
+    "BOL": [
+      "Atsuki Ito"
+    ],
     "Queens Park Rangers FC": [
       "Koki Saito"
     ],
     "QPR": [
       "Koki Saito"
     ],
-    "Stoke City FC": [
-      "Tatsuki Seko"
+    "Burnley FC": [
+      "Reo Hatate"
     ],
-    "Stoke": [
-      "Tatsuki Seko"
+    "Burnley": [
+      "Reo Hatate"
     ],
-    "STK": [
-      "Tatsuki Seko"
+    "BUR": [
+      "Reo Hatate"
     ],
     "Birmingham City FC": [
       "Kanya Fujimoto",
-      "Tomoki Iwata",
-      "Kyogo Furuhashi"
+      "Tomoki Iwata"
     ],
     "Birmingham": [
       "Kanya Fujimoto",
-      "Tomoki Iwata",
-      "Kyogo Furuhashi"
+      "Tomoki Iwata"
     ],
     "BIR": [
       "Kanya Fujimoto",
-      "Tomoki Iwata",
-      "Kyogo Furuhashi"
+      "Tomoki Iwata"
     ],
     "Southampton FC": [
-      "Yukinari Sugawara",
       "Kuryu Matsuki"
     ],
     "Southampton": [
-      "Yukinari Sugawara",
       "Kuryu Matsuki"
     ],
     "SOU": [
-      "Yukinari Sugawara",
       "Kuryu Matsuki"
     ],
     "Bristol City FC": [
